@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="eig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="find_f.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="isfinite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="make_mult_matrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mldivide.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mult_for_groebner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p35p_solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p35p_solver_initialize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p35p_solver_rtwutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="p35p_solver_terminate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rsf2csf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rtGetInf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rtGetNaN.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rt_nonfinite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="schur.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqrt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xdhseqr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xdlanv2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xgehrd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xgemv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xgerc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xgetrf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xhseqr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xnrm2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzgeev.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzggbak.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzggbal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzggev.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzgghrd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzhgeqz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzlangeM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzlarf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzlarfg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzlartg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xzlascl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xztgevc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interface\_coder_p35p_solver_mex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interface\_coder_p35p_solver_api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interface\_coder_p35p_solver_info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="eig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="find_f.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="isfinite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="make_mult_matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mldivide.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mult_for_groebner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p35p_solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p35p_solver_initialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p35p_solver_rtwutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p35p_solver_terminate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="p35p_solver_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rsf2csf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rtGetInf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rtGetNaN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rtwtypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rt_nonfinite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="schur.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqrt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xdhseqr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xdlanv2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xgehrd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xgemv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xgerc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xgetrf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xhseqr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xnrm2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzgeev.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzggbak.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzggbal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzggev.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzgghrd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzhgeqz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzlangeM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzlarf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzlarfg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzlartg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xzlascl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xztgevc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\_coder_p35p_solver_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\_coder_p35p_solver_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\_coder_p35p_solver_mex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
