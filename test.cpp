@@ -83,7 +83,7 @@ TEST(TestCaseName, TestName) {
 			succ_num++;
 	}
 	p35p_solver_terminate();
-	EXPECT_GT(succ_num / it_num, pass_threshold);
-
+	ASSERT_GT(succ_num / it_num, pass_threshold);
+	ASSERT_EQ(2, 3);
 	delete[] X, x, y;
 }

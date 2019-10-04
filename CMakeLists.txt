@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-project(simple_test)
+project(p35p_double_test)
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
@@ -42,6 +42,10 @@ include_directories(p35p_solver_double)
 add_subdirectory(p35p_solver_double)
 include_directories(/home/elizaveta/Matlab/extern/include)
 
-add_executable(test test.cpp)
-target_link_libraries(test datagen p35p_solver_double gtest_main Eigen3::Eigen)	
-add_test(NAME test COMMAND test)
+ add_executable(p35pTest test.cpp)
+ target_link_libraries(p35pTest datagen p35p_solver_double gtest_main Eigen3::Eigen)	
+ add_test(NAME p35pTest COMMAND p35pTest)
+
+# add_executable(simple_test simple_test.cpp)
+# target_link_libraries(simple_test gtest_main)	
+# add_test(NAME simple_test COMMAND simple_test)

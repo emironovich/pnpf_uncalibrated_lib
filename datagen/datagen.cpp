@@ -18,7 +18,7 @@ Matrix3d makeSkew(Vector3d& a) {
 	return S;
 }
 
-void generateData(double* X, double* x, double* y, double& f, Matrix3d& R, Vector3d& C, double d = 0) {
+void generateData(double* X, double* x, double* y, double& f, Matrix3d& R, Vector3d& C, double d) {
 	//focal distance
 	f = 200 + 1800 * (double)(rand()) / RAND_MAX;
 
