@@ -1,129 +1,55 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- *
- * eig.cpp
- *
- * Code generation for function 'eig'
- *
- */
+//
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
+// File: eig.cpp
+//
+// MATLAB Coder version            : 4.3
+// C/C++ source code generated on  : 04-Oct-2019 01:44:03
+//
 
-/* Include files */
-#include <cmath>
-#include "rt_nonfinite.h"
-#include "p35p_solver.h"
+// Include Files
 #include "eig.h"
+#include "p35p_solver.h"
+#include "rt_nonfinite.h"
 #include "schur.h"
-#include "xzgeev.h"
-#include "ishermitian.h"
-#include "anyNonFinite.h"
+#include "xzggev.h"
+#include <cmath>
+#include <cstring>
 
-/* Function Declarations */
-static void diagDiagUpperHessNoImag(creal_T D[100]);
-static void makeD(const creal_T alpha1[10], const creal_T beta1[10], creal_T D
-                  [100]);
+// Function Definitions
 
-/* Function Definitions */
-static void diagDiagUpperHessNoImag(creal_T D[100])
-{
-  int j;
-  int D_re_tmp_tmp;
-  int D_re_tmp;
-  int i;
-  D[0].im = 0.0;
-  for (j = 0; j < 9; j++) {
-    D_re_tmp_tmp = 10 * (j + 1);
-    D_re_tmp = (j + D_re_tmp_tmp) + 1;
-    D[D_re_tmp].im = 0.0;
-    D_re_tmp = (j + 10 * j) + 1;
-    D[D_re_tmp].re = 0.0;
-    D[D_re_tmp].im = 0.0;
-    for (i = 0; i <= j; i++) {
-      D_re_tmp = i + D_re_tmp_tmp;
-      D[D_re_tmp].re = 0.0;
-      D[D_re_tmp].im = 0.0;
-    }
-  }
-}
-
-static void makeD(const creal_T alpha1[10], const creal_T beta1[10], creal_T D
-                  [100])
-{
-  int i10;
-  int k;
-  double brm;
-  double bim;
-  double d;
-  for (i10 = 0; i10 < 100; i10++) {
-    D[i10].re = 0.0;
-    D[i10].im = 0.0;
-  }
-
-  for (k = 0; k < 10; k++) {
-    if (beta1[k].im == 0.0) {
-      if (alpha1[k].im == 0.0) {
-        i10 = k + 10 * k;
-        D[i10].re = alpha1[k].re / beta1[k].re;
-        D[i10].im = 0.0;
-      } else if (alpha1[k].re == 0.0) {
-        D[k + 10 * k].re = 0.0;
-        D[k + 10 * k].im = alpha1[k].im / beta1[k].re;
-      } else {
-        D[k + 10 * k].re = alpha1[k].re / beta1[k].re;
-        D[k + 10 * k].im = alpha1[k].im / beta1[k].re;
-      }
-    } else if (beta1[k].re == 0.0) {
-      if (alpha1[k].re == 0.0) {
-        D[k + 10 * k].re = alpha1[k].im / beta1[k].im;
-        D[k + 10 * k].im = 0.0;
-      } else if (alpha1[k].im == 0.0) {
-        D[k + 10 * k].re = 0.0;
-        D[k + 10 * k].im = -(alpha1[k].re / beta1[k].im);
-      } else {
-        D[k + 10 * k].re = alpha1[k].im / beta1[k].im;
-        D[k + 10 * k].im = -(alpha1[k].re / beta1[k].im);
-      }
-    } else {
-      brm = std::abs(beta1[k].re);
-      bim = std::abs(beta1[k].im);
-      if (brm > bim) {
-        bim = beta1[k].im / beta1[k].re;
-        d = beta1[k].re + bim * beta1[k].im;
-        D[k + 10 * k].re = (alpha1[k].re + bim * alpha1[k].im) / d;
-        D[k + 10 * k].im = (alpha1[k].im - bim * alpha1[k].re) / d;
-      } else if (bim == brm) {
-        if (beta1[k].re > 0.0) {
-          bim = 0.5;
-        } else {
-          bim = -0.5;
-        }
-
-        if (beta1[k].im > 0.0) {
-          d = 0.5;
-        } else {
-          d = -0.5;
-        }
-
-        D[k + 10 * k].re = (alpha1[k].re * bim + alpha1[k].im * d) / brm;
-        D[k + 10 * k].im = (alpha1[k].im * bim - alpha1[k].re * d) / brm;
-      } else {
-        bim = beta1[k].re / beta1[k].im;
-        d = beta1[k].im + bim * beta1[k].re;
-        D[k + 10 * k].re = (bim * alpha1[k].re + alpha1[k].im) / d;
-        D[k + 10 * k].im = (bim * alpha1[k].im - alpha1[k].re) / d;
-      }
-    }
-  }
-}
-
+//
+// Arguments    : const double A[100]
+//                creal_T V[100]
+//                creal_T D[100]
+// Return Type  : void
+//
 void eig(const double A[100], creal_T V[100], creal_T D[100])
 {
+  boolean_T p;
+  int k;
   int info;
+  boolean_T exitg2;
+  double b_V[100];
+  double b_D[100];
+  int exitg1;
+  creal_T At[100];
   creal_T alpha1[10];
   creal_T beta1[10];
-  int k;
-  if (anyNonFinite(A)) {
+  int coltop;
+  double colnorm;
+  double scale;
+  double t;
+  double absxk;
+  p = true;
+  for (k = 0; k < 100; k++) {
+    if ((!p) || (rtIsInf(A[k]) || rtIsNaN(A[k]))) {
+      p = false;
+    }
+  }
+
+  if (!p) {
     for (info = 0; info < 100; info++) {
       V[info].re = rtNaN;
       V[info].im = 0.0;
@@ -136,13 +62,174 @@ void eig(const double A[100], creal_T V[100], creal_T D[100])
       D[info].re = rtNaN;
       D[info].im = 0.0;
     }
-  } else if (ishermitian(A)) {
-    schur(A, V, D);
-    diagDiagUpperHessNoImag(D);
   } else {
-    xzgeev(A, &info, alpha1, beta1, V);
-    makeD(alpha1, beta1, D);
+    p = true;
+    k = 0;
+    exitg2 = false;
+    while ((!exitg2) && (k < 10)) {
+      info = 0;
+      do {
+        exitg1 = 0;
+        if (info <= k) {
+          if (!(A[info + 10 * k] == A[k + 10 * info])) {
+            p = false;
+            exitg1 = 1;
+          } else {
+            info++;
+          }
+        } else {
+          k++;
+          exitg1 = 2;
+        }
+      } while (exitg1 == 0);
+
+      if (exitg1 == 1) {
+        exitg2 = true;
+      }
+    }
+
+    if (p) {
+      schur(A, b_V, b_D);
+      for (info = 0; info < 100; info++) {
+        V[info].re = b_V[info];
+        V[info].im = 0.0;
+      }
+
+      for (k = 0; k < 9; k++) {
+        b_D[(k + 10 * k) + 1] = 0.0;
+        for (info = 0; info <= k; info++) {
+          b_D[info + 10 * (k + 1)] = 0.0;
+        }
+      }
+
+      for (info = 0; info < 100; info++) {
+        D[info].re = b_D[info];
+        D[info].im = 0.0;
+      }
+    } else {
+      for (info = 0; info < 100; info++) {
+        At[info].re = A[info];
+        At[info].im = 0.0;
+      }
+
+      xzggev(At, &info, alpha1, beta1, V);
+      for (coltop = 0; coltop <= 90; coltop += 10) {
+        colnorm = 0.0;
+        scale = 3.3121686421112381E-170;
+        info = coltop + 10;
+        for (k = coltop + 1; k <= info; k++) {
+          absxk = std::abs(V[k - 1].re);
+          if (absxk > scale) {
+            t = scale / absxk;
+            colnorm = colnorm * t * t + 1.0;
+            scale = absxk;
+          } else {
+            t = absxk / scale;
+            colnorm += t * t;
+          }
+
+          absxk = std::abs(V[k - 1].im);
+          if (absxk > scale) {
+            t = scale / absxk;
+            colnorm = colnorm * t * t + 1.0;
+            scale = absxk;
+          } else {
+            t = absxk / scale;
+            colnorm += t * t;
+          }
+        }
+
+        colnorm = scale * std::sqrt(colnorm);
+        info = coltop + 10;
+        for (k = coltop + 1; k <= info; k++) {
+          absxk = V[k - 1].re;
+          scale = V[k - 1].im;
+          if (scale == 0.0) {
+            absxk /= colnorm;
+            scale = 0.0;
+          } else if (absxk == 0.0) {
+            absxk = 0.0;
+            scale /= colnorm;
+          } else {
+            absxk /= colnorm;
+            scale /= colnorm;
+          }
+
+          V[k - 1].re = absxk;
+          V[k - 1].im = scale;
+        }
+      }
+
+      std::memset(&D[0], 0, 100U * sizeof(creal_T));
+      for (k = 0; k < 10; k++) {
+        if (beta1[k].im == 0.0) {
+          if (alpha1[k].im == 0.0) {
+            info = k + 10 * k;
+            D[info].re = alpha1[k].re / beta1[k].re;
+            D[info].im = 0.0;
+          } else if (alpha1[k].re == 0.0) {
+            info = k + 10 * k;
+            D[info].re = 0.0;
+            D[info].im = alpha1[k].im / beta1[k].re;
+          } else {
+            info = k + 10 * k;
+            D[info].re = alpha1[k].re / beta1[k].re;
+            D[info].im = alpha1[k].im / beta1[k].re;
+          }
+        } else if (beta1[k].re == 0.0) {
+          if (alpha1[k].re == 0.0) {
+            info = k + 10 * k;
+            D[info].re = alpha1[k].im / beta1[k].im;
+            D[info].im = 0.0;
+          } else if (alpha1[k].im == 0.0) {
+            info = k + 10 * k;
+            D[info].re = 0.0;
+            D[info].im = -(alpha1[k].re / beta1[k].im);
+          } else {
+            info = k + 10 * k;
+            D[info].re = alpha1[k].im / beta1[k].im;
+            D[info].im = -(alpha1[k].re / beta1[k].im);
+          }
+        } else {
+          t = std::abs(beta1[k].re);
+          scale = std::abs(beta1[k].im);
+          if (t > scale) {
+            scale = beta1[k].im / beta1[k].re;
+            absxk = beta1[k].re + scale * beta1[k].im;
+            info = k + 10 * k;
+            D[info].re = (alpha1[k].re + scale * alpha1[k].im) / absxk;
+            D[info].im = (alpha1[k].im - scale * alpha1[k].re) / absxk;
+          } else if (scale == t) {
+            if (beta1[k].re > 0.0) {
+              scale = 0.5;
+            } else {
+              scale = -0.5;
+            }
+
+            if (beta1[k].im > 0.0) {
+              absxk = 0.5;
+            } else {
+              absxk = -0.5;
+            }
+
+            info = k + 10 * k;
+            D[info].re = (alpha1[k].re * scale + alpha1[k].im * absxk) / t;
+            D[info].im = (alpha1[k].im * scale - alpha1[k].re * absxk) / t;
+          } else {
+            scale = beta1[k].re / beta1[k].im;
+            absxk = beta1[k].im + scale * beta1[k].re;
+            info = k + 10 * k;
+            D[info].re = (scale * alpha1[k].re + alpha1[k].im) / absxk;
+            D[info].im = (scale * alpha1[k].im - alpha1[k].re) / absxk;
+          }
+        }
+      }
+    }
   }
 }
 
-/* End of code generation (eig.cpp) */
+//
+// File trailer for eig.cpp
+//
+// [EOF]
+//

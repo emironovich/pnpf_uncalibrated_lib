@@ -1,357 +1,365 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- *
- * equations_for_groebner.cpp
- *
- * Code generation for function 'equations_for_groebner'
- *
- */
+//
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
+// File: equations_for_groebner.cpp
+//
+// MATLAB Coder version            : 4.3
+// C/C++ source code generated on  : 04-Oct-2019 01:44:03
+//
 
-/* Include files */
-#include "rt_nonfinite.h"
-#include "p35p_solver.h"
+// Include Files
 #include "equations_for_groebner.h"
-#include "mult_poly42.h"
 #include "mult_poly22.h"
+#include "mult_poly42.h"
+#include "p35p_solver.h"
+#include "rt_nonfinite.h"
 
-/* Function Definitions */
+// Function Definitions
+
+//
+// Arguments    : const double F[72]
+//                double G[112]
+// Return Type  : void
+//
 void equations_for_groebner(const double F[72], double G[112])
 {
-  int i3;
+  int i;
   double b_F[6];
   double c_F[6];
-  double dv6[15];
+  double dv[15];
   int M_tmp;
   double M[24];
-  double dv7[15];
-  double b_M_tmp;
-  double dv8[28];
-  double dv9[28];
-  double dv10[28];
-  int i4;
+  double dv1[15];
+  int b_M_tmp;
+  double dv2[28];
+  double dv3[28];
+  double dv4[28];
+  int i1;
   double b_M[54];
-  int c_M_tmp;
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    M[M_tmp] = F[12 * i3 + 2];
-    M[2 + M_tmp] = F[12 * i3 + 10];
-    M[1 + M_tmp] = F[12 * i3 + 3];
-    b_M_tmp = F[12 * i3 + 11];
-    M[M_tmp + 3] = b_M_tmp;
-    b_F[i3] = F[6 + 12 * i3];
-    c_F[i3] = b_M_tmp;
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    M[M_tmp] = F[12 * i + 2];
+    M[M_tmp + 2] = F[12 * i + 10];
+    M[M_tmp + 1] = F[12 * i + 3];
+    b_M_tmp = 12 * i + 11;
+    M[M_tmp + 3] = F[b_M_tmp];
+    b_F[i] = F[12 * i + 6];
+    c_F[i] = F[b_M_tmp];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[10 + 12 * i3];
-    c_F[i3] = F[7 + 12 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 10];
+    c_F[i] = F[12 * i + 7];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[1 + 12 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 1];
   }
 
-  mult_poly42(dv6, b_F, dv8);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[M_tmp];
-    c_F[i3] = M[3 + M_tmp];
+  mult_poly42(dv, b_F, dv2);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp];
+    c_F[i] = M[M_tmp + 3];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[2 + M_tmp];
-    c_F[i3] = M[1 + M_tmp];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp + 2];
+    c_F[i] = M[M_tmp + 1];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[5 + 12 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 5];
   }
 
-  mult_poly42(dv6, b_F, dv9);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[2 + 12 * i3];
-    c_F[i3] = F[7 + 12 * i3];
+  mult_poly42(dv, b_F, dv3);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 2];
+    c_F[i] = F[12 * i + 7];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[6 + 12 * i3];
-    c_F[i3] = F[3 + 12 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 6];
+    c_F[i] = F[12 * i + 3];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[9 + 12 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 9];
   }
 
-  mult_poly42(dv6, b_F, dv10);
-  for (i3 = 0; i3 < 28; i3++) {
-    G[i3 << 2] = (dv8[i3] - dv9[i3]) + dv10[i3];
+  mult_poly42(dv, b_F, dv4);
+  for (i = 0; i < 28; i++) {
+    G[i << 2] = (dv2[i] - dv3[i]) + dv4[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    for (i4 = 0; i4 < 3; i4++) {
-      M_tmp = (i4 << 2) + 12 * i3;
-      c_M_tmp = 3 * i4 + 9 * i3;
-      b_M[c_M_tmp] = F[M_tmp];
-      b_M[c_M_tmp + 1] = F[M_tmp + 2];
-      b_M[c_M_tmp + 2] = F[M_tmp + 3];
+  for (i = 0; i < 6; i++) {
+    for (i1 = 0; i1 < 3; i1++) {
+      M_tmp = (i1 << 2) + 12 * i;
+      b_M_tmp = 3 * i1 + 9 * i;
+      b_M[b_M_tmp] = F[M_tmp];
+      b_M[b_M_tmp + 1] = F[M_tmp + 2];
+      b_M[b_M_tmp + 2] = F[M_tmp + 3];
     }
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    M[M_tmp] = b_M[9 * i3 + 1];
-    M[2 + M_tmp] = b_M[9 * i3 + 7];
-    M[1 + M_tmp] = b_M[9 * i3 + 2];
-    b_M_tmp = b_M[9 * i3 + 8];
-    M[M_tmp + 3] = b_M_tmp;
-    b_F[i3] = b_M[4 + 9 * i3];
-    c_F[i3] = b_M_tmp;
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    M[M_tmp] = b_M[9 * i + 1];
+    M[M_tmp + 2] = b_M[9 * i + 7];
+    M[M_tmp + 1] = b_M[9 * i + 2];
+    b_M_tmp = 9 * i + 8;
+    M[M_tmp + 3] = b_M[b_M_tmp];
+    b_F[i] = b_M[9 * i + 4];
+    c_F[i] = b_M[b_M_tmp];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[7 + 9 * i3];
-    c_F[i3] = b_M[5 + 9 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 7];
+    c_F[i] = b_M[9 * i + 5];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[9 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i];
   }
 
-  mult_poly42(dv6, b_F, dv8);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[M_tmp];
-    c_F[i3] = M[3 + M_tmp];
+  mult_poly42(dv, b_F, dv2);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp];
+    c_F[i] = M[M_tmp + 3];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[2 + M_tmp];
-    c_F[i3] = M[1 + M_tmp];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp + 2];
+    c_F[i] = M[M_tmp + 1];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[3 + 9 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 3];
   }
 
-  mult_poly42(dv6, b_F, dv9);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[1 + 9 * i3];
-    c_F[i3] = b_M[5 + 9 * i3];
+  mult_poly42(dv, b_F, dv3);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 1];
+    c_F[i] = b_M[9 * i + 5];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[4 + 9 * i3];
-    c_F[i3] = b_M[2 + 9 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 4];
+    c_F[i] = b_M[9 * i + 2];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[6 + 9 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 6];
   }
 
-  mult_poly42(dv6, b_F, dv10);
-  for (i3 = 0; i3 < 28; i3++) {
-    G[1 + (i3 << 2)] = (dv8[i3] - dv9[i3]) + dv10[i3];
+  mult_poly42(dv, b_F, dv4);
+  for (i = 0; i < 28; i++) {
+    G[(i << 2) + 1] = (dv2[i] - dv3[i]) + dv4[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    for (i4 = 0; i4 < 3; i4++) {
-      M_tmp = (i4 << 2) + 12 * i3;
-      c_M_tmp = 3 * i4 + 9 * i3;
-      b_M[c_M_tmp] = F[M_tmp];
-      b_M[c_M_tmp + 1] = F[M_tmp + 1];
-      b_M[2 + c_M_tmp] = F[3 + M_tmp];
+  for (i = 0; i < 6; i++) {
+    for (i1 = 0; i1 < 3; i1++) {
+      M_tmp = (i1 << 2) + 12 * i;
+      b_M_tmp = 3 * i1 + 9 * i;
+      b_M[b_M_tmp] = F[M_tmp];
+      b_M[b_M_tmp + 1] = F[M_tmp + 1];
+      b_M[b_M_tmp + 2] = F[M_tmp + 3];
     }
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    M[M_tmp] = b_M[9 * i3 + 1];
-    M[2 + M_tmp] = b_M[9 * i3 + 7];
-    M[1 + M_tmp] = b_M[9 * i3 + 2];
-    b_M_tmp = b_M[9 * i3 + 8];
-    M[M_tmp + 3] = b_M_tmp;
-    b_F[i3] = b_M[4 + 9 * i3];
-    c_F[i3] = b_M_tmp;
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    M[M_tmp] = b_M[9 * i + 1];
+    M[M_tmp + 2] = b_M[9 * i + 7];
+    M[M_tmp + 1] = b_M[9 * i + 2];
+    b_M_tmp = 9 * i + 8;
+    M[M_tmp + 3] = b_M[b_M_tmp];
+    b_F[i] = b_M[9 * i + 4];
+    c_F[i] = b_M[b_M_tmp];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[7 + 9 * i3];
-    c_F[i3] = b_M[5 + 9 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 7];
+    c_F[i] = b_M[9 * i + 5];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[9 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i];
   }
 
-  mult_poly42(dv6, b_F, dv8);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[M_tmp];
-    c_F[i3] = M[3 + M_tmp];
+  mult_poly42(dv, b_F, dv2);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp];
+    c_F[i] = M[M_tmp + 3];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[2 + M_tmp];
-    c_F[i3] = M[1 + M_tmp];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp + 2];
+    c_F[i] = M[M_tmp + 1];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[3 + 9 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 3];
   }
 
-  mult_poly42(dv6, b_F, dv9);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[1 + 9 * i3];
-    c_F[i3] = b_M[5 + 9 * i3];
+  mult_poly42(dv, b_F, dv3);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 1];
+    c_F[i] = b_M[9 * i + 5];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[4 + 9 * i3];
-    c_F[i3] = b_M[2 + 9 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 4];
+    c_F[i] = b_M[9 * i + 2];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = b_M[6 + 9 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = b_M[9 * i + 6];
   }
 
-  mult_poly42(dv6, b_F, dv10);
-  for (i3 = 0; i3 < 28; i3++) {
-    G[2 + (i3 << 2)] = (dv8[i3] - dv9[i3]) + dv10[i3];
+  mult_poly42(dv, b_F, dv4);
+  for (i = 0; i < 28; i++) {
+    G[(i << 2) + 2] = (dv2[i] - dv3[i]) + dv4[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    M[M_tmp] = F[12 * i3 + 1];
-    M[2 + M_tmp] = F[12 * i3 + 9];
-    M[1 + M_tmp] = F[12 * i3 + 2];
-    b_M_tmp = F[12 * i3 + 10];
-    M[M_tmp + 3] = b_M_tmp;
-    b_F[i3] = F[5 + 12 * i3];
-    c_F[i3] = b_M_tmp;
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    M[M_tmp] = F[12 * i + 1];
+    M[M_tmp + 2] = F[12 * i + 9];
+    M[M_tmp + 1] = F[12 * i + 2];
+    b_M_tmp = 12 * i + 10;
+    M[M_tmp + 3] = F[b_M_tmp];
+    b_F[i] = F[12 * i + 5];
+    c_F[i] = F[b_M_tmp];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[9 + 12 * i3];
-    c_F[i3] = F[6 + 12 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 9];
+    c_F[i] = F[12 * i + 6];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[12 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i];
   }
 
-  mult_poly42(dv6, b_F, dv8);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[M_tmp];
-    c_F[i3] = M[3 + M_tmp];
+  mult_poly42(dv, b_F, dv2);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp];
+    c_F[i] = M[M_tmp + 3];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    M_tmp = i3 << 2;
-    b_F[i3] = M[2 + M_tmp];
-    c_F[i3] = M[1 + M_tmp];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    M_tmp = i << 2;
+    b_F[i] = M[M_tmp + 2];
+    c_F[i] = M[M_tmp + 1];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[4 + 12 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 4];
   }
 
-  mult_poly42(dv6, b_F, dv9);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[1 + 12 * i3];
-    c_F[i3] = F[6 + 12 * i3];
+  mult_poly42(dv, b_F, dv3);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 1];
+    c_F[i] = F[12 * i + 6];
   }
 
-  mult_poly22(b_F, c_F, dv6);
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[5 + 12 * i3];
-    c_F[i3] = F[2 + 12 * i3];
+  mult_poly22(b_F, c_F, dv);
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 5];
+    c_F[i] = F[12 * i + 2];
   }
 
-  mult_poly22(b_F, c_F, dv7);
-  for (i3 = 0; i3 < 15; i3++) {
-    dv6[i3] -= dv7[i3];
+  mult_poly22(b_F, c_F, dv1);
+  for (i = 0; i < 15; i++) {
+    dv[i] -= dv1[i];
   }
 
-  for (i3 = 0; i3 < 6; i3++) {
-    b_F[i3] = F[8 + 12 * i3];
+  for (i = 0; i < 6; i++) {
+    b_F[i] = F[12 * i + 8];
   }
 
-  mult_poly42(dv6, b_F, dv10);
-  for (i3 = 0; i3 < 28; i3++) {
-    G[3 + (i3 << 2)] = (dv8[i3] - dv9[i3]) + dv10[i3];
+  mult_poly42(dv, b_F, dv4);
+  for (i = 0; i < 28; i++) {
+    G[(i << 2) + 3] = (dv2[i] - dv3[i]) + dv4[i];
   }
 }
 
-/* End of code generation (equations_for_groebner.cpp) */
+//
+// File trailer for equations_for_groebner.cpp
+//
+// [EOF]
+//

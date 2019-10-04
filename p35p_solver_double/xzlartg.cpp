@@ -1,50 +1,56 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- *
- * xzlartg.cpp
- *
- * Code generation for function 'xzlartg'
- *
- */
+//
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
+// File: xzlartg.cpp
+//
+// MATLAB Coder version            : 4.3
+// C/C++ source code generated on  : 04-Oct-2019 01:44:03
+//
 
-/* Include files */
-#include <cmath>
-#include "rt_nonfinite.h"
-#include "p35p_solver.h"
+// Include Files
 #include "xzlartg.h"
+#include "p35p_solver.h"
 #include "p35p_solver_rtwutil.h"
+#include "rt_nonfinite.h"
+#include <cmath>
 
-/* Function Definitions */
+// Function Definitions
+
+//
+// Arguments    : const creal_T f
+//                const creal_T g
+//                double *cs
+//                creal_T *sn
+// Return Type  : void
+//
 void b_xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn)
 {
-  double y_tmp;
-  double scale;
-  double b_y_tmp;
-  double f2s;
+  double scale_tmp;
   double f2;
+  double scale;
   double fs_re;
   double fs_im;
   double gs_re;
   double gs_im;
   boolean_T guard1 = false;
+  double g2;
   double g2s;
-  y_tmp = std::abs(f.re);
-  scale = y_tmp;
-  b_y_tmp = std::abs(f.im);
-  if (b_y_tmp > y_tmp) {
-    scale = b_y_tmp;
+  scale_tmp = std::abs(f.re);
+  f2 = std::abs(f.im);
+  if (f2 > scale_tmp) {
+    scale_tmp = f2;
   }
 
-  f2s = std::abs(g.re);
-  f2 = std::abs(g.im);
-  if (f2 > f2s) {
-    f2s = f2;
+  f2 = std::abs(g.re);
+  scale = std::abs(g.im);
+  if (scale > f2) {
+    f2 = scale;
   }
 
-  if (f2s > scale) {
-    scale = f2s;
+  scale = scale_tmp;
+  if (f2 > scale_tmp) {
+    scale = f2;
   }
 
   fs_re = f.re;
@@ -84,35 +90,31 @@ void b_xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn)
 
   if (guard1) {
     f2 = fs_re * fs_re + fs_im * fs_im;
-    scale = gs_re * gs_re + gs_im * gs_im;
-    f2s = scale;
-    if (1.0 > scale) {
-      f2s = 1.0;
+    g2 = gs_re * gs_re + gs_im * gs_im;
+    scale = g2;
+    if (1.0 > g2) {
+      scale = 1.0;
     }
 
-    if (f2 <= f2s * 2.0041683600089728E-292) {
+    if (f2 <= scale * 2.0041683600089728E-292) {
       if ((f.re == 0.0) && (f.im == 0.0)) {
         *cs = 0.0;
-        scale = rt_hypotd_snf(gs_re, gs_im);
-        sn->re = gs_re / scale;
-        sn->im = -gs_im / scale;
+        g2 = rt_hypotd_snf(gs_re, gs_im);
+        sn->re = gs_re / g2;
+        sn->im = -gs_im / g2;
       } else {
-        g2s = std::sqrt(scale);
+        g2s = std::sqrt(g2);
         *cs = rt_hypotd_snf(fs_re, fs_im) / g2s;
-        if (b_y_tmp > y_tmp) {
-          y_tmp = b_y_tmp;
-        }
-
-        if (y_tmp > 1.0) {
-          scale = rt_hypotd_snf(f.re, f.im);
-          fs_re = f.re / scale;
-          fs_im = f.im / scale;
+        if (scale_tmp > 1.0) {
+          g2 = rt_hypotd_snf(f.re, f.im);
+          fs_re = f.re / g2;
+          fs_im = f.im / g2;
         } else {
-          f2s = 7.4428285367870146E+137 * f.re;
-          f2 = 7.4428285367870146E+137 * f.im;
-          scale = rt_hypotd_snf(f2s, f2);
-          fs_re = f2s / scale;
-          fs_im = f2 / scale;
+          f2 = 7.4428285367870146E+137 * f.re;
+          scale = 7.4428285367870146E+137 * f.im;
+          g2 = rt_hypotd_snf(f2, scale);
+          fs_re = f2 / g2;
+          fs_im = scale / g2;
         }
 
         gs_re /= g2s;
@@ -121,25 +123,31 @@ void b_xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn)
         sn->im = fs_re * gs_im + fs_im * gs_re;
       }
     } else {
-      f2s = std::sqrt(1.0 + scale / f2);
-      *cs = 1.0 / f2s;
-      scale += f2;
-      fs_re = f2s * fs_re / scale;
-      fs_im = f2s * fs_im / scale;
+      scale = std::sqrt(g2 / f2 + 1.0);
+      *cs = 1.0 / scale;
+      g2 += f2;
+      fs_re = scale * fs_re / g2;
+      fs_im = scale * fs_im / g2;
       sn->re = fs_re * gs_re - fs_im * -gs_im;
       sn->im = fs_re * -gs_im + fs_im * gs_re;
     }
   }
 }
 
+//
+// Arguments    : const creal_T f
+//                const creal_T g
+//                double *cs
+//                creal_T *sn
+//                creal_T *r
+// Return Type  : void
+//
 void xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn, creal_T *
              r)
 {
-  double y_tmp;
-  double scale;
-  double b_y_tmp;
+  double scale_tmp;
   double f2s;
-  double f2;
+  double scale;
   double fs_re;
   double fs_im;
   double gs_re;
@@ -147,21 +155,22 @@ void xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn, creal_T 
   int count;
   int rescaledir;
   boolean_T guard1 = false;
-  double g2s;
-  y_tmp = std::abs(f.re);
-  scale = y_tmp;
-  b_y_tmp = std::abs(f.im);
-  if (b_y_tmp > y_tmp) {
-    scale = b_y_tmp;
+  double f2;
+  double g2;
+  scale_tmp = std::abs(f.re);
+  f2s = std::abs(f.im);
+  if (f2s > scale_tmp) {
+    scale_tmp = f2s;
   }
 
   f2s = std::abs(g.re);
-  f2 = std::abs(g.im);
-  if (f2 > f2s) {
-    f2s = f2;
+  scale = std::abs(g.im);
+  if (scale > f2s) {
+    f2s = scale;
   }
 
-  if (f2s > scale) {
+  scale = scale_tmp;
+  if (f2s > scale_tmp) {
     scale = f2s;
   }
 
@@ -209,56 +218,52 @@ void xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn, creal_T 
 
   if (guard1) {
     f2 = fs_re * fs_re + fs_im * fs_im;
-    scale = gs_re * gs_re + gs_im * gs_im;
-    f2s = scale;
-    if (1.0 > scale) {
-      f2s = 1.0;
+    g2 = gs_re * gs_re + gs_im * gs_im;
+    scale = g2;
+    if (1.0 > g2) {
+      scale = 1.0;
     }
 
-    if (f2 <= f2s * 2.0041683600089728E-292) {
+    if (f2 <= scale * 2.0041683600089728E-292) {
       if ((f.re == 0.0) && (f.im == 0.0)) {
         *cs = 0.0;
         r->re = rt_hypotd_snf(g.re, g.im);
         r->im = 0.0;
-        scale = rt_hypotd_snf(gs_re, gs_im);
-        sn->re = gs_re / scale;
-        sn->im = -gs_im / scale;
+        f2 = rt_hypotd_snf(gs_re, gs_im);
+        sn->re = gs_re / f2;
+        sn->im = -gs_im / f2;
       } else {
-        g2s = std::sqrt(scale);
-        *cs = rt_hypotd_snf(fs_re, fs_im) / g2s;
-        if (b_y_tmp > y_tmp) {
-          y_tmp = b_y_tmp;
-        }
-
-        if (y_tmp > 1.0) {
-          scale = rt_hypotd_snf(f.re, f.im);
-          fs_re = f.re / scale;
-          fs_im = f.im / scale;
+        g2 = std::sqrt(g2);
+        *cs = rt_hypotd_snf(fs_re, fs_im) / g2;
+        if (scale_tmp > 1.0) {
+          f2 = rt_hypotd_snf(f.re, f.im);
+          fs_re = f.re / f2;
+          fs_im = f.im / f2;
         } else {
-          f2 = 7.4428285367870146E+137 * f.re;
+          scale = 7.4428285367870146E+137 * f.re;
           f2s = 7.4428285367870146E+137 * f.im;
-          scale = rt_hypotd_snf(f2, f2s);
-          fs_re = f2 / scale;
-          fs_im = f2s / scale;
+          f2 = rt_hypotd_snf(scale, f2s);
+          fs_re = scale / f2;
+          fs_im = f2s / f2;
         }
 
-        gs_re /= g2s;
-        gs_im = -gs_im / g2s;
+        gs_re /= g2;
+        gs_im = -gs_im / g2;
         sn->re = fs_re * gs_re - fs_im * gs_im;
         sn->im = fs_re * gs_im + fs_im * gs_re;
         r->re = *cs * f.re + (sn->re * g.re - sn->im * g.im);
         r->im = *cs * f.im + (sn->re * g.im + sn->im * g.re);
       }
     } else {
-      f2s = std::sqrt(1.0 + scale / f2);
+      f2s = std::sqrt(g2 / f2 + 1.0);
       r->re = f2s * fs_re;
       r->im = f2s * fs_im;
       *cs = 1.0 / f2s;
-      scale += f2;
-      f2 = r->re / scale;
-      f2s = r->im / scale;
-      sn->re = f2 * gs_re - f2s * -gs_im;
-      sn->im = f2 * -gs_im + f2s * gs_re;
+      f2 += g2;
+      f2s = r->re / f2;
+      scale = r->im / f2;
+      sn->re = f2s * gs_re - scale * -gs_im;
+      sn->im = f2s * -gs_im + scale * gs_re;
       if (rescaledir > 0) {
         for (rescaledir = 0; rescaledir <= count; rescaledir++) {
           r->re *= 7.4428285367870146E+137;
@@ -276,4 +281,8 @@ void xzlartg(const creal_T f, const creal_T g, double *cs, creal_T *sn, creal_T 
   }
 }
 
-/* End of code generation (xzlartg.cpp) */
+//
+// File trailer for xzlartg.cpp
+//
+// [EOF]
+//

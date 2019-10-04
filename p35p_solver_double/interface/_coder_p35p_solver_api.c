@@ -2,15 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: _coder_p35p_solver_api.c
  *
- * _coder_p35p_solver_api.c
- *
- * Code generation for function '_coder_p35p_solver_api'
- *
+ * MATLAB Coder version            : 4.3
+ * C/C++ source code generated on  : 04-Oct-2019 01:44:03
  */
 
-/* Include files */
-#include "tmwtypes.h"
+/* Include Files */
 #include "_coder_p35p_solver_api.h"
 #include "_coder_p35p_solver_mex.h"
 
@@ -18,7 +16,7 @@
 emlrtCTX emlrtRootTLSGlobal = NULL;
 emlrtContext emlrtContextGlobal = { true,/* bFirstTime */
   false,                               /* bInitialized */
-  131482U,                             /* fVersionInfo */
+  131483U,                             /* fVersionInfo */
   NULL,                                /* fErrorFunction */
   "p35p_solver",                       /* fFunctionName */
   NULL,                                /* fRTCallStack */
@@ -53,6 +51,13 @@ static real_T i_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
   emlrtMsgIdentifier *msgId);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *u
+ *                const emlrtMsgIdentifier *parentId
+ * Return Type  : real_T (*)[12]
+ */
 static real_T (*b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtMsgIdentifier *parentId))[12]
 {
@@ -61,21 +66,32 @@ static real_T (*b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtDestroyArray(&u);
   return y;
 }
+/*
+ * Arguments    : const real_T u_data[]
+ *                const int32_T u_size[2]
+ * Return Type  : const mxArray *
+ */
   static const mxArray *b_emlrt_marshallOut(const real_T u_data[], const int32_T
   u_size[2])
 {
   const mxArray *y;
-  const mxArray *m1;
-  static const int32_T iv0[2] = { 0, 0 };
+  const mxArray *m;
+  static const int32_T iv[2] = { 0, 0 };
 
   y = NULL;
-  m1 = emlrtCreateNumericArray(2, iv0, mxDOUBLE_CLASS, mxREAL);
-  emlrtMxSetData((mxArray *)m1, (void *)&u_data[0]);
-  emlrtSetDimensions((mxArray *)m1, *(int32_T (*)[2])&u_size[0], 2);
-  emlrtAssign(&y, m1);
+  m = emlrtCreateNumericArray(2, iv, mxDOUBLE_CLASS, mxREAL);
+  emlrtMxSetData((mxArray *)m, (void *)&u_data[0]);
+  emlrtSetDimensions((mxArray *)m, *(int32_T (*)[2])&u_size[0], 2);
+  emlrtAssign(&y, m);
   return y;
 }
 
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *x
+ *                const char_T *identifier
+ * Return Type  : real_T (*)[4]
+ */
 static real_T (*c_emlrt_marshallIn(const emlrtStack *sp, const mxArray *x, const
   char_T *identifier))[4]
 {
@@ -88,21 +104,32 @@ static real_T (*c_emlrt_marshallIn(const emlrtStack *sp, const mxArray *x, const
   emlrtDestroyArray(&x);
   return y;
 }
+/*
+ * Arguments    : const real_T u_data[]
+ *                const int32_T u_size[3]
+ * Return Type  : const mxArray *
+ */
   static const mxArray *c_emlrt_marshallOut(const real_T u_data[], const int32_T
   u_size[3])
 {
   const mxArray *y;
-  const mxArray *m2;
-  static const int32_T iv1[3] = { 0, 0, 0 };
+  const mxArray *m;
+  static const int32_T iv[3] = { 0, 0, 0 };
 
   y = NULL;
-  m2 = emlrtCreateNumericArray(3, iv1, mxDOUBLE_CLASS, mxREAL);
-  emlrtMxSetData((mxArray *)m2, (void *)&u_data[0]);
-  emlrtSetDimensions((mxArray *)m2, *(int32_T (*)[3])&u_size[0], 3);
-  emlrtAssign(&y, m2);
+  m = emlrtCreateNumericArray(3, iv, mxDOUBLE_CLASS, mxREAL);
+  emlrtMxSetData((mxArray *)m, (void *)&u_data[0]);
+  emlrtSetDimensions((mxArray *)m, *(int32_T (*)[3])&u_size[0], 3);
+  emlrtAssign(&y, m);
   return y;
 }
 
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *u
+ *                const emlrtMsgIdentifier *parentId
+ * Return Type  : real_T (*)[4]
+ */
 static real_T (*d_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtMsgIdentifier *parentId))[4]
 {
@@ -111,6 +138,12 @@ static real_T (*d_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtDestroyArray(&u);
   return y;
 }
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *e
+ *                const char_T *identifier
+ * Return Type  : real_T
+ */
   static real_T e_emlrt_marshallIn(const emlrtStack *sp, const mxArray *e, const
   char_T *identifier)
 {
@@ -124,6 +157,12 @@ static real_T (*d_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   return y;
 }
 
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *X
+ *                const char_T *identifier
+ * Return Type  : real_T (*)[12]
+ */
 static real_T (*emlrt_marshallIn(const emlrtStack *sp, const mxArray *X, const
   char_T *identifier))[12]
 {
@@ -136,16 +175,26 @@ static real_T (*emlrt_marshallIn(const emlrtStack *sp, const mxArray *X, const
   emlrtDestroyArray(&X);
   return y;
 }
+/*
+ * Arguments    : const real_T u
+ * Return Type  : const mxArray *
+ */
   static const mxArray *emlrt_marshallOut(const real_T u)
 {
   const mxArray *y;
-  const mxArray *m0;
+  const mxArray *m;
   y = NULL;
-  m0 = emlrtCreateDoubleScalar(u);
-  emlrtAssign(&y, m0);
+  m = emlrtCreateDoubleScalar(u);
+  emlrtAssign(&y, m);
   return y;
 }
 
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *u
+ *                const emlrtMsgIdentifier *parentId
+ * Return Type  : real_T
+ */
 static real_T f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtMsgIdentifier *parentId)
 {
@@ -155,43 +204,64 @@ static real_T f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   return y;
 }
 
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *src
+ *                const emlrtMsgIdentifier *msgId
+ * Return Type  : real_T (*)[12]
+ */
 static real_T (*g_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src,
   const emlrtMsgIdentifier *msgId))[12]
 {
   real_T (*ret)[12];
   static const int32_T dims[2] = { 3, 4 };
 
-  emlrtCheckBuiltInR2012b(sp, (const emlrtMsgIdentifier *)msgId, src, "double",
-    false, 2U, *(int32_T (*)[2])&dims[0]);
+  emlrtCheckBuiltInR2012b(sp, msgId, src, "double", false, 2U, dims);
   ret = (real_T (*)[12])emlrtMxGetData(src);
   emlrtDestroyArray(&src);
   return ret;
 }
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *src
+ *                const emlrtMsgIdentifier *msgId
+ * Return Type  : real_T (*)[4]
+ */
   static real_T (*h_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src,
   const emlrtMsgIdentifier *msgId))[4]
 {
   real_T (*ret)[4];
   static const int32_T dims[2] = { 1, 4 };
 
-  emlrtCheckBuiltInR2012b(sp, (const emlrtMsgIdentifier *)msgId, src, "double",
-    false, 2U, *(int32_T (*)[2])&dims[0]);
+  emlrtCheckBuiltInR2012b(sp, msgId, src, "double", false, 2U, dims);
   ret = (real_T (*)[4])emlrtMxGetData(src);
   emlrtDestroyArray(&src);
   return ret;
 }
 
+/*
+ * Arguments    : const emlrtStack *sp
+ *                const mxArray *src
+ *                const emlrtMsgIdentifier *msgId
+ * Return Type  : real_T
+ */
 static real_T i_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
   emlrtMsgIdentifier *msgId)
 {
   real_T ret;
   static const int32_T dims = 0;
-  emlrtCheckBuiltInR2012b(sp, (const emlrtMsgIdentifier *)msgId, src, "double",
-    false, 0U, (int32_T *)&dims);
+  emlrtCheckBuiltInR2012b(sp, msgId, src, "double", false, 0U, &dims);
   ret = *(real_T *)emlrtMxGetData(src);
   emlrtDestroyArray(&src);
   return ret;
 }
 
+/*
+ * Arguments    : const mxArray * const prhs[4]
+ *                int32_T nlhs
+ *                const mxArray *plhs[4]
+ * Return Type  : void
+ */
 void p35p_solver_api(const mxArray * const prhs[4], int32_T nlhs, const mxArray *
                      plhs[4])
 {
@@ -241,6 +311,10 @@ void p35p_solver_api(const mxArray * const prhs[4], int32_T nlhs, const mxArray 
   }
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
 void p35p_solver_atexit(void)
 {
   emlrtStack st = { NULL,              /* site */
@@ -258,6 +332,10 @@ void p35p_solver_atexit(void)
   emlrtExitTimeCleanup(&emlrtContextGlobal);
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
 void p35p_solver_initialize(void)
 {
   emlrtStack st = { NULL,              /* site */
@@ -272,6 +350,10 @@ void p35p_solver_initialize(void)
   emlrtFirstTimeR2012b(emlrtRootTLSGlobal);
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
 void p35p_solver_terminate(void)
 {
   emlrtStack st = { NULL,              /* site */
@@ -284,4 +366,8 @@ void p35p_solver_terminate(void)
   emlrtDestroyRootTLS(&emlrtRootTLSGlobal);
 }
 
-/* End of code generation (_coder_p35p_solver_api.c) */
+/*
+ * File trailer for _coder_p35p_solver_api.c
+ *
+ * [EOF]
+ */

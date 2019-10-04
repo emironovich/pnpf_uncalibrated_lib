@@ -1,26 +1,28 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- *
- * xzgghrd.h
- *
- * Code generation for function 'xzgghrd'
- *
- */
-
+//
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
+// File: xzgghrd.h
+//
+// MATLAB Coder version            : 4.3
+// C/C++ source code generated on  : 04-Oct-2019 01:44:03
+//
 #ifndef XZGGHRD_H
 #define XZGGHRD_H
 
-/* Include files */
-#include <stddef.h>
-#include <stdlib.h>
+// Include Files
+#include <cstddef>
+#include <cstdlib>
 #include "rtwtypes.h"
 #include "p35p_solver_types.h"
 
-/* Function Declarations */
+// Function Declarations
 extern void xzgghrd(int ilo, int ihi, creal_T A[100], creal_T Z[100]);
 
 #endif
 
-/* End of code generation (xzgghrd.h) */
+//
+// File trailer for xzgghrd.h
+//
+// [EOF]
+//

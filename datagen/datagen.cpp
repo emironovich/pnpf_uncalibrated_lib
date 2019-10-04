@@ -18,7 +18,7 @@ Matrix3d makeSkew(Vector3d& a) {
 	return S;
 }
 
-void generateData(double** X, double* x, double* y, double& f, Matrix3d& R, Vector3d& C, double d = 0) {
+void generateData(double* X, double* x, double* y, double& f, Matrix3d& R, Vector3d& C, double d = 0) {
 	//focal distance
 	f = 200 + 1800 * (double)(rand()) / RAND_MAX;
 
@@ -54,11 +54,19 @@ void generateData(double** X, double* x, double* y, double& f, Matrix3d& R, Vect
 	for (int i = 0; i < 4; ++i) {
 		XM.col(i) = (R.transpose() * XM.col(i) + C).eval();
 	}
-	for (int i = 0; i < 3; ++i) {
+	int ind = 0;
+	for (int j = 0; j < 4; ++j) {
+		for (int i = 0; i < 3; ++i) { //assuming matlab made column-major array
+			X[ind] = XM(i, j);
+			ind++;
+		}
+	}
+	
+	/*for (int i = 0; i < 3; ++i) {
 		for (int j = 0; j < 4; ++j) {
 			X[i][j] = XM(i, j);
 		}
-	}
+	}*/
 
 	//image points
 	Matrix4d XMHom;

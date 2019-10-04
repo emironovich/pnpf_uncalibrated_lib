@@ -2,23 +2,21 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: _coder_p35p_solver_api.h
  *
- * _coder_p35p_solver_api.h
- *
- * Code generation for function '_coder_p35p_solver_api'
- *
+ * MATLAB Coder version            : 4.3
+ * C/C++ source code generated on  : 04-Oct-2019 01:44:03
  */
 
 #ifndef _CODER_P35P_SOLVER_API_H
 #define _CODER_P35P_SOLVER_API_H
 
-/* Include files */
+/* Include Files */
+#include <stddef.h>
+#include <stdlib.h>
 #include "tmwtypes.h"
 #include "mex.h"
 #include "emlrt.h"
-#include <stddef.h>
-#include <stdlib.h>
-#include "_coder_p35p_solver_api.h"
 
 /* Variable Declarations */
 extern emlrtCTX emlrtRootTLSGlobal;
@@ -38,4 +36,8 @@ extern void p35p_solver_xil_terminate(void);
 
 #endif
 
-/* End of code generation (_coder_p35p_solver_api.h) */
+/*
+ * File trailer for _coder_p35p_solver_api.h
+ *
+ * [EOF]
+ */
