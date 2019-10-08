@@ -5,7 +5,7 @@
 // File: p35p_solver.h
 //
 // MATLAB Coder version            : 4.3
-// C/C++ source code generated on  : 04-Oct-2019 01:44:03
+// C/C++ source code generated on  : 08-Oct-2019 04:11:40
 //
 #ifndef P35P_SOLVER_H
 #define P35P_SOLVER_H
@@ -20,6 +20,8 @@
 extern void p35p_solver(const double X[12], const double x[4], const double y[4],
   double e, double *solution_num, double f_sol_data[], int f_sol_size[2], double
   R_sol_data[], int R_sol_size[3], double T_sol_data[], int T_sol_size[2]);
+extern void p35p_solver_initialize();
+extern void p35p_solver_terminate();
 
 #endif
 
