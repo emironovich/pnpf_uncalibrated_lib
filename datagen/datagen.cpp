@@ -5,6 +5,7 @@
 
 using namespace Eigen;
 
+
 Matrix3d makeSkew(Vector3d& a) {
 	Matrix3d S;
 	S.setZero();
@@ -86,8 +87,7 @@ void generateData(double* X, double* x, double* y, double& f, Matrix3d& R, Vecto
 			xDist = yDist = 0;
 		}
 		x[i] = pHom(0, i) / pHom(2, i) + xDist;
-		y[i] = pHom(0, i) / pHom(2, i) + yDist;
+		y[i] = pHom(1, i) / pHom(2, i) + yDist;
 	}
-
 }
 
