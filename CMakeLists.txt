@@ -41,11 +41,11 @@ add_subdirectory(datagen)
 include_directories(p35p_solver_double)
 add_subdirectory(p35p_solver_double)
 
-# include_directories(p35p_solver_single)
-# add_subdirectory(p35p_solver_single)
+include_directories(p35p_solver_single)
+add_subdirectory(p35p_solver_single)
 
  add_executable(p35pTest test.cpp)
- target_link_libraries(p35pTest datagen p35p_solver_double gtest_main Eigen3::Eigen)
+ target_link_libraries(p35pTest datagen p35p_solver_double p35p_solver_single gtest_main Eigen3::Eigen)
  add_test(NAME p35pTest COMMAND p35pTest)
 
 # add_executable(simple_test simple_test.cpp)
