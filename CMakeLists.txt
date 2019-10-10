@@ -44,8 +44,14 @@ add_subdirectory(p35p_solver_double)
 include_directories(p35p_solver_single)
 add_subdirectory(p35p_solver_single)
 
+include_directories(solve_P4Pf_double)
+add_subdirectory(solve_P4Pf_double)
+
+include_directories(solve_P4Pf_mixed)
+add_subdirectory(solve_P4Pf_mixed)
+
  add_executable(p35pTest test.cpp)
- target_link_libraries(p35pTest datagen p35p_solver_double p35p_solver_single gtest_main Eigen3::Eigen)
+ target_link_libraries(p35pTest datagen p35p_solver_double p35p_solver_single p4p_solver_double p4p_solver_mixed gtest_main Eigen3::Eigen)
  add_test(NAME p35pTest COMMAND p35pTest)
 
 # add_executable(simple_test simple_test.cpp)

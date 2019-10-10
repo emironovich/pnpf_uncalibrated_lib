@@ -1,38 +1,41 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- *
- * rtGetNaN.cpp
- *
- * Code generation for function 'solve_P4Pf'
- *
- */
+//
+//  Academic License - for use in teaching, academic research, and meeting
+//  course requirements at degree granting institutions only.  Not for
+//  government, commercial, or other organizational use.
+//  File: rtGetNaN.cpp
+//
+//  MATLAB Coder version            : 4.3
+//  C/C++ source code generated on  : 10-Oct-2019 05:51:38
 
-/*
- * Abstract:
- *       MATLAB for code generation function to initialize non-finite, NaN
- */
+
+//
+//  Abstract:
+//        MATLAB for code generation function to initialize non-finite, NaN
+
 #include "rtGetNaN.h"
 
-/* Function: rtGetNaN ==================================================
- * Abstract:
- * Initialize rtNaN needed by the generated code.
- * NaN is initialized as non-signaling. Assumes IEEE.
- */
+// Function: rtGetNaN ======================================================================
+//  Abstract:
+//  Initialize rtNaN needed by the generated code.
+//  NaN is initialized as non-signaling. Assumes IEEE.
+
 real_T rtGetNaN(void)
 {
   return rtNaN;
 }
 
-/* Function: rtGetNaNF ==================================================
- * Abstract:
- * Initialize rtNaNF needed by the generated code.
- * NaN is initialized as non-signaling. Assumes IEEE.
- */
+// Function: rtGetNaNF =====================================================================
+//  Abstract:
+//  Initialize rtNaNF needed by the generated code.
+//  NaN is initialized as non-signaling. Assumes IEEE.
+
 real32_T rtGetNaNF(void)
 {
   return rtNaNF;
 }
 
-/* End of code generation (rtGetNaN.cpp) */
+//
+//  File trailer for rtGetNaN.cpp
+//
+//  [EOF]
+
