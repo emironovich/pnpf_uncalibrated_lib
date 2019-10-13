@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-project(p35p_double_test)
+project(pnp_test)
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
@@ -50,9 +50,9 @@ add_subdirectory(solve_P4Pf_double)
 include_directories(solve_P4Pf_mixed)
 add_subdirectory(solve_P4Pf_mixed)
 
- add_executable(p35pTest test.cpp)
- target_link_libraries(p35pTest datagen p35p_solver_double p35p_solver_single p4p_solver_double p4p_solver_mixed gtest_main Eigen3::Eigen)
- add_test(NAME p35pTest COMMAND p35pTest)
+ add_executable(pnpTest test.cpp accuracyTest.cpp)
+ target_link_libraries(pnpTest datagen p35p_solver_double p35p_solver_single p4p_solver_double p4p_solver_mixed gtest_main Eigen3::Eigen)
+ add_test(NAME pnpTest COMMAND pnpTest)
 
 # add_executable(simple_test simple_test.cpp)
 # target_link_libraries(simple_test gtest_main)	
