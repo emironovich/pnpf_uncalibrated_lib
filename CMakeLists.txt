@@ -36,7 +36,6 @@ endif()
 
 # Now simply link against gtest or gtest_main as needed. Eg
 include_directories(datagen)
-add_subdirectory(datagen)
 
 include_directories(p35p_solver_double)
 add_subdirectory(p35p_solver_double)
