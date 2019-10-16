@@ -4,55 +4,34 @@
 #include "runFunctions.h"
 #include "gtest/gtest.h"
 
-
-// Then we define a test fixture class template.
 template <class T>
-class SumTest : public testing::Test {
+class PnPTest : public testing::Test {
 protected:
-    // The ctor calls the factory function to create a prime table
-    // implemented by T.
-    SumTest() {}
 
-    ~SumTest() override {}
-
-    // Note that we test an implementation via the base interface
-    // instead of the actual implementation class.  This is important
-    // for keeping the tests close to the real world scenario, where the
-    // implementation is invoked via the base interface.  It avoids
-    // got-yas where the implementation class has a method that shadows
-    // a method with the same name (but slightly different argument
-    // types) in the base interface, for example.
+    PnPTest() {
+        it_num = 1e+3; //number of iterations
+        p35pRes = runFunction("p35p", (T)1e-4, it_num); //todo: figure out constants
+        p4pRes = runFunction("p4p", (T)1e-4, it_num);
+        };
+    int it_num;
+    TestResult p35pRes, p4pRes;
 };
 
 #if GTEST_HAS_TYPED_TEST
 
 using testing::Types;
 
-// Google Test offers two ways for reusing tests for different types.
-// The first is called "typed tests".  You should use it if you
-// already know *all* the types you are gonna exercise when you write
-// the tests.
+using PrecisionTypes = ::testing::Types<double, float>;
+TYPED_TEST_SUITE(PnPTest, PrecisionTypes);
 
-// To write a typed test case, first use
-//
-//   TYPED_TE
-//   ST_SUITE(TestCaseName, TypeList);
-//
-// to declare it and specify the type parameters.  As with TEST_F,
-// TestCaseName must match the test fixture name.
-
-using MyTypes = ::testing::Types<double, float>;
-TYPED_TEST_SUITE(SumTest, MyTypes);
-// The list of types we want to test.
-// Then use TYPED_TEST(TestCaseName, TestName) to define a typed test,
-// similar to TEST_F..
-
-TYPED_TEST(SumTest, eqs) {
-    ASSERT_EQ(5, 5);
+TYPED_TEST(PnPTest, P35P) {
+    ASSERT_LT(this->p35pRes.existSolutions / this->it_num, 0.9); //todo: figure out constants
+    ASSERT_LT(this->p35pRes.belowThreshold / this->it_num, 0.9);
 }
 
-// That's it!  Google Test will repeat each TYPED_TEST for each type
-// in the type list specified in TYPED_TEST_SUITE.  Sit back and be
-// happy that you don't have to define them multiple times.
+TYPED_TEST(PnPTest, P4P) {
+    ASSERT_LT(this->p4pRes.existSolutions / this->it_num, 0.9);
+    ASSERT_LT(this->p4pRes.belowThreshold / this->it_num, 0.9);
+}
 
 #endif  // GTEST_HAS_TYPED_TEST

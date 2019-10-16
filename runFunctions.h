@@ -14,7 +14,7 @@
 using namespace Eigen;
 
 struct TestResult{
-    int existSolution = 0;
+    int existSolutions = 0;
     int belowThreshold = 0;
 };
 

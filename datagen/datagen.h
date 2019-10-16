@@ -20,7 +20,7 @@ Matrix<Type, 3, 3> makeSkew(const Matrix<Type, 3, 1>& a) {
 }
 
 template <class Type>
-void generateData(Type* X, Type* x, Type* y, Type& f, Matrix<Type, 3, 3> & R, Matrix<Type, 3, 1> & C, Type d) {
+void generateData(Type* X, Type* x, Type* y, Type& f, Matrix<Type, 3, 3> & R, Matrix<Type, 3, 1> & C, Type d = 0) {
     //focal distance
     f = 200 + 1800 * (Type)(rand()) / RAND_MAX; //todo: change function
 
