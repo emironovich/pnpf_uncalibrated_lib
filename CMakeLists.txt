@@ -36,22 +36,11 @@ endif()
 
 # Now simply link against gtest or gtest_main as needed. Eg
 include_directories(datagen)
+include_directories(pnp)
 
-include_directories(p35p_solver_double)
-add_subdirectory(p35p_solver_double)
-
-include_directories(p35p_solver_single)
-add_subdirectory(p35p_solver_single)
-
-include_directories(solve_P4Pf_double)
-add_subdirectory(solve_P4Pf_double)
-
-include_directories(solve_P4Pf_mixed)
-add_subdirectory(solve_P4Pf_mixed)
-
- add_executable(pnpTest test.cpp accuracyTest.cpp)
- target_link_libraries(pnpTest datagen p35p_solver_double p35p_solver_single p4p_solver_double p4p_solver_mixed gtest_main Eigen3::Eigen)
- add_test(NAME pnpTest COMMAND pnpTest)
+add_executable(pnpTest test.cpp)
+target_link_libraries(pnpTest gtest_main Eigen3::Eigen)
+add_test(NAME pnpTest COMMAND pnpTest)
 
 # add_executable(simple_test simple_test.cpp)
 # target_link_libraries(simple_test gtest_main)	
