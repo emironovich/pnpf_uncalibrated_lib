@@ -6,7 +6,7 @@
 template <class T> class PnPTest : public testing::Test {
 protected:
   PnPTest() {
-    it_num = 1e+3; // number of iterations
+    it_num = 1e+4; // number of iterations
     p35pRes = runFunction("p3.5p", std::numeric_limits<T>::epsilon(), it_num);
     p4pRes = runFunction("p4p", std::numeric_limits<T>::epsilon(), it_num);
   };
@@ -23,13 +23,13 @@ TYPED_TEST_SUITE(PnPTest, PrecisionTypes);
 
 TYPED_TEST(PnPTest, P35P) {
   ASSERT_GT((double)this->p35pRes.existSolutions / this->it_num,
-            0.9); // todo: figure out constants
-  ASSERT_GT((double)this->p35pRes.belowThreshold / this->it_num, 0.9);
+            0.8); // todo: figure out constants
+  ASSERT_GT((double)this->p35pRes.belowThreshold / this->it_num, 0.8);
 }
 
 TYPED_TEST(PnPTest, P4P) {
-  ASSERT_GT((double)this->p4pRes.existSolutions / this->it_num, 0.9);
-  ASSERT_GT((double)this->p4pRes.belowThreshold / this->it_num, 0.9);
+  ASSERT_GT((double)this->p4pRes.existSolutions / this->it_num, 0.8);
+  ASSERT_GT((double)this->p4pRes.belowThreshold / this->it_num, 0.8);
 }
 
 #endif // GTEST_HAS_TYPED_TEST

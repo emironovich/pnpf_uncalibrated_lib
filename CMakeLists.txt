@@ -40,6 +40,12 @@ include_directories(datagen)
 include_directories(pnpf)
 add_subdirectory(pnpf)
 
+include_directories(benchmark/include)
+add_subdirectory(benchmark)
+
+add_executable(bench bench.cpp)
+target_link_libraries(bench pnpf Eigen3::Eigen benchmark_main)
+
 add_executable(pnpTest test.cpp)
 target_link_libraries(pnpTest pnpf gtest_main Eigen3::Eigen)
 add_test(NAME pnpTest COMMAND pnpTest)

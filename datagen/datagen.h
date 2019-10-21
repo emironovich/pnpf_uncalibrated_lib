@@ -19,8 +19,9 @@ template <class Type> Matrix<Type, 3, 3> makeSkew(const Matrix<Type, 3, 1> &a) {
 }
 
 template <class Type>
-void generateData(Type *X, Type *x, Type *y, Type &f, Matrix<Type, 3, 3> &R,
-                  Matrix<Type, 3, 1> &C, Type d = 0) {
+void generateData(Matrix<Type, 3, 4> &points_3d, Matrix<Type, 2, 4> &points_2d,
+                  Type &f, Matrix<Type, 3, 3> &R, Matrix<Type, 3, 1> &C,
+                  Type d = 0) {
   // focal distance
   f = 200 + 1800 * (Type)(rand()) / RAND_MAX; // todo: change function
 
@@ -48,22 +49,23 @@ void generateData(Type *X, Type *x, Type *y, Type &f, Matrix<Type, 3, 3> &R,
   P = K * R * P;
 
   // points in space
-  Matrix<Type, 3, 4> XM;
-  XM.setZero();
-  XM.row(2).setConstant(6);
+  //  Matrix<Type, 3, 4> XM;
+  points_3d.setZero();
+  points_3d.row(2).setConstant(6);
   Matrix<Type, 3, 4> tmp;
   tmp.setRandom();
-  XM += 2 * tmp;
+  points_3d += 2 * tmp;
   for (int i = 0; i < 4; ++i) {
-    XM.col(i) = (R.transpose() * XM.col(i) + C).eval();
+    points_3d.col(i) = (R.transpose() * points_3d.col(i) + C).eval();
   }
-  int ind = 0;
-  for (int j = 0; j < 4; ++j) {
-    for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
-      X[ind] = XM(i, j);
-      ind++;
-    }
-  }
+
+  //  int ind = 0;
+  //  for (int j = 0; j < 4; ++j) {
+  //    for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
+  //      X[ind] = XM(i, j);
+  //      ind++;
+  //    }
+  //  }
 
   /*for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 4; ++j) {
@@ -73,7 +75,7 @@ void generateData(Type *X, Type *x, Type *y, Type &f, Matrix<Type, 3, 3> &R,
 
   // image points
   Matrix<Type, 4, 4> XMHom;
-  XMHom << XM, 1, 1, 1, 1;
+  XMHom << points_3d, 1, 1, 1, 1;
   Matrix<Type, 3, 4> pHom = P * XMHom;
 
   for (int i = 0; i < 4; ++i) {
@@ -86,7 +88,7 @@ void generateData(Type *X, Type *x, Type *y, Type &f, Matrix<Type, 3, 3> &R,
     } else {
       xDist = yDist = 0;
     }
-    x[i] = pHom(0, i) / pHom(2, i) + xDist;
-    y[i] = pHom(1, i) / pHom(2, i) + yDist;
+    points_2d(0, i) = pHom(0, i) / pHom(2, i) + xDist;
+    points_2d(1, i) = pHom(1, i) / pHom(2, i) + yDist;
   }
 }
