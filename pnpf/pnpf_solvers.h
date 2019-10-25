@@ -1,7 +1,6 @@
 #pragma once
 #include "pnpf.h"
 #include <Eigen/Dense>
-//#include <iostream>
 
 using namespace Eigen;
 template <class T>
@@ -187,8 +186,8 @@ void p4p_solver<float>(const Matrix<float, 3, 4> &points_3d,
 //  template<>
 //  void p4p_solver<double>(const double X[12], const double x[4], const double
 //  y[4], double e, int *n, double f_data[], int f_size[2], double r_data[], int
-//  r_size [3], double t_data[], int t_size[2]) { 		p4pf_double(X, x,
-//  y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
+//  r_size [3], double t_data[], int t_size[2]) { 		p4pf_double(X,
+//  x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
 //  }
 //
 //  template<>

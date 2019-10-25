@@ -22,18 +22,23 @@ template <class Type>
 void generateData(Matrix<Type, 3, 4> &points_3d, Matrix<Type, 2, 4> &points_2d,
                   Type &f, Matrix<Type, 3, 3> &R, Matrix<Type, 3, 1> &C,
                   Type d = 0) {
+
+  std::random_device dev;
+  std::mt19937_64 generator(dev()); // Mersenne Twister generator
+  std::uniform_real_distribution<Type> uniformDistribution(-1., 1.);
+  auto uniform = [&]() { return uniformDistribution(generator); };
+
   // focal distance
-  f = 200 + 1800 * (Type)(rand()) / RAND_MAX; // todo: change function
+  f = 200 + 1800 * (uniformDistribution(generator) + 1) / 2;
 
   // rotation
-  Matrix<Type, 3, 1> rVec;
-  rVec.setRandom();
+  Matrix<Type, 3, 1> rVec = Matrix<Type, 3, 1>::NullaryExpr(3, 1, uniform);
   rVec /= 2; //???
   Matrix<Type, 3, 3> rVecSkew = makeSkew(rVec);
   R = rVecSkew.exp();
 
   // camera center
-  C.setRandom();
+  C = Matrix<Type, 3, 1>::NullaryExpr(3, 1, uniform);
   C /= 2; //???
 
   // calibration matrix
@@ -49,29 +54,13 @@ void generateData(Matrix<Type, 3, 4> &points_3d, Matrix<Type, 2, 4> &points_2d,
   P = K * R * P;
 
   // points in space
-  //  Matrix<Type, 3, 4> XM;
   points_3d.setZero();
   points_3d.row(2).setConstant(6);
-  Matrix<Type, 3, 4> tmp;
-  tmp.setRandom();
+  Matrix<Type, 3, 4> tmp = Matrix<Type, 3, 4>::NullaryExpr(3, 4, uniform);
   points_3d += 2 * tmp;
   for (int i = 0; i < 4; ++i) {
     points_3d.col(i) = (R.transpose() * points_3d.col(i) + C).eval();
   }
-
-  //  int ind = 0;
-  //  for (int j = 0; j < 4; ++j) {
-  //    for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
-  //      X[ind] = XM(i, j);
-  //      ind++;
-  //    }
-  //  }
-
-  /*for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 4; ++j) {
-          X[i][j] = XM(i, j);
-      }
-  }*/
 
   // image points
   Matrix<Type, 4, 4> XMHom;
@@ -79,16 +68,14 @@ void generateData(Matrix<Type, 3, 4> &points_3d, Matrix<Type, 2, 4> &points_2d,
   Matrix<Type, 3, 4> pHom = P * XMHom;
 
   for (int i = 0; i < 4; ++i) {
-    Type xDist, yDist;
+    Matrix<Type, 2, 1> dist;
     if (d > 0) {
-      std::default_random_engine generator;
-      std::normal_distribution<Type> distribution(0, d);
-      xDist = distribution(generator);
-      yDist = distribution(generator);
+      std::normal_distribution<Type> normalDistribution(0, d);
+      auto normal = [&]() { return normalDistribution(generator); };
+      dist = Matrix<Type, 2, 1>::NullaryExpr(2, 1, normal);
     } else {
-      xDist = yDist = 0;
+      dist.setZero();
     }
-    points_2d(0, i) = pHom(0, i) / pHom(2, i) + xDist;
-    points_2d(1, i) = pHom(1, i) / pHom(2, i) + yDist;
+    points_2d.col(i) = pHom.col(i).hnormalized() + dist;
   }
 }
