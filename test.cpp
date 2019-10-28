@@ -7,8 +7,10 @@ template <class T> class PnPTest : public testing::Test {
 protected:
   PnPTest() {
     it_num = 1e+4; // number of iterations
-    p35pRes = runFunction("p3.5p", std::numeric_limits<T>::epsilon(), it_num);
-    p4pRes = runFunction("p4p", std::numeric_limits<T>::epsilon(), it_num);
+    P35PSolver<T> p35pSolver;
+    P4PSolver<T> p4pSolver;
+    p35pRes = runFunction(p35pSolver, it_num);
+    p4pRes = runFunction(p4pSolver, it_num);
   };
   int it_num;
   TestResult p35pRes, p4pRes;
