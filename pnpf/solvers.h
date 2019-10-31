@@ -16,25 +16,34 @@ using namespace Eigen;
 template <class T> class Solver {
 protected:
   T e;
+  virtual void vSolve(const Matrix<T, 3, 4> &points_3d,
+                      const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
+                      Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs,
+                      T diag) const = 0;
 
 public:
   Solver() { e = std::numeric_limits<T>::epsilon(); }
-  virtual void solve(const Matrix<T, 3, 4> &points_3d,
-                     const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
-                     Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs) const = 0;
+  void solve(const Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
+             int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs,
+             T diag = 1) const {
+    vSolve(points_3d, points_2d, n, fs, Rs, Cs, diag);
+  };
 };
 
 template <class T> class P35PSolver : public Solver<T> {
-public:
-  void solve(const Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
-             int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs) const {};
+protected:
+  void vSolve(const Matrix<T, 3, 4> &points_3d,
+              const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
+              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) const {};
 };
 
 template <> class P35PSolver<float> : public Solver<float> {
-public:
-  void solve(const Matrix<float, 3, 4> &points_3d,
-             const Matrix<float, 2, 4> &points_2d, int *n, float *fs,
-             Matrix<float, 3, 3> *Rs, Matrix<float, 3, 1> *Cs) const {
+protected:
+  void vSolve(const Matrix<float, 3, 4> &points_3d,
+              const Matrix<float, 2, 4> &points_2d, int *n, float *fs,
+              Matrix<float, 3, 3> *Rs, Matrix<float, 3, 1> *Cs,
+              float diag) const override {
+
     float X[12];
     int ind = 0;
     for (int j = 0; j < 4; ++j) {
@@ -45,8 +54,8 @@ public:
     }
     float x[4], y[4];
     for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i);
-      y[i] = points_2d(1, i);
+      x[i] = points_2d(0, i) / diag;
+      y[i] = points_2d(1, i) / diag;
     }
 
     int f_size[2], r_size[3], t_size[2];
@@ -55,7 +64,7 @@ public:
     p35p_single(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
 
     for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i];
+      fs[i] = f_data[i] * diag;
       for (int j = 0; j < 3; ++j) {
         Cs[i](j) = t_data[3 * i + j];
       }
@@ -71,10 +80,12 @@ public:
 };
 
 template <> class P35PSolver<double> : public Solver<double> {
-public:
-  void solve(const Matrix<double, 3, 4> &points_3d,
-             const Matrix<double, 2, 4> &points_2d, int *n, double *fs,
-             Matrix<double, 3, 3> *Rs, Matrix<double, 3, 1> *Cs) const {
+protected:
+  void vSolve(const Matrix<double, 3, 4> &points_3d,
+              const Matrix<double, 2, 4> &points_2d, int *n, double *fs,
+              Matrix<double, 3, 3> *Rs, Matrix<double, 3, 1> *Cs,
+              double diag) const override {
+
     double X[12];
     int ind = 0;
     for (int j = 0; j < 4; ++j) {
@@ -85,8 +96,8 @@ public:
     }
     double x[4], y[4];
     for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i);
-      y[i] = points_2d(1, i);
+      x[i] = points_2d(0, i) / diag;
+      y[i] = points_2d(1, i) / diag;
     }
 
     int f_size[2], r_size[3], t_size[2];
@@ -95,7 +106,7 @@ public:
     p35p_double(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
 
     for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i];
+      fs[i] = f_data[i] * diag;
       for (int j = 0; j < 3; ++j) {
         Cs[i](j) = t_data[3 * i + j];
       }
@@ -111,16 +122,18 @@ public:
 };
 
 template <class T> class P4PSolver : public Solver<T> {
-public:
-  void solve(const Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
-             int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs) const {};
+protected:
+  void vSolve(const Matrix<T, 3, 4> &points_3d,
+              const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
+              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) const {};
 };
 
 template <> class P4PSolver<float> : public Solver<float> {
-public:
-  void solve(const Matrix<float, 3, 4> &points_3d,
-             const Matrix<float, 2, 4> &points_2d, int *n, float *fs,
-             Matrix<float, 3, 3> *Rs, Matrix<float, 3, 1> *Cs) const {
+protected:
+  void vSolve(const Matrix<float, 3, 4> &points_3d,
+              const Matrix<float, 2, 4> &points_2d, int *n, float *fs,
+              Matrix<float, 3, 3> *Rs, Matrix<float, 3, 1> *Cs,
+              float diag) const override {
     float X[12];
     int ind = 0;
     for (int j = 0; j < 4; ++j) {
@@ -131,8 +144,8 @@ public:
     }
     float x[4], y[4];
     for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i);
-      y[i] = points_2d(1, i);
+      x[i] = points_2d(0, i) / diag;
+      y[i] = points_2d(1, i) / diag;
     }
 
     int f_size[2], r_size[3], t_size[2];
@@ -141,7 +154,7 @@ public:
     p4pf_single(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
 
     for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i];
+      fs[i] = f_data[i] * diag;
       for (int j = 0; j < 3; ++j) {
         Cs[i](j) = t_data[3 * i + j];
       }
@@ -157,10 +170,11 @@ public:
 };
 
 template <> class P4PSolver<double> : public Solver<double> {
-public:
-  void solve(const Matrix<double, 3, 4> &points_3d,
-             const Matrix<double, 2, 4> &points_2d, int *n, double *fs,
-             Matrix<double, 3, 3> *Rs, Matrix<double, 3, 1> *Cs) const {
+protected:
+  void vSolve(const Matrix<double, 3, 4> &points_3d,
+              const Matrix<double, 2, 4> &points_2d, int *n, double *fs,
+              Matrix<double, 3, 3> *Rs, Matrix<double, 3, 1> *Cs,
+              double diag) const override {
     double X[12];
     int ind = 0;
     for (int j = 0; j < 4; ++j) {
@@ -171,8 +185,8 @@ public:
     }
     double x[4], y[4];
     for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i);
-      y[i] = points_2d(1, i);
+      x[i] = points_2d(0, i) / diag;
+      y[i] = points_2d(1, i) / diag;
     }
 
     int f_size[2], r_size[3], t_size[2];
@@ -181,7 +195,7 @@ public:
     p4pf_double(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
 
     for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i];
+      fs[i] = f_data[i] * diag;
       for (int j = 0; j < 3; ++j) {
         Cs[i](j) = t_data[3 * i + j];
       }

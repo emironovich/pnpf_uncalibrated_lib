@@ -4008,8 +4008,8 @@ static void b_solve_3Q3(const float c[30], double *n, float xs_data[], int
   A[8] = c[17];
 
   // 'solve_3Q3:12' if rcond(A) < eps
-  if (d_rcond(A) < 2.22044605E-16F) { //todo: change back
-  //if(false){
+  //if (d_rcond(A) < 2.22044605E-16F) { //todo: rcond
+  if(false){
     // 'solve_3Q3:13' n = 0;
     *n = 0.0;
   } else {
@@ -16125,8 +16125,8 @@ static void solve_3Q3(const double c[30], double *n, double xs_data[], int
   A[8] = c[17];
 
   // 'solve_3Q3:12' if rcond(A) < eps
- if(c_rcond(A) < 2.2204460492503131E-16) { //todo:change back
-  //if(false){
+ //if(c_rcond(A) < 2.2204460492503131E-16) { //todo: rcond
+  if(false){
     // 'solve_3Q3:13' n = 0;
     *n = 0.0;
   } else {
@@ -19384,8 +19384,8 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
 
   // 'p35p_solver:21' B = G20(:, 36:45);
   // 'p35p_solver:22' if rcond(A) < e
-  if (rcond(A) >= e) { //todo: change back
-  //if(true){
+  //if (rcond(A) >= e) { //todo: rcond
+  if(true){
     // 'p35p_solver:26' C = A\B;
     for (i = 0; i < 10; i++) {
       std::memcpy(&C[i * 20], &G20[i * 20 + 700], 20U * sizeof(double));
@@ -19843,8 +19843,8 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
 
   // 'p35p_solver:21' B = G20(:, 36:45);
   // 'p35p_solver:22' if rcond(A) < e
-  if (b_rcond(A) >= e) { //todo: change back
-  //if (true) {
+  //if (b_rcond(A) >= e) { //todo: rcond
+  if (true) {
     // 'p35p_solver:26' C = A\B;
     for (i = 0; i < 10; i++) {
       std::memcpy(&C[i * 20], &G20[i * 20 + 700], 20U * sizeof(float));
@@ -21032,7 +21032,6 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
   // 'p4pf_single:3' assert(isa(x, 'single'));
   // 'p4pf_single:4' assert(isa(y, 'single'));
   // 'p4pf_single:5' assert(isa(e, 'single'));
-  //  TODO: rename solve_P4Pf to match p3.5p
   // 'p4pf_single:8' [n, f, r, t] = solve_P4Pf(X, x, y, e);
   // SOLVE_P4Pf Summary of this function goes here
   //        X = [p1, p2, p3, p4], pi = [4, 1]; X(:, i) <-> (u(i), v(i))

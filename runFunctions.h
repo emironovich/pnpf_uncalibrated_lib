@@ -5,11 +5,11 @@
 #endif //PNP_TEST_TEST*/
 
 #include "datagen.h"
+#include "solvers.h"
 #include <Eigen/Dense>
 #include <climits>
 #include <cmath>
 #include <iostream>
-#include "solvers.h"
 
 using namespace Eigen;
 
@@ -19,7 +19,7 @@ struct TestResult {
 };
 
 template <class Type>
-TestResult runFunction(const Solver<Type>& solver, int it_num = 1) {
+TestResult runFunction(const Solver<Type> &solver, int it_num) {
   int succ_num = 0;
   int zero_solutions_num = 0;
 
@@ -39,7 +39,10 @@ TestResult runFunction(const Solver<Type>& solver, int it_num = 1) {
 
   for (int curr_it = 0; curr_it < it_num; ++curr_it) {
     generateData(points_3d, points_2d, f_gen, R_gen, C_gen);
-    solver.solve(points_3d, points_2d, &solution_num, fs, Rs, Cs);
+    Type diag =
+        sqrt(pow(points_2d.row(1).maxCoeff() - points_2d.row(1).minCoeff(), 2) +
+             pow(points_2d.row(2).maxCoeff() - points_2d.row(2).minCoeff(), 2));
+    solver.solve(points_3d, points_2d, &solution_num, fs, Rs, Cs, diag);
     // allocate for comparison
     Type min_diff = std::numeric_limits<Type>::max();
     Type diff_C = std::numeric_limits<Type>::max();
