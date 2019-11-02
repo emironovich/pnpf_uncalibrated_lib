@@ -31,7 +31,7 @@ TYPED_TEST(PnPTest, P35P) {
 
 TYPED_TEST(PnPTest, P4P) {
   ASSERT_GT((double)this->p4pRes.existSolutions / this->it_num, 0.8);
-  ASSERT_GT((double)this->p4pRes.belowThreshold / this->it_num, 0.8);
+  ASSERT_GT((double)this->p4pRes.belowThreshold / this->it_num, 0.77);
 }
 
 #endif // GTEST_HAS_TYPED_TEST
