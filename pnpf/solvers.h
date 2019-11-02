@@ -18,194 +18,106 @@ protected:
   T e;
   virtual void vSolve(const Matrix<T, 3, 4> &points_3d,
                       const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
-                      Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs,
-                      T diag) const = 0;
+                      Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) = 0;
 
 public:
   Solver() { e = std::numeric_limits<T>::epsilon(); }
   void solve(const Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
              int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs,
-             T diag = 1) const {
+             T diag = 1) {
     vSolve(points_3d, points_2d, n, fs, Rs, Cs, diag);
   };
 };
 
-template <class T> class P35PSolver : public Solver<T> {
+template <class T> class MatlabSolver : public Solver<T> {
 protected:
+  T X[12];
+  T x[4], y[4];
+  int sol_num;
+  int f_size[2], r_size[3], t_size[2];
+  T f_data[10], r_data[90], t_data[30]; // todo: check sizes
+
+  void dataEigenToMatlab(const Matrix<T, 3, 4> &points_3d,
+                         const Matrix<T, 2, 4> &points_2d, T diag) {
+    int ind = 0;
+    for (int j = 0; j < 4; ++j) {
+      for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
+        X[ind] = points_3d(i, j);
+        ind++;
+      }
+    }
+    for (int i = 0; i < 4; ++i) {
+      x[i] = points_2d(0, i) / diag;
+      y[i] = points_2d(1, i) / diag;
+    }
+  }
+
+  void dataMatlabToEigen(int *n, T *fs, Matrix<T, 3, 3> *Rs,
+                         Matrix<T, 3, 1> *Cs, T diag) const {
+    *n = sol_num;
+    for (int i = 0; i < *n; ++i) {
+      fs[i] = f_data[i] * diag;
+      for (int j = 0; j < 3; ++j) {
+        Cs[i](j) = t_data[3 * i + j];
+      }
+      int ind = 9 * i;
+      for (int k = 0; k < 3; ++k) {
+        for (int j = 0; j < 3; ++j) {
+          Rs[i](j, k) = r_data[ind];
+          ind++;
+        }
+      }
+    }
+  }
   void vSolve(const Matrix<T, 3, 4> &points_3d,
               const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
-              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) const {};
+              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) override {
+    dataEigenToMatlab(points_3d, points_2d, diag);
+    vMatlabSolve();
+    dataMatlabToEigen(n, fs, Rs, Cs, diag);
+  }
+
+  virtual void vMatlabSolve() = 0;
 };
 
-template <> class P35PSolver<float> : public Solver<float> {
+template <class T> class P35PSolver : public MatlabSolver<T> {
 protected:
-  void vSolve(const Matrix<float, 3, 4> &points_3d,
-              const Matrix<float, 2, 4> &points_2d, int *n, float *fs,
-              Matrix<float, 3, 3> *Rs, Matrix<float, 3, 1> *Cs,
-              float diag) const override {
+  void vMatlabSolve(){};
+};
 
-    float X[12];
-    int ind = 0;
-    for (int j = 0; j < 4; ++j) {
-      for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
-        X[ind] = points_3d(i, j);
-        ind++;
-      }
-    }
-    float x[4], y[4];
-    for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i) / diag;
-      y[i] = points_2d(1, i) / diag;
-    }
-
-    int f_size[2], r_size[3], t_size[2];
-    float f_data[10], r_data[90], t_data[30]; // todo: check sizes
-
-    p35p_single(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
-
-    for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i] * diag;
-      for (int j = 0; j < 3; ++j) {
-        Cs[i](j) = t_data[3 * i + j];
-      }
-      ind = 9 * i;
-      for (int k = 0; k < 3; ++k) {
-        for (int j = 0; j < 3; ++j) {
-          Rs[i](j, k) = r_data[ind];
-          ind++;
-        }
-      }
-    }
+template <> class P35PSolver<float> : public MatlabSolver<float> {
+protected:
+  void vMatlabSolve() override {
+    p35p_single(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
+                t_size);
   };
 };
 
-template <> class P35PSolver<double> : public Solver<double> {
+template <> class P35PSolver<double> : public MatlabSolver<double> {
 protected:
-  void vSolve(const Matrix<double, 3, 4> &points_3d,
-              const Matrix<double, 2, 4> &points_2d, int *n, double *fs,
-              Matrix<double, 3, 3> *Rs, Matrix<double, 3, 1> *Cs,
-              double diag) const override {
-
-    double X[12];
-    int ind = 0;
-    for (int j = 0; j < 4; ++j) {
-      for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
-        X[ind] = points_3d(i, j);
-        ind++;
-      }
-    }
-    double x[4], y[4];
-    for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i) / diag;
-      y[i] = points_2d(1, i) / diag;
-    }
-
-    int f_size[2], r_size[3], t_size[2];
-    double f_data[10], r_data[90], t_data[30]; // todo: check sizes
-
-    p35p_double(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
-
-    for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i] * diag;
-      for (int j = 0; j < 3; ++j) {
-        Cs[i](j) = t_data[3 * i + j];
-      }
-      ind = 9 * i;
-      for (int k = 0; k < 3; ++k) {
-        for (int j = 0; j < 3; ++j) {
-          Rs[i](j, k) = r_data[ind];
-          ind++;
-        }
-      }
-    }
+  void vMatlabSolve() override {
+    p35p_double(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
+                t_size);
   };
 };
 
-template <class T> class P4PSolver : public Solver<T> {
+template <class T> class P4PSolver : public MatlabSolver<T> {
 protected:
-  void vSolve(const Matrix<T, 3, 4> &points_3d,
-              const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
-              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) const {};
+  void vMatlabSolve(){};
 };
 
-template <> class P4PSolver<float> : public Solver<float> {
+template <> class P4PSolver<float> : public MatlabSolver<float> {
 protected:
-  void vSolve(const Matrix<float, 3, 4> &points_3d,
-              const Matrix<float, 2, 4> &points_2d, int *n, float *fs,
-              Matrix<float, 3, 3> *Rs, Matrix<float, 3, 1> *Cs,
-              float diag) const override {
-    float X[12];
-    int ind = 0;
-    for (int j = 0; j < 4; ++j) {
-      for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
-        X[ind] = points_3d(i, j);
-        ind++;
-      }
-    }
-    float x[4], y[4];
-    for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i) / diag;
-      y[i] = points_2d(1, i) / diag;
-    }
-
-    int f_size[2], r_size[3], t_size[2];
-    float f_data[10], r_data[90], t_data[30]; // todo: check sizes
-
-    p4pf_single(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
-
-    for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i] * diag;
-      for (int j = 0; j < 3; ++j) {
-        Cs[i](j) = t_data[3 * i + j];
-      }
-      ind = 9 * i;
-      for (int k = 0; k < 3; ++k) {
-        for (int j = 0; j < 3; ++j) {
-          Rs[i](j, k) = r_data[ind];
-          ind++;
-        }
-      }
-    }
+  void vMatlabSolve() override {
+    p4pf_single(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
+                t_size);
   };
 };
 
-template <> class P4PSolver<double> : public Solver<double> {
+template <> class P4PSolver<double> : public MatlabSolver<double> {
 protected:
-  void vSolve(const Matrix<double, 3, 4> &points_3d,
-              const Matrix<double, 2, 4> &points_2d, int *n, double *fs,
-              Matrix<double, 3, 3> *Rs, Matrix<double, 3, 1> *Cs,
-              double diag) const override {
-    double X[12];
-    int ind = 0;
-    for (int j = 0; j < 4; ++j) {
-      for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
-        X[ind] = points_3d(i, j);
-        ind++;
-      }
-    }
-    double x[4], y[4];
-    for (int i = 0; i < 4; ++i) {
-      x[i] = points_2d(0, i) / diag;
-      y[i] = points_2d(1, i) / diag;
-    }
-
-    int f_size[2], r_size[3], t_size[2];
-    double f_data[10], r_data[90], t_data[30]; // todo: check sizes
-
-    p4pf_double(X, x, y, e, n, f_data, f_size, r_data, r_size, t_data, t_size);
-
-    for (int i = 0; i < *n; ++i) {
-      fs[i] = f_data[i] * diag;
-      for (int j = 0; j < 3; ++j) {
-        Cs[i](j) = t_data[3 * i + j];
-      }
-      ind = 9 * i;
-      for (int k = 0; k < 3; ++k) {
-        for (int j = 0; j < 3; ++j) {
-          Rs[i](j, k) = r_data[ind];
-          ind++;
-        }
-      }
-    }
+  void vMatlabSolve() override {
+    p4pf_double(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
+                t_size);
   };
 };

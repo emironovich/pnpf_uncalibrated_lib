@@ -18,8 +18,7 @@ struct TestResult {
   int belowThreshold;
 };
 
-template <class Type>
-TestResult runFunction(const Solver<Type> &solver, int it_num) {
+template <class Type> TestResult runFunction(Solver<Type> &solver, int it_num) {
   int succ_num = 0;
   int zero_solutions_num = 0;
 
