@@ -88,7 +88,7 @@ protected:
 template <> class P35PSolver<float> : public MatlabSolver<float> {
 protected:
   void vMatlabSolve() override {
-    p35p_single(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
+    p35pf_single(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
                 t_size);
   };
 };
@@ -96,7 +96,7 @@ protected:
 template <> class P35PSolver<double> : public MatlabSolver<double> {
 protected:
   void vMatlabSolve() override {
-    p35p_double(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
+    p35pf_double(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
                 t_size);
   };
 };
