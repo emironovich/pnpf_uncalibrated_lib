@@ -5,8 +5,6 @@
 #ifndef PNP_TEST_SOLVERS_H
 #define PNP_TEST_SOLVERS_H
 
-#endif // PNP_TEST_SOLVERS_H
-
 #include "pnpf.h"
 #include <Eigen/Dense>
 #include <climits>
@@ -121,3 +119,5 @@ protected:
                 t_size);
   };
 };
+
+#endif // PNP_TEST_SOLVERS_H

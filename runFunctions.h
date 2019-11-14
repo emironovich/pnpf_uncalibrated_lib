@@ -1,8 +1,5 @@
-/*
 #ifndef PNP_TEST_TEST_H
 #define PNP_TEST_TEST_H
-
-#endif //PNP_TEST_TEST*/
 
 #include "datagen.h"
 #include "solvers.h"
@@ -85,3 +82,5 @@ template <class Type> TestResult runFunction(Solver<Type> &solver, int it_num) {
 
   return {(it_num - zero_solutions_num), succ_num};
 }
+
+#endif // PNP_TEST_TEST
