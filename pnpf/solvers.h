@@ -11,24 +11,23 @@
 
 using namespace Eigen;
 
-template <class T> class Solver {
+template <class SolverClass, class T> class Solver {
 protected:
   T e;
-  virtual void vSolve(const Matrix<T, 3, 4> &points_3d,
-                      const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
-                      Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) = 0;
 
 public:
   Solver() { e = std::numeric_limits<T>::epsilon(); }
   void solve(const Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
              int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs,
              T diag = 1) {
-    vSolve(points_3d, points_2d, n, fs, Rs, Cs, diag);
+    static_cast<SolverClass *>(this)->vSolve(points_3d, points_2d, n, fs, Rs,
+                                             Cs, diag);
   };
 };
 
-template <class T> class MatlabSolver : public Solver<T> {
-protected:
+template <class MatlabSolverClass, class T>
+class MatlabSolver : public Solver<MatlabSolver<MatlabSolverClass, T>, T> {
+public:
   T X[12];
   T x[4], y[4];
   int sol_num;
@@ -69,52 +68,54 @@ protected:
   }
   void vSolve(const Matrix<T, 3, 4> &points_3d,
               const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
-              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) override {
+              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) {
     dataEigenToMatlab(points_3d, points_2d, diag);
-    vMatlabSolve();
+    static_cast<MatlabSolverClass *>(this)->vMatlabSolve();
     dataMatlabToEigen(n, fs, Rs, Cs, diag);
   }
-
-  virtual void vMatlabSolve() = 0;
 };
 
-template <class T> class P35PSolver : public MatlabSolver<T> {
-protected:
+template <class T> class P35PSolver : public MatlabSolver<P35PSolver<T>, T> {
+public:
   void vMatlabSolve(){};
 };
 
-template <> class P35PSolver<float> : public MatlabSolver<float> {
-protected:
-  void vMatlabSolve() override {
+template <>
+class P35PSolver<float> : public MatlabSolver<P35PSolver<float>, float> {
+public:
+  void vMatlabSolve() {
     p35p_single(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
                 t_size);
   };
 };
 
-template <> class P35PSolver<double> : public MatlabSolver<double> {
-protected:
-  void vMatlabSolve() override {
+template <>
+class P35PSolver<double> : public MatlabSolver<P35PSolver<double>, double> {
+public:
+  void vMatlabSolve() {
     p35p_double(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
                 t_size);
   };
 };
 
-template <class T> class P4PSolver : public MatlabSolver<T> {
-protected:
+template <class T> class P4PSolver : public MatlabSolver<P4PSolver<T>, T> {
+public:
   void vMatlabSolve(){};
 };
 
-template <> class P4PSolver<float> : public MatlabSolver<float> {
-protected:
-  void vMatlabSolve() override {
+template <>
+class P4PSolver<float> : public MatlabSolver<P4PSolver<float>, float> {
+public:
+  void vMatlabSolve() {
     p4pf_single(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
                 t_size);
   };
 };
 
-template <> class P4PSolver<double> : public MatlabSolver<double> {
-protected:
-  void vMatlabSolve() override {
+template <>
+class P4PSolver<double> : public MatlabSolver<P4PSolver<double>, double> {
+public:
+  void vMatlabSolve() {
     p4pf_double(X, x, y, e, &sol_num, f_data, f_size, r_data, r_size, t_data,
                 t_size);
   };
