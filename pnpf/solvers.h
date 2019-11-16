@@ -17,7 +17,7 @@ protected:
 
 public:
   Solver() { e = std::numeric_limits<T>::epsilon(); }
-  void solve(const Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
+  void solve(Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
              int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs,
              T diag = 1) {
     static_cast<SolverClass *>(this)->vSolve(points_3d, points_2d, n, fs, Rs,
@@ -28,47 +28,32 @@ public:
 template <class MatlabSolverClass, class T>
 class MatlabSolver : public Solver<MatlabSolver<MatlabSolverClass, T>, T> {
 public:
-  T X[12];
+  T *X;
   T x[4], y[4];
   int sol_num;
   int f_size[2], r_size[3], t_size[2];
   T f_data[10], r_data[90], t_data[30]; // todo: check sizes
 
-  void dataEigenToMatlab(const Matrix<T, 3, 4> &points_3d,
+  void dataEigenToMatlab(Matrix<T, 3, 4> &points_3d,
                          const Matrix<T, 2, 4> &points_2d, T diag) {
-    int ind = 0;
-    for (int j = 0; j < 4; ++j) {
-      for (int i = 0; i < 3; ++i) { // assuming matlab made column-major array
-        X[ind] = points_3d(i, j);
-        ind++;
-      }
-    }
-    for (int i = 0; i < 4; ++i) {
+    X = points_3d.data();
+    for (int i = 0; i < 4; ++i) { // todo change x, y to xy, then use data()
       x[i] = points_2d(0, i) / diag;
       y[i] = points_2d(1, i) / diag;
     }
   }
 
   void dataMatlabToEigen(int *n, T *fs, Matrix<T, 3, 3> *Rs,
-                         Matrix<T, 3, 1> *Cs, T diag) const {
+                         Matrix<T, 3, 1> *Cs, T diag) {
     *n = sol_num;
     for (int i = 0; i < *n; ++i) {
       fs[i] = f_data[i] * diag;
-      for (int j = 0; j < 3; ++j) {
-        Cs[i](j) = t_data[3 * i + j];
-      }
-      int ind = 9 * i;
-      for (int k = 0; k < 3; ++k) {
-        for (int j = 0; j < 3; ++j) {
-          Rs[i](j, k) = r_data[ind];
-          ind++;
-        }
-      }
+      Cs[i] = Map<Matrix<T, 3, 1> >(&(t_data[3*i]));
+      Rs[i] = Map<Matrix<T, 3, 3> >(&(r_data[9*i]));
     }
   }
-  void vSolve(const Matrix<T, 3, 4> &points_3d,
-              const Matrix<T, 2, 4> &points_2d, int *n, T *fs,
-              Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) {
+  void vSolve(Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
+              int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) {
     dataEigenToMatlab(points_3d, points_2d, diag);
     static_cast<MatlabSolverClass *>(this)->vMatlabSolve();
     dataMatlabToEigen(n, fs, Rs, Cs, diag);
