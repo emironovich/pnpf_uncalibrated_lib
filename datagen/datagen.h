@@ -3,10 +3,10 @@
 #include <Eigen/LU>
 #include <random>
 #include <unsupported/Eigen/MatrixFunctions>
-using namespace Eigen;
 
-template <class Type> Matrix<Type, 3, 3> makeSkew(const Matrix<Type, 3, 1> &a) {
-  Matrix<Type, 3, 3> S;
+template <class Type>
+Eigen::Matrix<Type, 3, 3> makeSkew(const Eigen::Matrix<Type, 3, 1> &a) {
+  Eigen::Matrix<Type, 3, 3> S;
   S.setZero();
   S(0, 1) = -a(2);
   S(0, 2) = a(1);
@@ -19,8 +19,9 @@ template <class Type> Matrix<Type, 3, 3> makeSkew(const Matrix<Type, 3, 1> &a) {
 }
 
 template <class Type>
-void generateData(Matrix<Type, 3, 4> &points_3d, Matrix<Type, 2, 4> &points_2d,
-                  Type &f, Matrix<Type, 3, 3> &R, Matrix<Type, 3, 1> &C,
+void generateData(Eigen::Matrix<Type, 3, 4> &points_3d,
+                  Eigen::Matrix<Type, 2, 4> &points_2d, Type &f,
+                  Eigen::Matrix<Type, 3, 3> &R, Eigen::Matrix<Type, 3, 1> &C,
                   Type d = 0) {
 
   std::random_device dev;
@@ -32,23 +33,24 @@ void generateData(Matrix<Type, 3, 4> &points_3d, Matrix<Type, 2, 4> &points_2d,
   f = 200 + 1800 * (uniformDistribution(generator) + 1) / 2;
 
   // rotation
-  Matrix<Type, 3, 1> rVec = Matrix<Type, 3, 1>::NullaryExpr(3, 1, uniform);
+  Eigen::Matrix<Type, 3, 1> rVec =
+      Eigen::Matrix<Type, 3, 1>::NullaryExpr(3, 1, uniform);
   rVec /= 2; //???
-  Matrix<Type, 3, 3> rVecSkew = makeSkew(rVec);
+  Eigen::Matrix<Type, 3, 3> rVecSkew = makeSkew(rVec);
   R = rVecSkew.exp();
 
   // camera center
-  C = Matrix<Type, 3, 1>::NullaryExpr(3, 1, uniform);
+  C = Eigen::Matrix<Type, 3, 1>::NullaryExpr(3, 1, uniform);
   C /= 2; //???
 
-  // calibration matrix
-  Matrix<Type, 3, 3> K;
+  // calibration Eigen::Matrix
+  Eigen::Matrix<Type, 3, 3> K;
   K.setZero();
   K(0, 0) = K(1, 1) = f;
   K(2, 2) = 1;
 
-  // projection matrix
-  Matrix<Type, 3, 4> P;
+  // projection Eigen::Matrix
+  Eigen::Matrix<Type, 3, 4> P;
   P.setIdentity();
   P.col(3) = -C;
   P = K * R * P;
@@ -56,23 +58,24 @@ void generateData(Matrix<Type, 3, 4> &points_3d, Matrix<Type, 2, 4> &points_2d,
   // points in space
   points_3d.setZero();
   points_3d.row(2).setConstant(6);
-  Matrix<Type, 3, 4> tmp = Matrix<Type, 3, 4>::NullaryExpr(3, 4, uniform);
+  Eigen::Matrix<Type, 3, 4> tmp =
+      Eigen::Matrix<Type, 3, 4>::NullaryExpr(3, 4, uniform);
   points_3d += 2 * tmp;
   for (int i = 0; i < 4; ++i) {
     points_3d.col(i) = (R.transpose() * points_3d.col(i) + C).eval();
   }
 
   // image points
-  Matrix<Type, 4, 4> XMHom;
+  Eigen::Matrix<Type, 4, 4> XMHom;
   XMHom << points_3d, 1, 1, 1, 1;
-  Matrix<Type, 3, 4> pHom = P * XMHom;
+  Eigen::Matrix<Type, 3, 4> pHom = P * XMHom;
 
   for (int i = 0; i < 4; ++i) {
-    Matrix<Type, 2, 1> dist;
+    Eigen::Matrix<Type, 2, 1> dist;
     if (d > 0) {
       std::normal_distribution<Type> normalDistribution(0, d);
       auto normal = [&]() { return normalDistribution(generator); };
-      dist = Matrix<Type, 2, 1>::NullaryExpr(2, 1, normal);
+      dist = Eigen::Matrix<Type, 2, 1>::NullaryExpr(2, 1, normal);
     } else {
       dist.setZero();
     }

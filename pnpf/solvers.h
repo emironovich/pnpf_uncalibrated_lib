@@ -9,16 +9,15 @@
 #include <Eigen/Dense>
 #include <climits>
 
-using namespace Eigen;
-
 template <class SolverClass, class T> class Solver {
 protected:
   T e;
 
 public:
   Solver() { e = std::numeric_limits<T>::epsilon(); }
-  void solve(Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
-             int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs,
+  void solve(Eigen::Matrix<T, 3, 4> &points_3d,
+             const Eigen::Matrix<T, 2, 4> &points_2d, int *n, T *fs,
+             Eigen::Matrix<T, 3, 3> *Rs, Eigen::Matrix<T, 3, 1> *Cs,
              T diag = 1) {
     static_cast<SolverClass *>(this)->vSolve(points_3d, points_2d, n, fs, Rs,
                                              Cs, diag);
@@ -34,8 +33,8 @@ public:
   int f_size[2], r_size[3], t_size[2];
   T f_data[10], r_data[90], t_data[30]; // todo: check sizes
 
-  void dataEigenToMatlab(Matrix<T, 3, 4> &points_3d,
-                         const Matrix<T, 2, 4> &points_2d, T diag) {
+  void dataEigenToMatlab(Eigen::Matrix<T, 3, 4> &points_3d,
+                         const Eigen::Matrix<T, 2, 4> &points_2d, T diag) {
     X = points_3d.data();
     for (int i = 0; i < 4; ++i) { // todo change x, y to xy, then use data()
       x[i] = points_2d(0, i) / diag;
@@ -43,17 +42,18 @@ public:
     }
   }
 
-  void dataMatlabToEigen(int *n, T *fs, Matrix<T, 3, 3> *Rs,
-                         Matrix<T, 3, 1> *Cs, T diag) {
+  void dataMatlabToEigen(int *n, T *fs, Eigen::Matrix<T, 3, 3> *Rs,
+                         Eigen::Matrix<T, 3, 1> *Cs, T diag) {
     *n = sol_num;
     for (int i = 0; i < *n; ++i) {
       fs[i] = f_data[i] * diag;
-      Cs[i] = Map<Matrix<T, 3, 1> >(&(t_data[3*i]));
-      Rs[i] = Map<Matrix<T, 3, 3> >(&(r_data[9*i]));
+      Cs[i] = Eigen::Map<Eigen::Matrix<T, 3, 1>>(&(t_data[3 * i]));
+      Rs[i] = Eigen::Map<Eigen::Matrix<T, 3, 3>>(&(r_data[9 * i]));
     }
   }
-  void vSolve(Matrix<T, 3, 4> &points_3d, const Matrix<T, 2, 4> &points_2d,
-              int *n, T *fs, Matrix<T, 3, 3> *Rs, Matrix<T, 3, 1> *Cs, T diag) {
+  void vSolve(Eigen::Matrix<T, 3, 4> &points_3d,
+              const Eigen::Matrix<T, 2, 4> &points_2d, int *n, T *fs,
+              Eigen::Matrix<T, 3, 3> *Rs, Eigen::Matrix<T, 3, 1> *Cs, T diag) {
     dataEigenToMatlab(points_3d, points_2d, diag);
     static_cast<MatlabSolverClass *>(this)->vMatlabSolve();
     dataMatlabToEigen(n, fs, Rs, Cs, diag);

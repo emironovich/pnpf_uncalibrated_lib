@@ -8,8 +8,6 @@
 #include <cmath>
 #include <iostream>
 
-using namespace Eigen;
-
 struct TestResult {
   int existSolutions;
   int belowThreshold;
@@ -21,17 +19,17 @@ TestResult runFunction(Solver<MatlabClass, Type> &solver, int it_num) {
   int zero_solutions_num = 0;
 
   // allocate for generated data
-  Matrix<Type, 3, 4> points_3d;
-  Matrix<Type, 2, 4> points_2d;
+  Eigen::Matrix<Type, 3, 4> points_3d;
+  Eigen::Matrix<Type, 2, 4> points_2d;
   Type f_gen;
-  Matrix<Type, 3, 3> R_gen;
-  Matrix<Type, 3, 1> C_gen;
+  Eigen::Matrix<Type, 3, 3> R_gen;
+  Eigen::Matrix<Type, 3, 1> C_gen;
 
   // allocate for estimated data
   int solution_num = 0;
   Type fs[10];
-  Matrix<Type, 3, 3> Rs[10];
-  Matrix<Type, 3, 1> Cs[10];
+  Eigen::Matrix<Type, 3, 3> Rs[10];
+  Eigen::Matrix<Type, 3, 1> Cs[10];
   // p4p_solver_initialize();
 
   for (int curr_it = 0; curr_it < it_num; ++curr_it) {
@@ -48,11 +46,11 @@ TestResult runFunction(Solver<MatlabClass, Type> &solver, int it_num) {
     for (int i = 0; i < solution_num; ++i) {
 
       Type f = fs[i];
-      Matrix<Type, 3, 1> C;
-      Matrix<Type, 3, 3> R;
+      Eigen::Matrix<Type, 3, 1> C;
+      Eigen::Matrix<Type, 3, 3> R;
       C = Cs[i];
       R = Rs[i];
-      Matrix<Type, 3, 3> K;
+      Eigen::Matrix<Type, 3, 3> K;
       K.setZero();
       K(0, 0) = K(1, 1) = f;
       K(2, 2) = 1;

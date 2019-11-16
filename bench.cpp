@@ -5,17 +5,17 @@
 
 template <class Type> void BM_P35P(benchmark::State &state) {
   // allocate for generated data
-  Matrix<Type, 3, 4> points_3d;
-  Matrix<Type, 2, 4> points_2d;
+  Eigen::Matrix<Type, 3, 4> points_3d;
+  Eigen::Matrix<Type, 2, 4> points_2d;
   Type f_gen;
-  Matrix<Type, 3, 3> R_gen;
-  Matrix<Type, 3, 1> C_gen;
+  Eigen::Matrix<Type, 3, 3> R_gen;
+  Eigen::Matrix<Type, 3, 1> C_gen;
 
   // allocate for estimated data
   int solution_num = 0;
   Type f_sol_data[10];
-  Matrix<Type, 3, 3> R_sol_data[10];
-  Matrix<Type, 3, 1> T_sol_data[10];
+  Eigen::Matrix<Type, 3, 3> R_sol_data[10];
+  Eigen::Matrix<Type, 3, 1> T_sol_data[10];
 
   generateData(points_3d, points_2d, f_gen, R_gen, C_gen);
   P35PSolver<Type> p35pSolver;
@@ -30,17 +30,17 @@ BENCHMARK_TEMPLATE1(BM_P35P, float);
 template <class Type> void BM_P4P(benchmark::State &state) {
   Type eps = 1e-4;
   // allocate for generated data
-  Matrix<Type, 3, 4> points_3d;
-  Matrix<Type, 2, 4> points_2d;
+  Eigen::Matrix<Type, 3, 4> points_3d;
+  Eigen::Matrix<Type, 2, 4> points_2d;
   Type f_gen;
-  Matrix<Type, 3, 3> R_gen;
-  Matrix<Type, 3, 1> C_gen;
+  Eigen::Matrix<Type, 3, 3> R_gen;
+  Eigen::Matrix<Type, 3, 1> C_gen;
 
   // allocate for estimated data
   int solution_num = 0;
   Type f_sol_data[10];
-  Matrix<Type, 3, 3> R_sol_data[10];
-  Matrix<Type, 3, 1> T_sol_data[10];
+  Eigen::Matrix<Type, 3, 3> R_sol_data[10];
+  Eigen::Matrix<Type, 3, 1> T_sol_data[10];
 
   generateData(points_3d, points_2d, f_gen, R_gen, C_gen);
   P4PSolver<Type> p4pSolver;
