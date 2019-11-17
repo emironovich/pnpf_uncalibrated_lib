@@ -36,10 +36,8 @@ public:
   void dataEigenToMatlab(Eigen::Matrix<T, 3, 4> &points_3d,
                          const Eigen::Matrix<T, 2, 4> &points_2d, T diag) {
     X = points_3d.data();
-    for (int i = 0; i < 4; ++i) { // todo change x, y to xy, then use data()
-      x[i] = points_2d(0, i) / diag;
-      y[i] = points_2d(1, i) / diag;
-    }
+    Eigen::Map<Eigen::Matrix<T, 4, 1> >(x, 4, 1) = (points_2d / diag).row(0);
+    Eigen::Map<Eigen::Matrix<T, 4, 1> >(y, 4, 1) = (points_2d / diag).row(1);
   }
 
   void dataMatlabToEigen(int *n, T *fs, Eigen::Matrix<T, 3, 3> *Rs,
