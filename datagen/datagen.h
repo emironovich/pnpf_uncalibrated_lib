@@ -43,13 +43,13 @@ void generateData(Eigen::Matrix<Type, 3, 4> &points_3d,
   C = Eigen::Matrix<Type, 3, 1>::NullaryExpr(3, 1, uniform);
   C /= 2; //???
 
-  // calibration Eigen::Matrix
+  // calibration matrix
   Eigen::Matrix<Type, 3, 3> K;
   K.setZero();
   K(0, 0) = K(1, 1) = f;
   K(2, 2) = 1;
 
-  // projection Eigen::Matrix
+  // projection matrix
   Eigen::Matrix<Type, 3, 4> P;
   P.setIdentity();
   P.col(3) = -C;

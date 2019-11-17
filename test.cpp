@@ -1,7 +1,6 @@
 #include "datagen.h"
 #include "runFunctions.h"
 #include "gtest/gtest.h"
-#include <utility>
 
 template <class SolverClass> class PnPTest : public testing::Test {
 protected:
