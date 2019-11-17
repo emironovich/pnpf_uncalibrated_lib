@@ -24,7 +24,7 @@ TYPED_TEST_SUITE(PnPTest, PrecisionTypes);
 TYPED_TEST(PnPTest, PnP) {
   ASSERT_GT((double)this->res.existSolutions / this->it_num,
             0.8); // todo: figure out constants
-  ASSERT_GT((double)this->res.belowThreshold / this->it_num, 0.8);
+  ASSERT_GT((double)this->res.belowThreshold / this->it_num, 0.76);
 }
 
 #endif // GTEST_HAS_TYPED_TEST
