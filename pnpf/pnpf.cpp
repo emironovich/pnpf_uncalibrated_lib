@@ -5,7 +5,7 @@
 // File: pnpf.cpp
 //
 // MATLAB Coder version            : 4.3
-// C/C++ source code generated on  : 16-Oct-2019 19:14:02
+// C/C++ source code generated on  : 17-Nov-2019 18:29:06
 //
 
 // Include Files
@@ -32,7 +32,6 @@ static double b_norm(const double x[8]);
 static void b_qr(const float A[12], float Q[9], float R[12]);
 static void b_quadruple_constraint(double i, double j, double k, const float x[4],
   const float y[4], const float X[12], const float R[54], float F_row[18]);
-static float b_rcond(const float A[400]);
 static creal32_T b_recip(const creal32_T y);
 static void b_schur(float A[100], float V[100]);
 static void b_solve_3Q3(const float c[30], double *n, float xs_data[], int
@@ -51,7 +50,6 @@ static void b_xrotg(float *a, float *b, float *c, float *s);
 static void b_xzgeev(const creal32_T A_data[], const int A_size[2], int *info,
                      creal32_T alpha1_data[], int alpha1_size[1], creal32_T
                      beta1_data[], int beta1_size[1]);
-static void b_xzgetrf(float A[400], int ipiv[20], int *info);
 static void b_xzggev(creal32_T A[100], int *info, creal32_T alpha1[10],
                      creal32_T beta1[10], creal32_T V[100]);
 static void b_xzhgeqz(const creal32_T A_data[], const int A_size[2], int ilo,
@@ -64,13 +62,11 @@ static void b_xztgevc(const creal32_T A[100], creal32_T V[100]);
 static void c_mldivide(const float A[400], float B[200]);
 static float c_norm(const float x[8]);
 static void c_qr(const double A[32], double Q[64], double R[32]);
-static double c_rcond(const double A[9]);
 static void c_sqrt(creal32_T *x);
 static void c_xgerc(int m, int n, double alpha1, int ix0, const double y[8],
                     double A[64], int ia0);
 static double c_xnrm2(int n, const double x[12], int ix0);
 static void c_xrot(int n, float x[100], int ix0, int iy0, float c, float s);
-static void c_xzgetrf(double A[9], int ipiv[3], int *info);
 static void c_xzhgeqz(creal_T A[100], int ilo, int ihi, creal_T Z[100], int
                       *info, creal_T alpha1[10], creal_T beta1[10]);
 static void c_xzlartg(const creal32_T f, const creal32_T g, float *cs, creal32_T
@@ -79,12 +75,10 @@ static void cat(const double varargin_1_data[], const int varargin_1_size[3],
                 const double varargin_2[9], double y_data[], int y_size[3]);
 static void d_mldivide(const double A[16], double B[16]);
 static void d_qr(const double A[9], double Q[9], double R[9]);
-static float d_rcond(const float A[9]);
 static void d_xgerc(int m, int n, double alpha1, int ix0, const double y[3],
                     double A[9], int ia0);
 static float d_xnrm2(int n, const float x[100], int ix0);
 static void d_xrot(float x[100], int ix0, int iy0, float c, float s);
-static void d_xzgetrf(float A[9], int ipiv[3], int *info);
 static void d_xzhgeqz(creal32_T A[100], int ilo, int ihi, creal32_T Z[100], int *
                       info, creal32_T alpha1[10], creal32_T beta1[10]);
 static void d_xzlartg(const creal32_T f, const creal32_T g, float *cs, creal32_T
@@ -123,7 +117,6 @@ static void qr(const double A[12], double Q[9], double R[12]);
 static void qrpf(double A[36], double tau[3], int jpvt[3]);
 static void quadruple_constraint(double i, double j, double k, const double x[4],
   const double y[4], const double X[12], const double R[54], double F_row[18]);
-static double rcond(const double A[400]);
 static creal_T recip(const creal_T y);
 static void roots(const double c[9], creal_T r_data[], int r_size[1]);
 static double rt_hypotd(double u0, double u1);
@@ -146,7 +139,6 @@ static void xrotg(double *a, double *b, double *c, double *s);
 static void xzgeev(const creal_T A_data[], const int A_size[2], int *info,
                    creal_T alpha1_data[], int alpha1_size[1], creal_T
                    beta1_data[], int beta1_size[1]);
-static void xzgetrf(double A[400], int ipiv[20], int *info);
 static void xzggbak(creal_T V[100], int ilo, int ihi, const int rscale[10]);
 static void xzggbal(creal_T A[100], int *ilo, int *ihi, int rscale[10]);
 static void xzggev(creal_T A[100], int *info, creal_T alpha1[10], creal_T beta1
@@ -1901,55 +1893,117 @@ static void b_find_f(const float F[72], float x, float y, float e, float
 static void b_mldivide(const double A[400], double B[200])
 {
   double b_A[400];
-  int ipiv[20];
-  int info;
-  int jBcol;
-  int temp_tmp;
-  double temp;
-  int kAcol;
   int i;
+  int j;
+  signed char ipiv[20];
+  int mmj_tmp;
+  int b;
+  int jA;
+  int jj;
+  int k;
+  int jp1j;
+  int iy;
+  int ix;
+  double smax;
   int i1;
-  int b_i;
-  int i2;
+  double s;
   std::memcpy(&b_A[0], &A[0], 400U * sizeof(double));
-  xzgetrf(b_A, ipiv, &info);
-  for (info = 0; info < 19; info++) {
-    if (ipiv[info] != info + 1) {
-      for (jBcol = 0; jBcol < 10; jBcol++) {
-        temp_tmp = info + 20 * jBcol;
-        temp = B[temp_tmp];
-        i = (ipiv[info] + 20 * jBcol) - 1;
-        B[temp_tmp] = B[i];
-        B[i] = temp;
+  for (i = 0; i < 20; i++) {
+    ipiv[i] = static_cast<signed char>((i + 1));
+  }
+
+  for (j = 0; j < 19; j++) {
+    mmj_tmp = 18 - j;
+    b = j * 21;
+    jj = j * 21;
+    jp1j = b + 2;
+    iy = 20 - j;
+    jA = 0;
+    ix = b;
+    smax = std::abs(b_A[jj]);
+    for (k = 2; k <= iy; k++) {
+      ix++;
+      s = std::abs(b_A[ix]);
+      if (s > smax) {
+        jA = k - 1;
+        smax = s;
+      }
+    }
+
+    if (b_A[jj + jA] != 0.0) {
+      if (jA != 0) {
+        iy = j + jA;
+        ipiv[j] = static_cast<signed char>((iy + 1));
+        ix = j;
+        for (k = 0; k < 20; k++) {
+          smax = b_A[ix];
+          b_A[ix] = b_A[iy];
+          b_A[iy] = smax;
+          ix += 20;
+          iy += 20;
+        }
+      }
+
+      i = (jj - j) + 20;
+      for (ix = jp1j; ix <= i; ix++) {
+        b_A[ix - 1] /= b_A[jj];
+      }
+    }
+
+    iy = b + 20;
+    jA = jj;
+    for (b = 0; b <= mmj_tmp; b++) {
+      smax = b_A[iy];
+      if (b_A[iy] != 0.0) {
+        ix = jj + 1;
+        i = jA + 22;
+        i1 = (jA - j) + 40;
+        for (jp1j = i; jp1j <= i1; jp1j++) {
+          b_A[jp1j - 1] += b_A[ix] * -smax;
+          ix++;
+        }
+      }
+
+      iy += 20;
+      jA += 20;
+    }
+
+    if (ipiv[j] != j + 1) {
+      for (iy = 0; iy < 10; iy++) {
+        jA = j + 20 * iy;
+        smax = B[jA];
+        i = (ipiv[j] + 20 * iy) - 1;
+        B[jA] = B[i];
+        B[i] = smax;
       }
     }
   }
 
-  for (info = 0; info < 10; info++) {
-    jBcol = 20 * info;
-    for (temp_tmp = 0; temp_tmp < 20; temp_tmp++) {
-      kAcol = 20 * temp_tmp;
-      i = temp_tmp + jBcol;
+  for (j = 0; j < 10; j++) {
+    jA = 20 * j;
+    for (k = 0; k < 20; k++) {
+      iy = 20 * k;
+      i = k + jA;
       if (B[i] != 0.0) {
-        i1 = temp_tmp + 2;
-        for (b_i = i1; b_i < 21; b_i++) {
-          i2 = (b_i + jBcol) - 1;
-          B[i2] -= B[i] * b_A[(b_i + kAcol) - 1];
+        i1 = k + 2;
+        for (ix = i1; ix < 21; ix++) {
+          b = (ix + jA) - 1;
+          B[b] -= B[i] * b_A[(ix + iy) - 1];
         }
       }
     }
   }
 
-  for (info = 0; info < 10; info++) {
-    jBcol = 20 * info;
-    for (temp_tmp = 19; temp_tmp >= 0; temp_tmp--) {
-      kAcol = 20 * temp_tmp;
-      i = temp_tmp + jBcol;
+  for (j = 0; j < 10; j++) {
+    jA = 20 * j;
+    for (k = 19; k >= 0; k--) {
+      iy = 20 * k;
+      i = k + jA;
       if (B[i] != 0.0) {
-        B[i] /= b_A[temp_tmp + kAcol];
-        for (b_i = 0; b_i < temp_tmp; b_i++) {
-          i1 = b_i + jBcol;
-          B[i1] -= B[i] * b_A[b_i + kAcol];
+        B[i] /= b_A[k + iy];
+        for (ix = 0; ix < k; ix++) {
+          i1 = ix + jA;
+          B[i1] -= B[i] * b_A[ix + iy];
         }
       }
     }
@@ -3406,224 +3460,6 @@ static void b_quadruple_constraint(double i, double j, double k, const float x[4
 }
 
 //
-// Arguments    : const float A[400]
-// Return Type  : float
-//
-static float b_rcond(const float A[400])
-{
-  float result;
-  float normA;
-  int j;
-  float s;
-  float b_A[400];
-  int i;
-  int ipiv[20];
-  int jA;
-  int jjA;
-  int exitg1;
-  float ainvnm;
-  int iter;
-  int kase;
-  int jump;
-  float x[20];
-  int b_j;
-  int b_i;
-  float absrexk;
-  result = 0.0F;
-  normA = 0.0F;
-  for (j = 0; j < 20; j++) {
-    s = 0.0F;
-    for (i = 0; i < 20; i++) {
-      s += std::abs(A[i + 20 * j]);
-    }
-
-    if (s > normA) {
-      normA = s;
-    }
-  }
-
-  if (normA != 0.0F) {
-    std::memcpy(&b_A[0], &A[0], 400U * sizeof(float));
-    b_xzgetrf(b_A, ipiv, &jA);
-    jjA = 19;
-    do {
-      exitg1 = 0;
-      if (jjA + 1 > 0) {
-        if (b_A[jjA + 20 * jjA] == 0.0F) {
-          exitg1 = 1;
-        } else {
-          jjA--;
-        }
-      } else {
-        ainvnm = 0.0F;
-        iter = 2;
-        kase = 1;
-        jump = 1;
-        j = 0;
-        for (i = 0; i < 20; i++) {
-          x[i] = 0.05F;
-        }
-
-        while (kase != 0) {
-          if (kase == 1) {
-            for (b_j = 0; b_j < 20; b_j++) {
-              jjA = b_j + b_j * 20;
-              b_i = 18 - b_j;
-              for (i = 0; i <= b_i; i++) {
-                jA = (b_j + i) + 1;
-                x[jA] -= x[b_j] * b_A[(jjA + i) + 1];
-              }
-            }
-
-            for (b_j = 19; b_j >= 0; b_j--) {
-              jjA = b_j + b_j * 20;
-              x[b_j] /= b_A[jjA];
-              for (i = 0; i < b_j; i++) {
-                jA = (b_j - i) - 1;
-                x[jA] -= x[b_j] * b_A[(jjA - i) - 1];
-              }
-            }
-          } else {
-            for (b_j = 0; b_j < 20; b_j++) {
-              jA = b_j * 20;
-              s = x[b_j];
-              for (i = 0; i < b_j; i++) {
-                s -= b_A[jA + i] * x[i];
-              }
-
-              x[b_j] = s / b_A[jA + b_j];
-            }
-
-            for (b_j = 19; b_j >= 0; b_j--) {
-              jA = b_j * 20;
-              s = x[b_j];
-              b_i = b_j + 2;
-              for (i = 20; i >= b_i; i--) {
-                s -= b_A[(jA + i) - 1] * x[i - 1];
-              }
-
-              x[b_j] = s;
-            }
-          }
-
-          if (jump == 1) {
-            ainvnm = 0.0F;
-            for (jjA = 0; jjA < 20; jjA++) {
-              s = std::abs(x[jjA]);
-              ainvnm += s;
-              if (s > 1.17549435E-38F) {
-                x[jjA] /= s;
-              } else {
-                x[jjA] = 1.0F;
-              }
-            }
-
-            kase = 2;
-            jump = 2;
-          } else if (jump == 2) {
-            j = 0;
-            s = std::abs(x[0]);
-            for (jjA = 0; jjA < 19; jjA++) {
-              absrexk = std::abs(x[jjA + 1]);
-              if (absrexk > s) {
-                j = jjA + 1;
-                s = absrexk;
-              }
-            }
-
-            iter = 2;
-            std::memset(&x[0], 0, 20U * sizeof(float));
-            x[j] = 1.0F;
-            kase = 1;
-            jump = 3;
-          } else if (jump == 3) {
-            ainvnm = 0.0F;
-            for (jjA = 0; jjA < 20; jjA++) {
-              ainvnm += std::abs(x[jjA]);
-            }
-
-            if (ainvnm <= x[0]) {
-              s = 1.0F;
-              for (jjA = 0; jjA < 20; jjA++) {
-                x[jjA] = s * (((static_cast<float>(jjA) + 1.0F) - 1.0F) / 19.0F
-                              + 1.0F);
-                s = -s;
-              }
-
-              kase = 1;
-              jump = 5;
-            } else {
-              for (jjA = 0; jjA < 20; jjA++) {
-                s = std::abs(x[jjA]);
-                if (s > 1.17549435E-38F) {
-                  x[jjA] /= s;
-                } else {
-                  x[jjA] = 1.0F;
-                }
-              }
-
-              kase = 2;
-              jump = 4;
-            }
-          } else if (jump == 4) {
-            jA = j;
-            j = 0;
-            s = std::abs(x[0]);
-            for (jjA = 0; jjA < 19; jjA++) {
-              absrexk = std::abs(x[jjA + 1]);
-              if (absrexk > s) {
-                j = jjA + 1;
-                s = absrexk;
-              }
-            }
-
-            if ((std::abs(x[jA]) != std::abs(x[j])) && (iter <= 5)) {
-              iter++;
-              std::memset(&x[0], 0, 20U * sizeof(float));
-              x[j] = 1.0F;
-              kase = 1;
-              jump = 3;
-            } else {
-              s = 1.0F;
-              for (jjA = 0; jjA < 20; jjA++) {
-                x[jjA] = s * (((static_cast<float>(jjA) + 1.0F) - 1.0F) / 19.0F
-                              + 1.0F);
-                s = -s;
-              }
-
-              kase = 1;
-              jump = 5;
-            }
-          } else {
-            if (jump == 5) {
-              s = 0.0F;
-              for (jjA = 0; jjA < 20; jjA++) {
-                s += std::abs(x[jjA]);
-              }
-
-              s = 2.0F * s / 3.0F / 20.0F;
-              if (s > ainvnm) {
-                ainvnm = s;
-              }
-
-              kase = 0;
-            }
-          }
-        }
-
-        if (ainvnm != 0.0F) {
-          result = 1.0F / ainvnm / normA;
-        }
-
-        exitg1 = 1;
-      }
-    } while (exitg1 == 0);
-  }
-
-  return result;
-}
-
-//
 // Arguments    : const creal32_T y
 // Return Type  : creal32_T
 //
@@ -3926,7 +3762,7 @@ static void b_solve_3Q3(const float c[30], double *n, float xs_data[], int
   int b_i;
   float M[45];
   int r1;
-  float ctmp[9];
+  float b_A[9];
   float mons[5];
   int r2;
   int r3;
@@ -3941,7 +3777,7 @@ static void b_solve_3Q3(const float c[30], double *n, float xs_data[], int
   int rtemp;
   float g_mons_tmp;
   float h_mons_tmp;
-  int nTrailingZeros;
+  int k1;
   float M_tmp;
   float i_mons_tmp;
   float b_M_tmp;
@@ -3959,39 +3795,30 @@ static void b_solve_3Q3(const float c[30], double *n, float xs_data[], int
   float u_mons_tmp;
   float v_mons_tmp;
   float w_mons_tmp;
-  float C[13];
+  float C[6];
+  float b_C[6];
+  float c_C[9];
   float y[20];
-  float b_C[13];
-  float c_C[13];
+  float d_C[5];
   creal32_T xs_complex_data[8];
-  int k2;
   int companDim;
   boolean_T exitg1;
   int a_size[2];
   creal32_T a_data[64];
   float b_xs_data[8];
+  float c_xs_data[13];
   boolean_T p;
   creal32_T eiga_data[8];
   int eiga_size[1];
   creal32_T beta1_data[8];
   int beta1_size[1];
   int exitg2;
-  float b_A[9];
 
   // 'solve_3Q3:4' xs = zeros(1, 0, 'like', c);
-  xs_size[0] = 1;
-  xs_size[1] = 0;
-
   // 'solve_3Q3:5' coder.varsize('xs', [1 13], [0 1]);
   // 'solve_3Q3:6' ys = zeros(1, 0, 'like', c);
-  ys_size[0] = 1;
-  ys_size[1] = 0;
-
   // 'solve_3Q3:7' coder.varsize('ys', [1 13], [0 1]);
   // 'solve_3Q3:8' zs = zeros(1, 0, 'like', c);
-  zs_size[0] = 1;
-  zs_size[1] = 0;
-
   // 'solve_3Q3:9' coder.varsize('zs', [1 13], [0 1]);
   // 'solve_3Q3:11' A = find_A(c);
   // 'solve_3Q3:47' A = [c(1, 2), c(1, 3), c(1, 6);
@@ -4007,768 +3834,756 @@ static void b_solve_3Q3(const float c[30], double *n, float xs_data[], int
   A[5] = c[8];
   A[8] = c[17];
 
-  // 'solve_3Q3:12' if rcond(A) < eps
-  //if (d_rcond(A) < 2.22044605E-16F) { //todo: rcond
-  if(false){
-    // 'solve_3Q3:13' n = 0;
-    *n = 0.0;
-  } else {
-    // 'solve_3Q3:16' P = find_P(c);
-    // 'solve_3Q3:53' P = zeros(3, 3, 3, 'like', c);
-    // [x^2, x, 1]
-    // 'solve_3Q3:54' for i = 1 : 3
-    for (i = 0; i < 3; i++) {
-      // 'solve_3Q3:55' P(i, 1, :) = [0, -c(i, 4), -c(i, 8)];
-      P[i] = 0.0F;
-      P[i + 9] = -c[i + 9];
-      P[i + 18] = -c[i + 21];
+  //      if rcond(A) < eps
+  //           n = 0;
+  //           return;
+  //      end
+  // 'solve_3Q3:16' P = find_P(c);
+  // 'solve_3Q3:53' P = zeros(3, 3, 3, 'like', c);
+  // [x^2, x, 1]
+  // 'solve_3Q3:54' for i = 1 : 3
+  for (i = 0; i < 3; i++) {
+    // 'solve_3Q3:55' P(i, 1, :) = [0, -c(i, 4), -c(i, 8)];
+    P[i] = 0.0F;
+    P[i + 9] = -c[i + 9];
+    P[i + 18] = -c[i + 21];
 
-      // y
-      // 'solve_3Q3:56' P(i, 2, :) = [0, -c(i, 5), -c(i, 9)];
-      P[i + 3] = 0.0F;
-      P[i + 12] = -c[i + 12];
-      P[i + 21] = -c[i + 24];
+    // y
+    // 'solve_3Q3:56' P(i, 2, :) = [0, -c(i, 5), -c(i, 9)];
+    P[i + 3] = 0.0F;
+    P[i + 12] = -c[i + 12];
+    P[i + 21] = -c[i + 24];
 
-      // z
-      // 'solve_3Q3:57' P(i, 3, :) = [-c(i, 1), -c(i, 7), -c(i, 10)];
-      P[i + 6] = -c[i];
-      P[i + 15] = -c[i + 18];
-      P[i + 24] = -c[i + 27];
+    // z
+    // 'solve_3Q3:57' P(i, 3, :) = [-c(i, 1), -c(i, 7), -c(i, 10)];
+    P[i + 6] = -c[i];
+    P[i + 15] = -c[i + 18];
+    P[i + 24] = -c[i + 27];
 
-      // 1
+    // 1
+  }
+
+  // 'solve_3Q3:17' P_prime = zeros(3, 3, 3, 'like', c);
+  // 'solve_3Q3:18' for i = 1 : 3
+  a21 = std::abs(c[4]);
+  for (i = 0; i < 3; i++) {
+    // 'solve_3Q3:19' P_prime(:, :, i) = A\P(:, :, i);
+    for (b_i = 0; b_i < 9; b_i++) {
+      b_A[b_i] = A[b_i];
     }
 
-    // 'solve_3Q3:17' P_prime = zeros(3, 3, 3, 'like', c);
-    // 'solve_3Q3:18' for i = 1 : 3
-    a21 = std::abs(c[4]);
-    for (i = 0; i < 3; i++) {
-      // 'solve_3Q3:19' P_prime(:, :, i) = A\P(:, :, i);
-      for (b_i = 0; b_i < 9; b_i++) {
-        ctmp[b_i] = A[b_i];
-      }
+    r1 = 0;
+    r2 = 1;
+    r3 = 2;
+    maxval = std::abs(A[0]);
+    if (a21 > maxval) {
+      maxval = a21;
+      r1 = 1;
+      r2 = 0;
+    }
 
-      r1 = 0;
+    if (std::abs(A[2]) > maxval) {
+      r1 = 2;
       r2 = 1;
-      r3 = 2;
-      maxval = std::abs(A[0]);
-      if (a21 > maxval) {
-        maxval = a21;
-        r1 = 1;
-        r2 = 0;
+      r3 = 0;
+    }
+
+    b_A[r2] = A[r2] / A[r1];
+    b_A[r3] /= b_A[r1];
+    b_A[r2 + 3] -= b_A[r2] * b_A[r1 + 3];
+    b_A[r3 + 3] -= b_A[r3] * b_A[r1 + 3];
+    b_A[r2 + 6] -= b_A[r2] * b_A[r1 + 6];
+    b_A[r3 + 6] -= b_A[r3] * b_A[r1 + 6];
+    if (std::abs(b_A[r3 + 3]) > std::abs(b_A[r2 + 3])) {
+      rtemp = r2;
+      r2 = r3;
+      r3 = rtemp;
+    }
+
+    b_A[r3 + 3] /= b_A[r2 + 3];
+    b_A[r3 + 6] -= b_A[r3 + 3] * b_A[r2 + 6];
+    b_i = r1 + 9 * i;
+    rtemp = r2 + 9 * i;
+    maxval = P[rtemp] - P[b_i] * b_A[r2];
+    k1 = r3 + 9 * i;
+    M_tmp = b_A[r3 + 3];
+    b_M_tmp = b_A[r3 + 6];
+    mons_tmp = ((P[k1] - P[b_i] * b_A[r3]) - maxval * M_tmp) / b_M_tmp;
+    P_prime[9 * i + 2] = mons_tmp;
+    b_mons_tmp = b_A[r1 + 6];
+    c_mons_tmp = b_A[r2 + 6];
+    maxval -= mons_tmp * c_mons_tmp;
+    d_mons_tmp = b_A[r2 + 3];
+    maxval /= d_mons_tmp;
+    P_prime[9 * i + 1] = maxval;
+    e_mons_tmp = b_A[r1 + 3];
+    P_prime[9 * i] = ((P[b_i] - mons_tmp * b_mons_tmp) - maxval * e_mons_tmp) /
+      b_A[r1];
+    f_mons_tmp = P[b_i + 3];
+    maxval = P[rtemp + 3] - f_mons_tmp * b_A[r2];
+    mons_tmp = ((P[k1 + 3] - f_mons_tmp * b_A[r3]) - maxval * M_tmp) / b_M_tmp;
+    P_prime[9 * i + 5] = mons_tmp;
+    f_mons_tmp -= mons_tmp * b_mons_tmp;
+    maxval -= mons_tmp * c_mons_tmp;
+    maxval /= d_mons_tmp;
+    P_prime[9 * i + 4] = maxval;
+    f_mons_tmp -= maxval * e_mons_tmp;
+    f_mons_tmp /= b_A[r1];
+    P_prime[9 * i + 3] = f_mons_tmp;
+    f_mons_tmp = P[b_i + 6];
+    maxval = P[rtemp + 6] - f_mons_tmp * b_A[r2];
+    mons_tmp = ((P[k1 + 6] - f_mons_tmp * b_A[r3]) - maxval * M_tmp) / b_M_tmp;
+    P_prime[9 * i + 8] = mons_tmp;
+    f_mons_tmp -= mons_tmp * b_mons_tmp;
+    maxval -= mons_tmp * c_mons_tmp;
+    maxval /= d_mons_tmp;
+    P_prime[9 * i + 7] = maxval;
+    f_mons_tmp -= maxval * e_mons_tmp;
+    f_mons_tmp /= b_A[r1];
+    P_prime[9 * i + 6] = f_mons_tmp;
+  }
+
+  // 'solve_3Q3:21' M = find_M(P_prime);
+  // 'find_M:2' M = zeros(5, 3, 3, 'like', P);
+  std::memset(&M[0], 0, 45U * sizeof(float));
+
+  // 'find_M:3' M(:, 1, 1) = [0, 0, P(1, 2, 2)*P(2, 1, 2) - P(3, 3, 1) - P(1, 1, 2)*P(3, 1, 2) + P(3, 1, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 1, 3) - P(3, 3, 2) + P(1, 2, 3)*P(2, 1, 2) - P(1, 1, 2)*P(3, 1, 3) - P(1, 1, 3)*P(3, 1, 2) + P(3, 1, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 1, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 1, 3) - P(3, 3, 3) - P(1, 1, 3)*P(3, 1, 3) + P(3, 1, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
+  mons[0] = 0.0F;
+  mons[1] = 0.0F;
+  mons_tmp = P_prime[9] - P_prime[14];
+  b_mons_tmp = P_prime[12] * P_prime[10];
+  mons[2] = ((b_mons_tmp - P_prime[8]) - P_prime[9] * P_prime[11]) + P_prime[11]
+    * mons_tmp;
+  c_mons_tmp = P_prime[18] - P_prime[23];
+  d_mons_tmp = P_prime[12] * P_prime[19];
+  e_mons_tmp = P_prime[21] * P_prime[10];
+  mons[3] = (((((d_mons_tmp - P_prime[17]) + e_mons_tmp) - P_prime[9] * P_prime
+               [20]) - P_prime[18] * P_prime[11]) + P_prime[20] * mons_tmp) +
+    P_prime[11] * c_mons_tmp;
+  f_mons_tmp = P_prime[21] * P_prime[19];
+  mons[4] = ((f_mons_tmp - P_prime[26]) - P_prime[18] * P_prime[20]) + P_prime
+    [20] * c_mons_tmp;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i] = mons[b_i];
+  }
+
+  //  degree = 2
+  // 'find_M:5' M(:, 1, 2) = [0, 0, P(1, 3, 1) + P(1, 2, 2)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 2) + P(3, 2, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 3, 2) + P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 3) - P(1, 2, 3)*P(3, 1, 2) + P(3, 2, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 2, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 3, 3) + P(1, 2, 3)*P(2, 2, 3) - P(1, 2, 3)*P(3, 1, 3) + P(3, 2, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
+  mons[0] = 0.0F;
+  mons[1] = 0.0F;
+  a21 = P_prime[12] * P_prime[13];
+  mons[2] = ((P_prime[6] + a21) - P_prime[12] * P_prime[11]) + P_prime[14] *
+    mons_tmp;
+  g_mons_tmp = P_prime[12] * P_prime[22];
+  h_mons_tmp = P_prime[21] * P_prime[13];
+  mons[3] = (((((P_prime[15] + g_mons_tmp) + h_mons_tmp) - P_prime[12] *
+               P_prime[20]) - P_prime[21] * P_prime[11]) + P_prime[23] *
+             mons_tmp) + P_prime[14] * c_mons_tmp;
+  i_mons_tmp = P_prime[21] * P_prime[22];
+  mons[4] = ((P_prime[24] + i_mons_tmp) - P_prime[21] * P_prime[20]) + P_prime
+    [23] * c_mons_tmp;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 15] = mons[b_i];
+  }
+
+  //  degree = 2
+  // 'find_M:7' M(:, 1, 3) = [0, P(1, 2, 2)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 2) + P(3, 3, 1)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 3, 2) + P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 3) - P(1, 3, 2)*P(3, 1, 2) + P(3, 3, 2)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 1)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 2)*P(2, 3, 3) + P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(3, 1, 3) - P(1, 3, 3)*P(3, 1, 2) + P(3, 3, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 3, 3) - P(1, 3, 3)*P(3, 1, 3) + P(3, 3, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
+  mons[0] = 0.0F;
+  j_mons_tmp = P_prime[12] * P_prime[7];
+  mons[1] = (j_mons_tmp - P_prime[6] * P_prime[11]) + P_prime[8] * mons_tmp;
+  k_mons_tmp = P_prime[12] * P_prime[16];
+  l_mons_tmp = P_prime[21] * P_prime[7];
+  mons[2] = ((((k_mons_tmp + l_mons_tmp) - P_prime[6] * P_prime[20]) - P_prime
+              [15] * P_prime[11]) + P_prime[17] * mons_tmp) + P_prime[8] *
+    c_mons_tmp;
+  m_mons_tmp = P_prime[12] * P_prime[25];
+  n_mons_tmp = P_prime[21] * P_prime[16];
+  mons[3] = ((((m_mons_tmp + n_mons_tmp) - P_prime[15] * P_prime[20]) - P_prime
+              [24] * P_prime[11]) + P_prime[26] * mons_tmp) + P_prime[17] *
+    c_mons_tmp;
+  mons_tmp = P_prime[21] * P_prime[25];
+  mons[4] = (mons_tmp - P_prime[24] * P_prime[20]) + P_prime[26] * c_mons_tmp;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 30] = mons[b_i];
+  }
+
+  //  degree = 3
+  // 'find_M:9' M(:, 2, 1) = [0, 0, P(2, 1, 2)*P(3, 2, 2) - P(1, 1, 2)*P(2, 1, 2) - P(2, 3, 1) - P(3, 1, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 1, 2)*P(3, 2, 3) - P(1, 1, 2)*P(2, 1, 3) - P(1, 1, 3)*P(2, 1, 2) - P(2, 3, 2) + P(2, 1, 3)*P(3, 2, 2) - P(3, 1, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 1, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 1, 3)*P(3, 2, 3) - P(1, 1, 3)*P(2, 1, 3) - P(2, 3, 3) - P(3, 1, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
+  mons[0] = 0.0F;
+  mons[1] = 0.0F;
+  c_mons_tmp = P_prime[13] - P_prime[11];
+  o_mons_tmp = P_prime[9] * P_prime[10];
+  mons[2] = ((P_prime[10] * P_prime[14] - o_mons_tmp) - P_prime[7]) - P_prime[11]
+    * c_mons_tmp;
+  maxval = P_prime[22] - P_prime[20];
+  p_mons_tmp = P_prime[9] * P_prime[19];
+  q_mons_tmp = P_prime[18] * P_prime[10];
+  mons[3] = (((((P_prime[10] * P_prime[23] - p_mons_tmp) - q_mons_tmp) -
+               P_prime[16]) + P_prime[19] * P_prime[14]) - P_prime[20] *
+             c_mons_tmp) - P_prime[11] * maxval;
+  r_mons_tmp = P_prime[18] * P_prime[19];
+  mons[4] = ((P_prime[19] * P_prime[23] - r_mons_tmp) - P_prime[25]) - P_prime
+    [20] * maxval;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 5] = mons[b_i];
+  }
+
+  //  degree = 2
+  // 'find_M:11' M(:, 2, 2) = [0, 0, P(3, 3, 1) - P(1, 2, 2)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 2) - P(3, 2, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(3, 3, 2) - P(1, 2, 2)*P(2, 1, 3) - P(1, 2, 3)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 3) + P(2, 2, 3)*P(3, 2, 2) - P(3, 2, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 2, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(3, 3, 3) - P(1, 2, 3)*P(2, 1, 3) + P(2, 2, 3)*P(3, 2, 3) - P(3, 2, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
+  mons[0] = 0.0F;
+  mons[1] = 0.0F;
+  mons[2] = ((P_prime[8] - b_mons_tmp) + P_prime[13] * P_prime[14]) - P_prime[14]
+    * c_mons_tmp;
+  mons[3] = (((((P_prime[17] - d_mons_tmp) - e_mons_tmp) + P_prime[13] *
+               P_prime[23]) + P_prime[22] * P_prime[14]) - P_prime[23] *
+             c_mons_tmp) - P_prime[14] * maxval;
+  mons[4] = ((P_prime[26] - f_mons_tmp) + P_prime[22] * P_prime[23]) - P_prime
+    [23] * maxval;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 20] = mons[b_i];
+  }
+
+  //  degree = 2
+  // 'find_M:13' M(:, 2, 3) = [0, P(2, 3, 1)*P(3, 2, 2) - P(1, 3, 1)*P(2, 1, 2) - P(3, 3, 1)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 3, 1)*P(3, 2, 3) - P(1, 3, 2)*P(2, 1, 2) - P(1, 3, 1)*P(2, 1, 3) + P(2, 3, 2)*P(3, 2, 2) - P(3, 3, 2)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 1)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 2)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 2) - P(1, 3, 2)*P(2, 1, 3) + P(2, 3, 3)*P(3, 2, 2) - P(3, 3, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 3)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 3) - P(3, 3, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
+  mons[0] = 0.0F;
+  s_mons_tmp = P_prime[6] * P_prime[10];
+  mons[1] = (P_prime[7] * P_prime[14] - s_mons_tmp) - P_prime[8] * c_mons_tmp;
+  t_mons_tmp = P_prime[6] * P_prime[19];
+  u_mons_tmp = P_prime[15] * P_prime[10];
+  mons[2] = ((((P_prime[7] * P_prime[23] - u_mons_tmp) - t_mons_tmp) + P_prime
+              [16] * P_prime[14]) - P_prime[17] * c_mons_tmp) - P_prime[8] *
+    maxval;
+  v_mons_tmp = P_prime[15] * P_prime[19];
+  w_mons_tmp = P_prime[24] * P_prime[10];
+  mons[3] = ((((P_prime[16] * P_prime[23] - w_mons_tmp) - v_mons_tmp) + P_prime
+              [25] * P_prime[14]) - P_prime[26] * c_mons_tmp) - P_prime[17] *
+    maxval;
+  c_mons_tmp = P_prime[24] * P_prime[19];
+  mons[4] = (P_prime[25] * P_prime[23] - c_mons_tmp) - P_prime[26] * maxval;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 35] = mons[b_i];
+  }
+
+  //  degree = 3
+  // 'find_M:15' M(:, 3, 1) = [0, 2*P(3, 1, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 1, 2) - P(1, 1, 2)*P(2, 3, 1) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 2) - P(1, 1, 2)*P(2, 3, 2) - P(1, 1, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 1, 3) - P(1, 3, 2)*P(2, 1, 2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 1) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 3) - P(1, 1, 2)*P(2, 3, 3) - P(1, 1, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 1, 3) - P(1, 3, 3)*P(2, 1, 2) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 2) - P(1, 1, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 1, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 1, 3) - P(1, 1, 3)*P(2, 3, 3) - P(1, 1, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 1, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
+  maxval = 2.0F * P_prime[11];
+  M_tmp = 2.0F * P_prime[20];
+  b_M_tmp = 2.0F * P_prime[14];
+  mons[0] = 0.0F;
+  o_mons_tmp -= P_prime[11] * P_prime[11];
+  a21 -= P_prime[14] * P_prime[14];
+  mons[1] = ((((maxval * P_prime[8] - s_mons_tmp) - P_prime[9] * P_prime[7]) -
+              P_prime[9] * o_mons_tmp) - P_prime[10] * a21) - P_prime[11] *
+    ((P_prime[9] * P_prime[13] + b_mons_tmp) - maxval * P_prime[14]);
+  b_mons_tmp = (P_prime[9] * P_prime[13] + P_prime[12] * P_prime[10]) - 2.0F *
+    P_prime[11] * P_prime[14];
+  mons[2] = ((((((((((maxval * P_prime[17] - P_prime[9] * P_prime[16]) -
+                     P_prime[18] * P_prime[7]) - t_mons_tmp) - u_mons_tmp) -
+                  P_prime[11] * (((((P_prime[9] * P_prime[22] + P_prime[18] *
+    P_prime[13]) + d_mons_tmp) + e_mons_tmp) - maxval * P_prime[23]) - M_tmp *
+    P_prime[14])) + M_tmp * P_prime[8]) - P_prime[18] * o_mons_tmp) - P_prime[19]
+               * a21) - P_prime[9] * ((p_mons_tmp + q_mons_tmp) - maxval *
+    P_prime[20])) - P_prime[10] * ((g_mons_tmp + h_mons_tmp) - b_M_tmp *
+              P_prime[23])) - P_prime[20] * b_mons_tmp;
+  d_mons_tmp = r_mons_tmp - P_prime[20] * P_prime[20];
+  e_mons_tmp = i_mons_tmp - P_prime[23] * P_prime[23];
+  g_mons_tmp = ((((P_prime[9] * P_prime[22] + P_prime[18] * P_prime[13]) +
+                  P_prime[12] * P_prime[19]) + P_prime[21] * P_prime[10]) - 2.0F
+                * P_prime[11] * P_prime[23]) - 2.0F * P_prime[20] * P_prime[14];
+  h_mons_tmp = (P_prime[9] * P_prime[19] + P_prime[18] * P_prime[10]) - 2.0F *
+    P_prime[11] * P_prime[20];
+  i_mons_tmp = (P_prime[12] * P_prime[22] + P_prime[21] * P_prime[13]) - 2.0F *
+    P_prime[14] * P_prime[23];
+  mons[3] = ((((((((((maxval * P_prime[26] - P_prime[9] * P_prime[25]) -
+                     P_prime[18] * P_prime[16]) - v_mons_tmp) - w_mons_tmp) -
+                  P_prime[20] * g_mons_tmp) + M_tmp * P_prime[17]) - P_prime[9] *
+                d_mons_tmp) - P_prime[10] * e_mons_tmp) - P_prime[18] *
+              h_mons_tmp) - P_prime[19] * i_mons_tmp) - P_prime[11] * ((P_prime
+    [18] * P_prime[22] + f_mons_tmp) - M_tmp * P_prime[23]);
+  f_mons_tmp = (P_prime[18] * P_prime[22] + P_prime[21] * P_prime[19]) - 2.0F *
+    P_prime[20] * P_prime[23];
+  mons[4] = ((((M_tmp * P_prime[26] - c_mons_tmp) - P_prime[18] * P_prime[25]) -
+              P_prime[18] * d_mons_tmp) - P_prime[19] * e_mons_tmp) - P_prime[20]
+    * f_mons_tmp;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 10] = mons[b_i];
+  }
+
+  //  degree = 3
+  // 'find_M:17' M(:, 3, 2) = [0, 2*P(3, 2, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 2, 2) - P(1, 2, 2)*P(2, 3, 1) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 2) - P(1, 2, 2)*P(2, 3, 2) - P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 2, 3) - P(1, 3, 2)*P(2, 2, 2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 1) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 3) - P(1, 2, 2)*P(2, 3, 3) - P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 2, 3) - P(1, 3, 3)*P(2, 2, 2) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 2) - P(1, 2, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 2, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 2, 3) - P(1, 2, 3)*P(2, 3, 3) - P(1, 2, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 2, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
+  maxval = 2.0F * P_prime[23];
+  mons[0] = 0.0F;
+  mons[1] = ((((b_M_tmp * P_prime[8] - P_prime[6] * P_prime[13]) - j_mons_tmp) -
+              P_prime[12] * o_mons_tmp) - P_prime[13] * a21) - P_prime[14] *
+    b_mons_tmp;
+  mons[2] = ((((((((((b_M_tmp * P_prime[17] - k_mons_tmp) - l_mons_tmp) -
+                    P_prime[6] * P_prime[22]) - P_prime[15] * P_prime[13]) -
+                  P_prime[14] * g_mons_tmp) + maxval * P_prime[8]) - P_prime[21]
+                * o_mons_tmp) - P_prime[22] * a21) - P_prime[12] * h_mons_tmp) -
+             P_prime[13] * i_mons_tmp) - P_prime[23] * b_mons_tmp;
+  mons[3] = ((((((((((b_M_tmp * P_prime[26] - m_mons_tmp) - n_mons_tmp) -
+                    P_prime[15] * P_prime[22]) - P_prime[24] * P_prime[13]) -
+                  P_prime[23] * g_mons_tmp) + maxval * P_prime[17]) - P_prime[12]
+                * d_mons_tmp) - P_prime[13] * e_mons_tmp) - P_prime[21] *
+              h_mons_tmp) - P_prime[22] * i_mons_tmp) - P_prime[14] * f_mons_tmp;
+  mons[4] = ((((maxval * P_prime[26] - P_prime[24] * P_prime[22]) - mons_tmp) -
+              P_prime[21] * d_mons_tmp) - P_prime[22] * e_mons_tmp) - P_prime[23]
+    * f_mons_tmp;
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 25] = mons[b_i];
+  }
+
+  //  degree = 3
+  // 'find_M:19' M(:, 3, 3) = [P(3, 3, 1)^2 - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(1, 3, 1)*P(2, 3, 1), 2*P(3, 3, 1)*P(3, 3, 2) - P(1, 3, 1)*P(2, 3, 2) - P(1, 3, 2)*P(2, 3, 1) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 3, 1)*P(3, 3, 3) - P(1, 3, 1)*P(2, 3, 3) - P(1, 3, 2)*P(2, 3, 2) - P(1, 3, 3)*P(2, 3, 1) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(1, 3, 1)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(2, 3, 1)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(3, 3, 1)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) + P(3, 3, 2)^2, 2*P(3, 3, 2)*P(3, 3, 3) - P(1, 3, 2)*P(2, 3, 3) - P(1, 3, 3)*P(2, 3, 2) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), P(3, 3, 3)^2 - P(1, 3, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 3, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) - P(1, 3, 3)*P(2, 3, 3)]; 
+  maxval = 2.0F * P_prime[8];
+  mons[0] = (((P_prime[8] * P_prime[8] - P_prime[6] * o_mons_tmp) - P_prime[7] *
+              a21) - P_prime[8] * b_mons_tmp) - P_prime[6] * P_prime[7];
+  mons[1] = (((((((maxval * P_prime[17] - P_prime[6] * P_prime[16]) - P_prime[15]
+                  * P_prime[7]) - P_prime[8] * g_mons_tmp) - P_prime[15] *
+                o_mons_tmp) - P_prime[16] * a21) - P_prime[6] * h_mons_tmp) -
+             P_prime[7] * i_mons_tmp) - P_prime[17] * b_mons_tmp;
+  mons[2] = ((((((((((((maxval * P_prime[26] - P_prime[6] * P_prime[25]) -
+                       P_prime[15] * P_prime[16]) - P_prime[24] * P_prime[7]) -
+                     P_prime[17] * g_mons_tmp) - P_prime[24] * o_mons_tmp) -
+                   P_prime[6] * d_mons_tmp) - P_prime[25] * a21) - P_prime[7] *
+                 e_mons_tmp) - P_prime[15] * h_mons_tmp) - P_prime[16] *
+               i_mons_tmp) - P_prime[26] * b_mons_tmp) - P_prime[8] * f_mons_tmp)
+    + P_prime[17] * P_prime[17];
+  mons[3] = (((((((2.0F * P_prime[17] * P_prime[26] - P_prime[15] * P_prime[25])
+                  - P_prime[24] * P_prime[16]) - P_prime[26] * g_mons_tmp) -
+                P_prime[15] * d_mons_tmp) - P_prime[16] * e_mons_tmp) - P_prime
+              [24] * h_mons_tmp) - P_prime[25] * i_mons_tmp) - P_prime[17] *
+    f_mons_tmp;
+  mons[4] = (((P_prime[26] * P_prime[26] - P_prime[24] * d_mons_tmp) - P_prime
+              [25] * e_mons_tmp) - P_prime[26] * f_mons_tmp) - P_prime[24] *
+    P_prime[25];
+  for (b_i = 0; b_i < 5; b_i++) {
+    M[b_i + 40] = mons[b_i];
+  }
+
+  //  degree = 4
+  // 'solve_3Q3:22' pol = find_det_M(M);
+  // 'solve_3Q3:62' d = conv(M(2:5, 3, 1), find_det23(M(:, 1:2, 2:3))) - ...
+  // 'solve_3Q3:63'          conv(M(2:5, 3, 2), find_det23(cat(3, M(:, 1:2, 1), M(:, 1:2, 3)))) + ... 
+  // 'solve_3Q3:64'          conv(M(:, 3, 3), find_det22(M(:, 1:2, 1:2)));
+  // 'solve_3Q3:72' d = conv(M(3:5, 1, 1), M(2:5, 2, 2)) - conv(M(2:5, 1, 2), M(3:5, 2, 1)); 
+  for (i = 0; i < 6; i++) {
+    C[i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 3; r1++) {
+    maxval = M[r1 + 17];
+    C[r1] += maxval * M[36];
+    C[r1 + 1] += maxval * M[37];
+    C[r1 + 2] += maxval * M[38];
+    C[r1 + 3] += maxval * M[39];
+  }
+
+  for (i = 0; i < 6; i++) {
+    b_C[i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 3; r1++) {
+    maxval = M[r1 + 22];
+    b_C[r1] += maxval * M[31];
+    b_C[r1 + 1] += maxval * M[32];
+    b_C[r1 + 2] += maxval * M[33];
+    b_C[r1 + 3] += maxval * M[34];
+  }
+
+  for (b_i = 0; b_i < 6; b_i++) {
+    C[b_i] -= b_C[b_i];
+  }
+
+  for (i = 0; i < 9; i++) {
+    c_C[i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 4; r1++) {
+    for (k1 = 0; k1 < 6; k1++) {
+      rtemp = r1 + k1;
+      c_C[rtemp] += M[r1 + 11] * C[k1];
+    }
+  }
+
+  rtemp = -1;
+  for (r2 = 0; r2 < 10; r2++) {
+    rtemp++;
+    y[rtemp] = M[r2 % 5 + 5 * (r2 / 5)];
+  }
+
+  for (r2 = 0; r2 < 10; r2++) {
+    rtemp++;
+    y[rtemp] = M[(r2 % 5 + 5 * (r2 / 5)) + 30];
+  }
+
+  // 'solve_3Q3:72' d = conv(M(3:5, 1, 1), M(2:5, 2, 2)) - conv(M(2:5, 1, 2), M(3:5, 2, 1)); 
+  for (i = 0; i < 6; i++) {
+    C[i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 3; r1++) {
+    maxval = y[r1 + 2];
+    C[r1] += maxval * y[16];
+    C[r1 + 1] += maxval * y[17];
+    C[r1 + 2] += maxval * y[18];
+    C[r1 + 3] += maxval * y[19];
+  }
+
+  for (i = 0; i < 6; i++) {
+    b_C[i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 3; r1++) {
+    maxval = y[r1 + 7];
+    b_C[r1] += maxval * y[11];
+    b_C[r1 + 1] += maxval * y[12];
+    b_C[r1 + 2] += maxval * y[13];
+    b_C[r1 + 3] += maxval * y[14];
+  }
+
+  for (b_i = 0; b_i < 6; b_i++) {
+    C[b_i] -= b_C[b_i];
+  }
+
+  for (b_i = 0; b_i < 9; b_i++) {
+    A[b_i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 4; r1++) {
+    for (k1 = 0; k1 < 6; k1++) {
+      rtemp = r1 + k1;
+      A[rtemp] += M[r1 + 26] * C[k1];
+    }
+  }
+
+  // 'solve_3Q3:68' d = conv(M(3:5, 1, 1), M(3:5, 2, 2)) - conv(M(3:5, 1, 2), M(3:5, 2, 1)); 
+  for (b_i = 0; b_i < 5; b_i++) {
+    mons[b_i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 3; r1++) {
+    mons_tmp = M[r1 + 22];
+    mons[r1] += mons_tmp * M[2];
+    mons[r1 + 1] += mons_tmp * M[3];
+    mons[r1 + 2] += mons_tmp * M[4];
+  }
+
+  for (i = 0; i < 5; i++) {
+    d_C[i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 3; r1++) {
+    maxval = M[r1 + 7];
+    d_C[r1] += maxval * M[17];
+    d_C[r1 + 1] += maxval * M[18];
+    d_C[r1 + 2] += maxval * M[19];
+  }
+
+  for (b_i = 0; b_i < 5; b_i++) {
+    mons[b_i] -= d_C[b_i];
+  }
+
+  for (b_i = 0; b_i < 9; b_i++) {
+    b_A[b_i] = 0.0F;
+  }
+
+  for (r1 = 0; r1 < 5; r1++) {
+    for (k1 = 0; k1 < 5; k1++) {
+      rtemp = r1 + k1;
+      b_A[rtemp] += mons[r1] * M[k1 + 40];
+    }
+  }
+
+  // 'solve_3Q3:23' assert(numel(pol)==9);
+  // 'solve_3Q3:24' if ~isfinite(pol)
+  // 'solve_3Q3:29' xs_complex = roots(pol');
+  for (b_i = 0; b_i < 9; b_i++) {
+    c_C[b_i] = (c_C[b_i] - A[b_i]) + b_A[b_i];
+  }
+
+  std::memset(&xs_complex_data[0], 0, 8U * sizeof(creal32_T));
+  k1 = 1;
+  while ((k1 <= 9) && (c_C[k1 - 1] == 0.0F)) {
+    k1++;
+  }
+
+  r3 = 9;
+  while ((r3 >= k1) && (c_C[r3 - 1] == 0.0F)) {
+    r3--;
+  }
+
+  rtemp = 8 - r3;
+  if (k1 < r3) {
+    companDim = r3 - k1;
+    exitg1 = false;
+    while ((!exitg1) && (companDim > 0)) {
+      for (r2 = 1; r2 <= companDim; r2++) {
+        A[r2 - 1] = c_C[(k1 + r2) - 1] / c_C[k1 - 1];
       }
 
-      if (std::abs(A[2]) > maxval) {
-        r1 = 2;
-        r2 = 1;
-        r3 = 0;
-      }
-
-      ctmp[r2] = A[r2] / A[r1];
-      ctmp[r3] /= ctmp[r1];
-      ctmp[r2 + 3] -= ctmp[r2] * ctmp[r1 + 3];
-      ctmp[r3 + 3] -= ctmp[r3] * ctmp[r1 + 3];
-      ctmp[r2 + 6] -= ctmp[r2] * ctmp[r1 + 6];
-      ctmp[r3 + 6] -= ctmp[r3] * ctmp[r1 + 6];
-      if (std::abs(ctmp[r3 + 3]) > std::abs(ctmp[r2 + 3])) {
-        rtemp = r2;
-        r2 = r3;
-        r3 = rtemp;
-      }
-
-      ctmp[r3 + 3] /= ctmp[r2 + 3];
-      ctmp[r3 + 6] -= ctmp[r3 + 3] * ctmp[r2 + 6];
-      b_i = r1 + 9 * i;
-      rtemp = r2 + 9 * i;
-      maxval = P[rtemp] - P[b_i] * ctmp[r2];
-      nTrailingZeros = r3 + 9 * i;
-      M_tmp = ctmp[r3 + 3];
-      b_M_tmp = ctmp[r3 + 6];
-      mons_tmp = ((P[nTrailingZeros] - P[b_i] * ctmp[r3]) - maxval * M_tmp) /
-        b_M_tmp;
-      P_prime[9 * i + 2] = mons_tmp;
-      b_mons_tmp = ctmp[r1 + 6];
-      c_mons_tmp = ctmp[r2 + 6];
-      maxval -= mons_tmp * c_mons_tmp;
-      d_mons_tmp = ctmp[r2 + 3];
-      maxval /= d_mons_tmp;
-      P_prime[9 * i + 1] = maxval;
-      e_mons_tmp = ctmp[r1 + 3];
-      P_prime[9 * i] = ((P[b_i] - mons_tmp * b_mons_tmp) - maxval * e_mons_tmp) /
-        ctmp[r1];
-      f_mons_tmp = P[b_i + 3];
-      maxval = P[rtemp + 3] - f_mons_tmp * ctmp[r2];
-      mons_tmp = ((P[nTrailingZeros + 3] - f_mons_tmp * ctmp[r3]) - maxval *
-                  M_tmp) / b_M_tmp;
-      P_prime[9 * i + 5] = mons_tmp;
-      f_mons_tmp -= mons_tmp * b_mons_tmp;
-      maxval -= mons_tmp * c_mons_tmp;
-      maxval /= d_mons_tmp;
-      P_prime[9 * i + 4] = maxval;
-      f_mons_tmp -= maxval * e_mons_tmp;
-      f_mons_tmp /= ctmp[r1];
-      P_prime[9 * i + 3] = f_mons_tmp;
-      f_mons_tmp = P[b_i + 6];
-      maxval = P[rtemp + 6] - f_mons_tmp * ctmp[r2];
-      mons_tmp = ((P[nTrailingZeros + 6] - f_mons_tmp * ctmp[r3]) - maxval *
-                  M_tmp) / b_M_tmp;
-      P_prime[9 * i + 8] = mons_tmp;
-      f_mons_tmp -= mons_tmp * b_mons_tmp;
-      maxval -= mons_tmp * c_mons_tmp;
-      maxval /= d_mons_tmp;
-      P_prime[9 * i + 7] = maxval;
-      f_mons_tmp -= maxval * e_mons_tmp;
-      f_mons_tmp /= ctmp[r1];
-      P_prime[9 * i + 6] = f_mons_tmp;
-    }
-
-    // 'solve_3Q3:21' M = find_M(P_prime);
-    // 'find_M:2' M = zeros(5, 3, 3, 'like', P);
-    std::memset(&M[0], 0, 45U * sizeof(float));
-
-    // 'find_M:3' M(:, 1, 1) = [0, 0, P(1, 2, 2)*P(2, 1, 2) - P(3, 3, 1) - P(1, 1, 2)*P(3, 1, 2) + P(3, 1, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 1, 3) - P(3, 3, 2) + P(1, 2, 3)*P(2, 1, 2) - P(1, 1, 2)*P(3, 1, 3) - P(1, 1, 3)*P(3, 1, 2) + P(3, 1, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 1, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 1, 3) - P(3, 3, 3) - P(1, 1, 3)*P(3, 1, 3) + P(3, 1, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
-    mons[0] = 0.0F;
-    mons[1] = 0.0F;
-    mons_tmp = P_prime[9] - P_prime[14];
-    b_mons_tmp = P_prime[12] * P_prime[10];
-    mons[2] = ((b_mons_tmp - P_prime[8]) - P_prime[9] * P_prime[11]) + P_prime
-      [11] * mons_tmp;
-    c_mons_tmp = P_prime[18] - P_prime[23];
-    d_mons_tmp = P_prime[12] * P_prime[19];
-    e_mons_tmp = P_prime[21] * P_prime[10];
-    mons[3] = (((((d_mons_tmp - P_prime[17]) + e_mons_tmp) - P_prime[9] *
-                 P_prime[20]) - P_prime[18] * P_prime[11]) + P_prime[20] *
-               mons_tmp) + P_prime[11] * c_mons_tmp;
-    f_mons_tmp = P_prime[21] * P_prime[19];
-    mons[4] = ((f_mons_tmp - P_prime[26]) - P_prime[18] * P_prime[20]) +
-      P_prime[20] * c_mons_tmp;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i] = mons[b_i];
-    }
-
-    //  degree = 2
-    // 'find_M:5' M(:, 1, 2) = [0, 0, P(1, 3, 1) + P(1, 2, 2)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 2) + P(3, 2, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 3, 2) + P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 3) - P(1, 2, 3)*P(3, 1, 2) + P(3, 2, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 2, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 3, 3) + P(1, 2, 3)*P(2, 2, 3) - P(1, 2, 3)*P(3, 1, 3) + P(3, 2, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
-    mons[0] = 0.0F;
-    mons[1] = 0.0F;
-    a21 = P_prime[12] * P_prime[13];
-    mons[2] = ((P_prime[6] + a21) - P_prime[12] * P_prime[11]) + P_prime[14] *
-      mons_tmp;
-    g_mons_tmp = P_prime[12] * P_prime[22];
-    h_mons_tmp = P_prime[21] * P_prime[13];
-    mons[3] = (((((P_prime[15] + g_mons_tmp) + h_mons_tmp) - P_prime[12] *
-                 P_prime[20]) - P_prime[21] * P_prime[11]) + P_prime[23] *
-               mons_tmp) + P_prime[14] * c_mons_tmp;
-    i_mons_tmp = P_prime[21] * P_prime[22];
-    mons[4] = ((P_prime[24] + i_mons_tmp) - P_prime[21] * P_prime[20]) +
-      P_prime[23] * c_mons_tmp;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 15] = mons[b_i];
-    }
-
-    //  degree = 2
-    // 'find_M:7' M(:, 1, 3) = [0, P(1, 2, 2)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 2) + P(3, 3, 1)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 3, 2) + P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 3) - P(1, 3, 2)*P(3, 1, 2) + P(3, 3, 2)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 1)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 2)*P(2, 3, 3) + P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(3, 1, 3) - P(1, 3, 3)*P(3, 1, 2) + P(3, 3, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 3, 3) - P(1, 3, 3)*P(3, 1, 3) + P(3, 3, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
-    mons[0] = 0.0F;
-    j_mons_tmp = P_prime[12] * P_prime[7];
-    mons[1] = (j_mons_tmp - P_prime[6] * P_prime[11]) + P_prime[8] * mons_tmp;
-    k_mons_tmp = P_prime[12] * P_prime[16];
-    l_mons_tmp = P_prime[21] * P_prime[7];
-    mons[2] = ((((k_mons_tmp + l_mons_tmp) - P_prime[6] * P_prime[20]) -
-                P_prime[15] * P_prime[11]) + P_prime[17] * mons_tmp) + P_prime[8]
-      * c_mons_tmp;
-    m_mons_tmp = P_prime[12] * P_prime[25];
-    n_mons_tmp = P_prime[21] * P_prime[16];
-    mons[3] = ((((m_mons_tmp + n_mons_tmp) - P_prime[15] * P_prime[20]) -
-                P_prime[24] * P_prime[11]) + P_prime[26] * mons_tmp) + P_prime
-      [17] * c_mons_tmp;
-    mons_tmp = P_prime[21] * P_prime[25];
-    mons[4] = (mons_tmp - P_prime[24] * P_prime[20]) + P_prime[26] * c_mons_tmp;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 30] = mons[b_i];
-    }
-
-    //  degree = 3
-    // 'find_M:9' M(:, 2, 1) = [0, 0, P(2, 1, 2)*P(3, 2, 2) - P(1, 1, 2)*P(2, 1, 2) - P(2, 3, 1) - P(3, 1, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 1, 2)*P(3, 2, 3) - P(1, 1, 2)*P(2, 1, 3) - P(1, 1, 3)*P(2, 1, 2) - P(2, 3, 2) + P(2, 1, 3)*P(3, 2, 2) - P(3, 1, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 1, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 1, 3)*P(3, 2, 3) - P(1, 1, 3)*P(2, 1, 3) - P(2, 3, 3) - P(3, 1, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
-    mons[0] = 0.0F;
-    mons[1] = 0.0F;
-    c_mons_tmp = P_prime[13] - P_prime[11];
-    o_mons_tmp = P_prime[9] * P_prime[10];
-    mons[2] = ((P_prime[10] * P_prime[14] - o_mons_tmp) - P_prime[7]) - P_prime
-      [11] * c_mons_tmp;
-    maxval = P_prime[22] - P_prime[20];
-    p_mons_tmp = P_prime[9] * P_prime[19];
-    q_mons_tmp = P_prime[18] * P_prime[10];
-    mons[3] = (((((P_prime[10] * P_prime[23] - p_mons_tmp) - q_mons_tmp) -
-                 P_prime[16]) + P_prime[19] * P_prime[14]) - P_prime[20] *
-               c_mons_tmp) - P_prime[11] * maxval;
-    r_mons_tmp = P_prime[18] * P_prime[19];
-    mons[4] = ((P_prime[19] * P_prime[23] - r_mons_tmp) - P_prime[25]) -
-      P_prime[20] * maxval;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 5] = mons[b_i];
-    }
-
-    //  degree = 2
-    // 'find_M:11' M(:, 2, 2) = [0, 0, P(3, 3, 1) - P(1, 2, 2)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 2) - P(3, 2, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(3, 3, 2) - P(1, 2, 2)*P(2, 1, 3) - P(1, 2, 3)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 3) + P(2, 2, 3)*P(3, 2, 2) - P(3, 2, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 2, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(3, 3, 3) - P(1, 2, 3)*P(2, 1, 3) + P(2, 2, 3)*P(3, 2, 3) - P(3, 2, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
-    mons[0] = 0.0F;
-    mons[1] = 0.0F;
-    mons[2] = ((P_prime[8] - b_mons_tmp) + P_prime[13] * P_prime[14]) - P_prime
-      [14] * c_mons_tmp;
-    mons[3] = (((((P_prime[17] - d_mons_tmp) - e_mons_tmp) + P_prime[13] *
-                 P_prime[23]) + P_prime[22] * P_prime[14]) - P_prime[23] *
-               c_mons_tmp) - P_prime[14] * maxval;
-    mons[4] = ((P_prime[26] - f_mons_tmp) + P_prime[22] * P_prime[23]) -
-      P_prime[23] * maxval;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 20] = mons[b_i];
-    }
-
-    //  degree = 2
-    // 'find_M:13' M(:, 2, 3) = [0, P(2, 3, 1)*P(3, 2, 2) - P(1, 3, 1)*P(2, 1, 2) - P(3, 3, 1)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 3, 1)*P(3, 2, 3) - P(1, 3, 2)*P(2, 1, 2) - P(1, 3, 1)*P(2, 1, 3) + P(2, 3, 2)*P(3, 2, 2) - P(3, 3, 2)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 1)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 2)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 2) - P(1, 3, 2)*P(2, 1, 3) + P(2, 3, 3)*P(3, 2, 2) - P(3, 3, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 3)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 3) - P(3, 3, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
-    mons[0] = 0.0F;
-    s_mons_tmp = P_prime[6] * P_prime[10];
-    mons[1] = (P_prime[7] * P_prime[14] - s_mons_tmp) - P_prime[8] * c_mons_tmp;
-    t_mons_tmp = P_prime[6] * P_prime[19];
-    u_mons_tmp = P_prime[15] * P_prime[10];
-    mons[2] = ((((P_prime[7] * P_prime[23] - u_mons_tmp) - t_mons_tmp) +
-                P_prime[16] * P_prime[14]) - P_prime[17] * c_mons_tmp) -
-      P_prime[8] * maxval;
-    v_mons_tmp = P_prime[15] * P_prime[19];
-    w_mons_tmp = P_prime[24] * P_prime[10];
-    mons[3] = ((((P_prime[16] * P_prime[23] - w_mons_tmp) - v_mons_tmp) +
-                P_prime[25] * P_prime[14]) - P_prime[26] * c_mons_tmp) -
-      P_prime[17] * maxval;
-    c_mons_tmp = P_prime[24] * P_prime[19];
-    mons[4] = (P_prime[25] * P_prime[23] - c_mons_tmp) - P_prime[26] * maxval;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 35] = mons[b_i];
-    }
-
-    //  degree = 3
-    // 'find_M:15' M(:, 3, 1) = [0, 2*P(3, 1, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 1, 2) - P(1, 1, 2)*P(2, 3, 1) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 2) - P(1, 1, 2)*P(2, 3, 2) - P(1, 1, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 1, 3) - P(1, 3, 2)*P(2, 1, 2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 1) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 3) - P(1, 1, 2)*P(2, 3, 3) - P(1, 1, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 1, 3) - P(1, 3, 3)*P(2, 1, 2) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 2) - P(1, 1, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 1, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 1, 3) - P(1, 1, 3)*P(2, 3, 3) - P(1, 1, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 1, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
-    maxval = 2.0F * P_prime[11];
-    M_tmp = 2.0F * P_prime[20];
-    b_M_tmp = 2.0F * P_prime[14];
-    mons[0] = 0.0F;
-    o_mons_tmp -= P_prime[11] * P_prime[11];
-    a21 -= P_prime[14] * P_prime[14];
-    mons[1] = ((((maxval * P_prime[8] - s_mons_tmp) - P_prime[9] * P_prime[7]) -
-                P_prime[9] * o_mons_tmp) - P_prime[10] * a21) - P_prime[11] *
-      ((P_prime[9] * P_prime[13] + b_mons_tmp) - maxval * P_prime[14]);
-    b_mons_tmp = (P_prime[9] * P_prime[13] + P_prime[12] * P_prime[10]) - 2.0F *
-      P_prime[11] * P_prime[14];
-    mons[2] = ((((((((((maxval * P_prime[17] - P_prime[9] * P_prime[16]) -
-                       P_prime[18] * P_prime[7]) - t_mons_tmp) - u_mons_tmp) -
-                    P_prime[11] * (((((P_prime[9] * P_prime[22] + P_prime[18] *
-      P_prime[13]) + d_mons_tmp) + e_mons_tmp) - maxval * P_prime[23]) - M_tmp *
-      P_prime[14])) + M_tmp * P_prime[8]) - P_prime[18] * o_mons_tmp) - P_prime
-                 [19] * a21) - P_prime[9] * ((p_mons_tmp + q_mons_tmp) - maxval *
-      P_prime[20])) - P_prime[10] * ((g_mons_tmp + h_mons_tmp) - b_M_tmp *
-                P_prime[23])) - P_prime[20] * b_mons_tmp;
-    d_mons_tmp = r_mons_tmp - P_prime[20] * P_prime[20];
-    e_mons_tmp = i_mons_tmp - P_prime[23] * P_prime[23];
-    g_mons_tmp = ((((P_prime[9] * P_prime[22] + P_prime[18] * P_prime[13]) +
-                    P_prime[12] * P_prime[19]) + P_prime[21] * P_prime[10]) -
-                  2.0F * P_prime[11] * P_prime[23]) - 2.0F * P_prime[20] *
-      P_prime[14];
-    h_mons_tmp = (P_prime[9] * P_prime[19] + P_prime[18] * P_prime[10]) - 2.0F *
-      P_prime[11] * P_prime[20];
-    i_mons_tmp = (P_prime[12] * P_prime[22] + P_prime[21] * P_prime[13]) - 2.0F *
-      P_prime[14] * P_prime[23];
-    mons[3] = ((((((((((maxval * P_prime[26] - P_prime[9] * P_prime[25]) -
-                       P_prime[18] * P_prime[16]) - v_mons_tmp) - w_mons_tmp) -
-                    P_prime[20] * g_mons_tmp) + M_tmp * P_prime[17]) - P_prime[9]
-                  * d_mons_tmp) - P_prime[10] * e_mons_tmp) - P_prime[18] *
-                h_mons_tmp) - P_prime[19] * i_mons_tmp) - P_prime[11] *
-      ((P_prime[18] * P_prime[22] + f_mons_tmp) - M_tmp * P_prime[23]);
-    f_mons_tmp = (P_prime[18] * P_prime[22] + P_prime[21] * P_prime[19]) - 2.0F *
-      P_prime[20] * P_prime[23];
-    mons[4] = ((((M_tmp * P_prime[26] - c_mons_tmp) - P_prime[18] * P_prime[25])
-                - P_prime[18] * d_mons_tmp) - P_prime[19] * e_mons_tmp) -
-      P_prime[20] * f_mons_tmp;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 10] = mons[b_i];
-    }
-
-    //  degree = 3
-    // 'find_M:17' M(:, 3, 2) = [0, 2*P(3, 2, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 2, 2) - P(1, 2, 2)*P(2, 3, 1) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 2) - P(1, 2, 2)*P(2, 3, 2) - P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 2, 3) - P(1, 3, 2)*P(2, 2, 2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 1) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 3) - P(1, 2, 2)*P(2, 3, 3) - P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 2, 3) - P(1, 3, 3)*P(2, 2, 2) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 2) - P(1, 2, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 2, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 2, 3) - P(1, 2, 3)*P(2, 3, 3) - P(1, 2, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 2, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
-    maxval = 2.0F * P_prime[23];
-    mons[0] = 0.0F;
-    mons[1] = ((((b_M_tmp * P_prime[8] - P_prime[6] * P_prime[13]) - j_mons_tmp)
-                - P_prime[12] * o_mons_tmp) - P_prime[13] * a21) - P_prime[14] *
-      b_mons_tmp;
-    mons[2] = ((((((((((b_M_tmp * P_prime[17] - k_mons_tmp) - l_mons_tmp) -
-                      P_prime[6] * P_prime[22]) - P_prime[15] * P_prime[13]) -
-                    P_prime[14] * g_mons_tmp) + maxval * P_prime[8]) - P_prime
-                  [21] * o_mons_tmp) - P_prime[22] * a21) - P_prime[12] *
-                h_mons_tmp) - P_prime[13] * i_mons_tmp) - P_prime[23] *
-      b_mons_tmp;
-    mons[3] = ((((((((((b_M_tmp * P_prime[26] - m_mons_tmp) - n_mons_tmp) -
-                      P_prime[15] * P_prime[22]) - P_prime[24] * P_prime[13]) -
-                    P_prime[23] * g_mons_tmp) + maxval * P_prime[17]) - P_prime
-                  [12] * d_mons_tmp) - P_prime[13] * e_mons_tmp) - P_prime[21] *
-                h_mons_tmp) - P_prime[22] * i_mons_tmp) - P_prime[14] *
-      f_mons_tmp;
-    mons[4] = ((((maxval * P_prime[26] - P_prime[24] * P_prime[22]) - mons_tmp)
-                - P_prime[21] * d_mons_tmp) - P_prime[22] * e_mons_tmp) -
-      P_prime[23] * f_mons_tmp;
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 25] = mons[b_i];
-    }
-
-    //  degree = 3
-    // 'find_M:19' M(:, 3, 3) = [P(3, 3, 1)^2 - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(1, 3, 1)*P(2, 3, 1), 2*P(3, 3, 1)*P(3, 3, 2) - P(1, 3, 1)*P(2, 3, 2) - P(1, 3, 2)*P(2, 3, 1) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 3, 1)*P(3, 3, 3) - P(1, 3, 1)*P(2, 3, 3) - P(1, 3, 2)*P(2, 3, 2) - P(1, 3, 3)*P(2, 3, 1) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(1, 3, 1)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(2, 3, 1)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(3, 3, 1)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) + P(3, 3, 2)^2, 2*P(3, 3, 2)*P(3, 3, 3) - P(1, 3, 2)*P(2, 3, 3) - P(1, 3, 3)*P(2, 3, 2) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), P(3, 3, 3)^2 - P(1, 3, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 3, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) - P(1, 3, 3)*P(2, 3, 3)]; 
-    maxval = 2.0F * P_prime[8];
-    mons[0] = (((P_prime[8] * P_prime[8] - P_prime[6] * o_mons_tmp) - P_prime[7]
-                * a21) - P_prime[8] * b_mons_tmp) - P_prime[6] * P_prime[7];
-    mons[1] = (((((((maxval * P_prime[17] - P_prime[6] * P_prime[16]) - P_prime
-                    [15] * P_prime[7]) - P_prime[8] * g_mons_tmp) - P_prime[15] *
-                  o_mons_tmp) - P_prime[16] * a21) - P_prime[6] * h_mons_tmp) -
-               P_prime[7] * i_mons_tmp) - P_prime[17] * b_mons_tmp;
-    mons[2] = ((((((((((((maxval * P_prime[26] - P_prime[6] * P_prime[25]) -
-                         P_prime[15] * P_prime[16]) - P_prime[24] * P_prime[7])
-                       - P_prime[17] * g_mons_tmp) - P_prime[24] * o_mons_tmp) -
-                     P_prime[6] * d_mons_tmp) - P_prime[25] * a21) - P_prime[7] *
-                   e_mons_tmp) - P_prime[15] * h_mons_tmp) - P_prime[16] *
-                 i_mons_tmp) - P_prime[26] * b_mons_tmp) - P_prime[8] *
-               f_mons_tmp) + P_prime[17] * P_prime[17];
-    mons[3] = (((((((2.0F * P_prime[17] * P_prime[26] - P_prime[15] * P_prime[25])
-                    - P_prime[24] * P_prime[16]) - P_prime[26] * g_mons_tmp) -
-                  P_prime[15] * d_mons_tmp) - P_prime[16] * e_mons_tmp) -
-                P_prime[24] * h_mons_tmp) - P_prime[25] * i_mons_tmp) - P_prime
-      [17] * f_mons_tmp;
-    mons[4] = (((P_prime[26] * P_prime[26] - P_prime[24] * d_mons_tmp) -
-                P_prime[25] * e_mons_tmp) - P_prime[26] * f_mons_tmp) - P_prime
-      [24] * P_prime[25];
-    for (b_i = 0; b_i < 5; b_i++) {
-      M[b_i + 40] = mons[b_i];
-    }
-
-    //  degree = 4
-    // 'solve_3Q3:22' pol = find_det_M(M);
-    // 'solve_3Q3:62' d_ = conv(M(:, 1, 1), find_det2(M(:, 2:3, 2:3))) - ...
-    // 'solve_3Q3:63'          conv(M(:, 1, 2), find_det2(cat(3, M(:, 2:3, 1), M(:, 2:3, 3)))) + ... 
-    // 'solve_3Q3:64'          conv(M(:, 1, 3), find_det2(M(:, 2:3, 1:2)));
-    // 'solve_3Q3:70' d = conv(M(:, 1, 1), M(:, 2, 2)) - conv(M(:, 1, 2), M(:, 2, 1)); 
-    for (b_i = 0; b_i < 9; b_i++) {
-      A[b_i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 5; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        A[rtemp] += M[r1 + 40] * M[nTrailingZeros + 20];
-      }
-    }
-
-    for (b_i = 0; b_i < 9; b_i++) {
-      ctmp[b_i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 5; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        ctmp[rtemp] += M[r1 + 25] * M[nTrailingZeros + 35];
-      }
-    }
-
-    for (b_i = 0; b_i < 9; b_i++) {
-      A[b_i] -= ctmp[b_i];
-    }
-
-    for (i = 0; i < 13; i++) {
-      C[i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 9; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        C[rtemp] += M[r1] * A[nTrailingZeros];
-      }
-    }
-
-    rtemp = -1;
-    for (r3 = 0; r3 < 10; r3++) {
-      rtemp++;
-      y[rtemp] = M[r3 % 5 + 5 * (r3 / 5 + 1)];
-    }
-
-    for (r3 = 0; r3 < 10; r3++) {
-      rtemp++;
-      y[rtemp] = M[(r3 % 5 + 5 * (r3 / 5 + 1)) + 30];
-    }
-
-    // 'solve_3Q3:70' d = conv(M(:, 1, 1), M(:, 2, 2)) - conv(M(:, 1, 2), M(:, 2, 1)); 
-    for (b_i = 0; b_i < 9; b_i++) {
-      A[b_i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 5; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        A[rtemp] += y[r1 + 15] * y[nTrailingZeros];
-      }
-    }
-
-    for (b_i = 0; b_i < 9; b_i++) {
-      ctmp[b_i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 5; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        ctmp[rtemp] += y[r1 + 5] * y[nTrailingZeros + 10];
-      }
-    }
-
-    for (b_i = 0; b_i < 9; b_i++) {
-      A[b_i] -= ctmp[b_i];
-    }
-
-    for (i = 0; i < 13; i++) {
-      b_C[i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 9; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        b_C[rtemp] += M[r1 + 15] * A[nTrailingZeros];
-      }
-    }
-
-    // 'solve_3Q3:70' d = conv(M(:, 1, 1), M(:, 2, 2)) - conv(M(:, 1, 2), M(:, 2, 1)); 
-    for (b_i = 0; b_i < 9; b_i++) {
-      A[b_i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 5; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        A[rtemp] += M[r1 + 25] * M[nTrailingZeros + 5];
-      }
-    }
-
-    for (b_i = 0; b_i < 9; b_i++) {
-      ctmp[b_i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 5; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        ctmp[rtemp] += M[r1 + 10] * M[nTrailingZeros + 20];
-      }
-    }
-
-    for (b_i = 0; b_i < 9; b_i++) {
-      A[b_i] -= ctmp[b_i];
-    }
-
-    for (i = 0; i < 13; i++) {
-      c_C[i] = 0.0F;
-    }
-
-    for (r1 = 0; r1 < 5; r1++) {
-      for (nTrailingZeros = 0; nTrailingZeros < 9; nTrailingZeros++) {
-        rtemp = r1 + nTrailingZeros;
-        c_C[rtemp] += M[r1 + 30] * A[nTrailingZeros];
-      }
-    }
-
-    //  Due to the structure of M, d is 8-degree polynomial
-    // 'solve_3Q3:66' d = d_(end-8:end);
-    // 'solve_3Q3:23' assert(numel(pol)==9);
-    // 'solve_3Q3:24' if ~isfinite(pol)
-    // 'solve_3Q3:29' xs_complex = roots(pol');
-    for (b_i = 0; b_i < 13; b_i++) {
-      C[b_i] = (C[b_i] - b_C[b_i]) + c_C[b_i];
-    }
-
-    for (b_i = 0; b_i < 9; b_i++) {
-      A[b_i] = C[b_i + 4];
-    }
-
-    std::memset(&xs_complex_data[0], 0, 8U * sizeof(creal32_T));
-    rtemp = 1;
-    while ((rtemp <= 9) && (A[rtemp - 1] == 0.0F)) {
-      rtemp++;
-    }
-
-    k2 = 9;
-    while ((k2 >= rtemp) && (A[k2 - 1] == 0.0F)) {
-      k2--;
-    }
-
-    nTrailingZeros = 8 - k2;
-    if (rtemp < k2) {
-      companDim = k2 - rtemp;
-      exitg1 = false;
-      while ((!exitg1) && (companDim > 0)) {
-        for (r3 = 1; r3 <= companDim; r3++) {
-          ctmp[r3 - 1] = A[(rtemp + r3) - 1] / A[rtemp - 1];
-        }
-
-        if (r3 > companDim) {
-          exitg1 = true;
-        } else {
-          rtemp++;
-          companDim--;
-        }
-      }
-
-      if (companDim < 1) {
-        if (1 > 9 - k2) {
-          rtemp = 0;
-        } else {
-          rtemp = 9 - k2;
-        }
+      if (r2 > companDim) {
+        exitg1 = true;
       } else {
-        a_size[0] = companDim;
-        a_size[1] = companDim;
-        r1 = companDim * companDim;
-        if (0 <= r1 - 1) {
-          std::memset(&a_data[0], 0, r1 * sizeof(creal32_T));
-        }
+        k1++;
+        companDim--;
+      }
+    }
 
-        for (r1 = 0; r1 <= companDim - 2; r1++) {
-          b_i = companDim * r1;
-          a_data[b_i].re = -ctmp[r1];
-          a_data[b_i].im = 0.0F;
-          b_i = (r1 + b_i) + 1;
-          a_data[b_i].re = 1.0F;
-          a_data[b_i].im = 0.0F;
-        }
+    if (companDim < 1) {
+      if (1 > 9 - r3) {
+        rtemp = 0;
+      } else {
+        rtemp = 9 - r3;
+      }
+    } else {
+      a_size[0] = companDim;
+      a_size[1] = companDim;
+      k1 = companDim * companDim;
+      if (0 <= k1 - 1) {
+        std::memset(&a_data[0], 0, k1 * sizeof(creal32_T));
+      }
 
-        b_i = companDim * (companDim - 1);
-        a_data[b_i].re = -ctmp[companDim - 1];
+      for (r1 = 0; r1 <= companDim - 2; r1++) {
+        b_i = companDim * r1;
+        a_data[b_i].re = -A[r1];
         a_data[b_i].im = 0.0F;
-        if (0 <= nTrailingZeros) {
-          std::memset(&xs_complex_data[0], 0, (nTrailingZeros + 1) * sizeof
-                      (creal32_T));
+        b_i = (r1 + b_i) + 1;
+        a_data[b_i].re = 1.0F;
+        a_data[b_i].im = 0.0F;
+      }
+
+      b_i = companDim * (companDim - 1);
+      a_data[b_i].re = -A[companDim - 1];
+      a_data[b_i].im = 0.0F;
+      if (0 <= rtemp) {
+        std::memset(&xs_complex_data[0], 0, (rtemp + 1) * sizeof(creal32_T));
+      }
+
+      if (companDim == 1) {
+        eiga_data[0] = a_data[0];
+      } else {
+        p = true;
+        r2 = 0;
+        exitg1 = false;
+        while ((!exitg1) && (r2 <= companDim - 1)) {
+          i = 0;
+          do {
+            exitg2 = 0;
+            if (i <= r2) {
+              if (a_data[i + companDim * r2].re != a_data[r2 + companDim * i].re)
+              {
+                p = false;
+                exitg2 = 1;
+              } else {
+                i++;
+              }
+            } else {
+              r2++;
+              exitg2 = 2;
+            }
+          } while (exitg2 == 0);
+
+          if (exitg2 == 1) {
+            exitg1 = true;
+          }
         }
 
-        if (companDim == 1) {
-          eiga_data[0] = a_data[0];
+        if (p) {
+          b_xgehrd(a_data, a_size);
+          b_eml_zlahqr(a_data, a_size);
+          rtemp = a_size[0];
+          if (3 < a_size[0]) {
+            k1 = 4;
+            if (a_size[0] - 4 < a_size[1] - 1) {
+              r1 = a_size[0] - 3;
+            } else {
+              r1 = a_size[1];
+            }
+
+            for (r2 = 0; r2 < r1; r2++) {
+              for (i = k1; i <= rtemp; i++) {
+                b_i = (i + a_size[0] * r2) - 1;
+                a_data[b_i].re = 0.0F;
+                a_data[b_i].im = 0.0F;
+              }
+
+              k1++;
+            }
+          }
+
+          rtemp = a_size[0];
+          for (r1 = 0; r1 < rtemp; r1++) {
+            eiga_data[r1].re = a_data[r1 + a_size[0] * r1].re;
+            eiga_data[r1].im = 0.0F;
+          }
         } else {
-          p = true;
-          r3 = 0;
-          exitg1 = false;
-          while ((!exitg1) && (r3 <= companDim - 1)) {
-            i = 0;
-            do {
-              exitg2 = 0;
-              if (i <= r3) {
-                if (a_data[i + companDim * r3].re != a_data[r3 + companDim * i].
-                    re) {
-                  p = false;
-                  exitg2 = 1;
-                } else {
-                  i++;
-                }
+          b_xzgeev(a_data, a_size, &rtemp, eiga_data, eiga_size, beta1_data,
+                   beta1_size);
+          k1 = eiga_size[0];
+          for (b_i = 0; b_i < k1; b_i++) {
+            if (beta1_data[b_i].im == 0.0F) {
+              if (eiga_data[b_i].im == 0.0F) {
+                mons_tmp = eiga_data[b_i].re / beta1_data[b_i].re;
+                maxval = 0.0F;
+              } else if (eiga_data[b_i].re == 0.0F) {
+                mons_tmp = 0.0F;
+                maxval = eiga_data[b_i].im / beta1_data[b_i].re;
               } else {
-                r3++;
-                exitg2 = 2;
+                mons_tmp = eiga_data[b_i].re / beta1_data[b_i].re;
+                maxval = eiga_data[b_i].im / beta1_data[b_i].re;
               }
-            } while (exitg2 == 0);
-
-            if (exitg2 == 1) {
-              exitg1 = true;
-            }
-          }
-
-          if (p) {
-            b_xgehrd(a_data, a_size);
-            b_eml_zlahqr(a_data, a_size);
-            rtemp = a_size[0];
-            if (3 < a_size[0]) {
-              r1 = 4;
-              if (a_size[0] - 4 < a_size[1] - 1) {
-                r2 = a_size[0] - 3;
+            } else if (beta1_data[b_i].re == 0.0F) {
+              if (eiga_data[b_i].re == 0.0F) {
+                mons_tmp = eiga_data[b_i].im / beta1_data[b_i].im;
+                maxval = 0.0F;
+              } else if (eiga_data[b_i].im == 0.0F) {
+                mons_tmp = 0.0F;
+                maxval = -(eiga_data[b_i].re / beta1_data[b_i].im);
               } else {
-                r2 = a_size[1];
+                mons_tmp = eiga_data[b_i].im / beta1_data[b_i].im;
+                maxval = -(eiga_data[b_i].re / beta1_data[b_i].im);
               }
-
-              for (r3 = 0; r3 < r2; r3++) {
-                for (i = r1; i <= rtemp; i++) {
-                  b_i = (i + a_size[0] * r3) - 1;
-                  a_data[b_i].re = 0.0F;
-                  a_data[b_i].im = 0.0F;
-                }
-
-                r1++;
-              }
-            }
-
-            rtemp = a_size[0];
-            for (r1 = 0; r1 < rtemp; r1++) {
-              eiga_data[r1].re = a_data[r1 + a_size[0] * r1].re;
-              eiga_data[r1].im = 0.0F;
-            }
-          } else {
-            b_xzgeev(a_data, a_size, &rtemp, eiga_data, eiga_size, beta1_data,
-                     beta1_size);
-            r1 = eiga_size[0];
-            for (b_i = 0; b_i < r1; b_i++) {
-              if (beta1_data[b_i].im == 0.0F) {
-                if (eiga_data[b_i].im == 0.0F) {
-                  mons_tmp = eiga_data[b_i].re / beta1_data[b_i].re;
-                  maxval = 0.0F;
-                } else if (eiga_data[b_i].re == 0.0F) {
-                  mons_tmp = 0.0F;
-                  maxval = eiga_data[b_i].im / beta1_data[b_i].re;
+            } else {
+              b_M_tmp = std::abs(beta1_data[b_i].re);
+              maxval = std::abs(beta1_data[b_i].im);
+              if (b_M_tmp > maxval) {
+                maxval = beta1_data[b_i].im / beta1_data[b_i].re;
+                M_tmp = beta1_data[b_i].re + maxval * beta1_data[b_i].im;
+                mons_tmp = (eiga_data[b_i].re + maxval * eiga_data[b_i].im) /
+                  M_tmp;
+                maxval = (eiga_data[b_i].im - maxval * eiga_data[b_i].re) /
+                  M_tmp;
+              } else if (maxval == b_M_tmp) {
+                if (beta1_data[b_i].re > 0.0F) {
+                  maxval = 0.5F;
                 } else {
-                  mons_tmp = eiga_data[b_i].re / beta1_data[b_i].re;
-                  maxval = eiga_data[b_i].im / beta1_data[b_i].re;
+                  maxval = -0.5F;
                 }
-              } else if (beta1_data[b_i].re == 0.0F) {
-                if (eiga_data[b_i].re == 0.0F) {
-                  mons_tmp = eiga_data[b_i].im / beta1_data[b_i].im;
-                  maxval = 0.0F;
-                } else if (eiga_data[b_i].im == 0.0F) {
-                  mons_tmp = 0.0F;
-                  maxval = -(eiga_data[b_i].re / beta1_data[b_i].im);
+
+                if (beta1_data[b_i].im > 0.0F) {
+                  M_tmp = 0.5F;
                 } else {
-                  mons_tmp = eiga_data[b_i].im / beta1_data[b_i].im;
-                  maxval = -(eiga_data[b_i].re / beta1_data[b_i].im);
+                  M_tmp = -0.5F;
                 }
-              } else {
-                b_M_tmp = std::abs(beta1_data[b_i].re);
-                maxval = std::abs(beta1_data[b_i].im);
-                if (b_M_tmp > maxval) {
-                  maxval = beta1_data[b_i].im / beta1_data[b_i].re;
-                  M_tmp = beta1_data[b_i].re + maxval * beta1_data[b_i].im;
-                  mons_tmp = (eiga_data[b_i].re + maxval * eiga_data[b_i].im) /
-                    M_tmp;
-                  maxval = (eiga_data[b_i].im - maxval * eiga_data[b_i].re) /
-                    M_tmp;
-                } else if (maxval == b_M_tmp) {
-                  if (beta1_data[b_i].re > 0.0F) {
-                    maxval = 0.5F;
-                  } else {
-                    maxval = -0.5F;
-                  }
 
-                  if (beta1_data[b_i].im > 0.0F) {
-                    M_tmp = 0.5F;
-                  } else {
-                    M_tmp = -0.5F;
-                  }
-
-                  mons_tmp = (eiga_data[b_i].re * maxval + eiga_data[b_i].im *
-                              M_tmp) / b_M_tmp;
-                  maxval = (eiga_data[b_i].im * maxval - eiga_data[b_i].re *
+                mons_tmp = (eiga_data[b_i].re * maxval + eiga_data[b_i].im *
                             M_tmp) / b_M_tmp;
-                } else {
-                  maxval = beta1_data[b_i].re / beta1_data[b_i].im;
-                  M_tmp = beta1_data[b_i].im + maxval * beta1_data[b_i].re;
-                  mons_tmp = (maxval * eiga_data[b_i].re + eiga_data[b_i].im) /
-                    M_tmp;
-                  maxval = (maxval * eiga_data[b_i].im - eiga_data[b_i].re) /
-                    M_tmp;
-                }
+                maxval = (eiga_data[b_i].im * maxval - eiga_data[b_i].re * M_tmp)
+                  / b_M_tmp;
+              } else {
+                maxval = beta1_data[b_i].re / beta1_data[b_i].im;
+                M_tmp = beta1_data[b_i].im + maxval * beta1_data[b_i].re;
+                mons_tmp = (maxval * eiga_data[b_i].re + eiga_data[b_i].im) /
+                  M_tmp;
+                maxval = (maxval * eiga_data[b_i].im - eiga_data[b_i].re) /
+                  M_tmp;
               }
-
-              eiga_data[b_i].re = mons_tmp;
-              eiga_data[b_i].im = maxval;
             }
+
+            eiga_data[b_i].re = mons_tmp;
+            eiga_data[b_i].im = maxval;
           }
-        }
-
-        for (r1 = 0; r1 < companDim; r1++) {
-          xs_complex_data[(r1 - k2) + 9] = eiga_data[r1];
-        }
-
-        rtemp = (companDim - k2) + 9;
-      }
-    } else if (1 > 9 - k2) {
-      rtemp = 0;
-    } else {
-      rtemp = 9 - k2;
-    }
-
-    // 'solve_3Q3:30' xs = zeros(1, length(xs_complex), 'like', c);
-    if (0 <= rtemp - 1) {
-      std::memset(&xs_data[0], 0, rtemp * sizeof(float));
-    }
-
-    // 'solve_3Q3:31' n = 0;
-    *n = 0.0;
-
-    // 'solve_3Q3:33' for i = 1 : length(xs_complex)
-    for (i = 0; i < rtemp; i++) {
-      // 'solve_3Q3:34' n = n + 1;
-      (*n)++;
-
-      // 'solve_3Q3:35' xs(n) = real(xs_complex(i));
-      xs_data[static_cast<int>(*n) - 1] = xs_complex_data[i].re;
-    }
-
-    // 'solve_3Q3:38' xs = xs(1:n);
-    if (1.0 > *n) {
-      r1 = 0;
-    } else {
-      r1 = static_cast<int>(*n);
-    }
-
-    if (0 <= r1 - 1) {
-      std::memcpy(&b_xs_data[0], &xs_data[0], r1 * sizeof(float));
-      std::memcpy(&C[0], &xs_data[0], r1 * sizeof(float));
-    }
-
-    xs_size[0] = 1;
-    xs_size[1] = r1;
-    if (0 <= r1 - 1) {
-      std::memcpy(&xs_data[0], &C[0], r1 * sizeof(float));
-    }
-
-    // 'solve_3Q3:39' ys = zeros(1, n, 'like', c);
-    ys_size[0] = 1;
-    r1 = static_cast<int>(*n);
-    ys_size[1] = r1;
-
-    // 'solve_3Q3:40' zs = zeros(1, n, 'like', c);
-    zs_size[0] = 1;
-    zs_size[1] = r1;
-    if (0 <= r1 - 1) {
-      std::memset(&ys_data[0], 0, r1 * sizeof(float));
-      std::memset(&zs_data[0], 0, r1 * sizeof(float));
-    }
-
-    // 'solve_3Q3:41' for i = 1 : n
-    if (0 <= r1 - 1) {
-      mons[4] = 1.0F;
-    }
-
-    for (i = 0; i < r1; i++) {
-      // 'solve_3Q3:42' [ys(i), zs(i)] = find_yz(M, xs(i));
-      // 'find_yz:2' M_subs = zeros(3, 'like', x);
-      // 'find_yz:3' mons = [x^4, x^3, x^2, x, 1];
-      mons[0] = std::pow(b_xs_data[i], 4.0F);
-      mons[1] = std::pow(b_xs_data[i], 3.0F);
-      mons[2] = b_xs_data[i] * b_xs_data[i];
-      mons[3] = xs_data[i];
-
-      // 'find_yz:4' for i = 1 : 3
-      // 'find_yz:9' [Q, ~] = qr(M_subs');
-      for (rtemp = 0; rtemp < 3; rtemp++) {
-        // 'find_yz:5' for j = 1 : 3
-        for (r3 = 0; r3 < 3; r3++) {
-          // 'find_yz:6' M_subs(i, j) = mons * M(:, i, j);
-          maxval = 0.0F;
-          for (b_i = 0; b_i < 5; b_i++) {
-            maxval += mons[b_i] * M[(b_i + 5 * rtemp) + 15 * r3];
-          }
-
-          b_A[r3 + 3 * rtemp] = maxval;
         }
       }
 
-      f_qr(b_A, A, ctmp);
+      for (r1 = 0; r1 < companDim; r1++) {
+        xs_complex_data[(r1 - r3) + 9] = eiga_data[r1];
+      }
 
-      // 'find_yz:9' ~
-      // 'find_yz:10' y = Q(1, 3) / Q(3, 3);
-      ys_data[i] = A[6] / A[8];
-
-      // 'find_yz:11' z = Q(2, 3) / Q(3, 3);
-      zs_data[i] = A[7] / A[8];
+      rtemp = (companDim - r3) + 9;
     }
+  } else if (1 > 9 - r3) {
+    rtemp = 0;
+  } else {
+    rtemp = 9 - r3;
+  }
+
+  // 'solve_3Q3:30' xs = zeros(1, length(xs_complex), 'like', c);
+  if (0 <= rtemp - 1) {
+    std::memset(&xs_data[0], 0, rtemp * sizeof(float));
+  }
+
+  // 'solve_3Q3:31' n = 0;
+  *n = 0.0;
+
+  // 'solve_3Q3:33' for i = 1 : length(xs_complex)
+  for (i = 0; i < rtemp; i++) {
+    // 'solve_3Q3:34' n = n + 1;
+    (*n)++;
+
+    // 'solve_3Q3:35' xs(n) = real(xs_complex(i));
+    xs_data[static_cast<int>(*n) - 1] = xs_complex_data[i].re;
+  }
+
+  // 'solve_3Q3:38' xs = xs(1:n);
+  if (1.0 > *n) {
+    k1 = 0;
+  } else {
+    k1 = static_cast<int>(*n);
+  }
+
+  if (0 <= k1 - 1) {
+    std::memcpy(&b_xs_data[0], &xs_data[0], k1 * sizeof(float));
+    std::memcpy(&c_xs_data[0], &xs_data[0], k1 * sizeof(float));
+  }
+
+  xs_size[0] = 1;
+  xs_size[1] = k1;
+  if (0 <= k1 - 1) {
+    std::memcpy(&xs_data[0], &c_xs_data[0], k1 * sizeof(float));
+  }
+
+  // 'solve_3Q3:39' ys = zeros(1, n, 'like', c);
+  ys_size[0] = 1;
+  k1 = static_cast<int>(*n);
+  ys_size[1] = k1;
+
+  // 'solve_3Q3:40' zs = zeros(1, n, 'like', c);
+  zs_size[0] = 1;
+  zs_size[1] = k1;
+  if (0 <= k1 - 1) {
+    std::memset(&ys_data[0], 0, k1 * sizeof(float));
+    std::memset(&zs_data[0], 0, k1 * sizeof(float));
+  }
+
+  // 'solve_3Q3:41' for i = 1 : n
+  if (0 <= k1 - 1) {
+    mons[4] = 1.0F;
+  }
+
+  for (i = 0; i < k1; i++) {
+    // 'solve_3Q3:42' [ys(i), zs(i)] = find_yz(M, xs(i));
+    // 'find_yz:2' M_subs = zeros(3, 'like', x);
+    // 'find_yz:3' mons = [x^4, x^3, x^2, x, 1];
+    mons[0] = std::pow(b_xs_data[i], 4.0F);
+    mons[1] = std::pow(b_xs_data[i], 3.0F);
+    mons[2] = b_xs_data[i] * b_xs_data[i];
+    mons[3] = xs_data[i];
+
+    // 'find_yz:4' for i = 1 : 3
+    // 'find_yz:9' [Q, ~] = qr(M_subs');
+    for (rtemp = 0; rtemp < 3; rtemp++) {
+      // 'find_yz:5' for j = 1 : 3
+      for (r2 = 0; r2 < 3; r2++) {
+        // 'find_yz:6' M_subs(i, j) = mons * M(:, i, j);
+        maxval = 0.0F;
+        for (b_i = 0; b_i < 5; b_i++) {
+          maxval += mons[b_i] * M[(b_i + 5 * rtemp) + 15 * r2];
+        }
+
+        c_C[r2 + 3 * rtemp] = maxval;
+      }
+    }
+
+    f_qr(c_C, A, b_A);
+
+    // 'find_yz:9' ~
+    // 'find_yz:10' y = Q(1, 3) / Q(3, 3);
+    ys_data[i] = A[6] / A[8];
+
+    // 'find_yz:11' z = Q(2, 3) / Q(3, 3);
+    zs_data[i] = A[7] / A[8];
   }
 }
 
@@ -5850,95 +5665,6 @@ static void b_xzgeev(const creal32_T A_data[], const int A_size[2], int *info,
         alpha1_data[b_i].im *= a;
       }
     }
-  }
-}
-
-//
-// Arguments    : float A[400]
-//                int ipiv[20]
-//                int *info
-// Return Type  : void
-//
-static void b_xzgetrf(float A[400], int ipiv[20], int *info)
-{
-  int i;
-  int j;
-  int mmj_tmp;
-  int b;
-  int jj;
-  int jp1j;
-  int iy;
-  int jA;
-  int ix;
-  float smax;
-  int k;
-  float s;
-  for (i = 0; i < 20; i++) {
-    ipiv[i] = i + 1;
-  }
-
-  *info = 0;
-  for (j = 0; j < 19; j++) {
-    mmj_tmp = 18 - j;
-    b = j * 21;
-    jj = j * 21;
-    jp1j = b + 2;
-    iy = 20 - j;
-    jA = 0;
-    ix = b;
-    smax = std::abs(A[jj]);
-    for (k = 2; k <= iy; k++) {
-      ix++;
-      s = std::abs(A[ix]);
-      if (s > smax) {
-        jA = k - 1;
-        smax = s;
-      }
-    }
-
-    if (A[jj + jA] != 0.0F) {
-      if (jA != 0) {
-        iy = j + jA;
-        ipiv[j] = iy + 1;
-        ix = j;
-        for (k = 0; k < 20; k++) {
-          smax = A[ix];
-          A[ix] = A[iy];
-          A[iy] = smax;
-          ix += 20;
-          iy += 20;
-        }
-      }
-
-      i = (jj - j) + 20;
-      for (iy = jp1j; iy <= i; iy++) {
-        A[iy - 1] /= A[jj];
-      }
-    } else {
-      *info = j + 1;
-    }
-
-    iy = b + 20;
-    jA = jj;
-    for (k = 0; k <= mmj_tmp; k++) {
-      smax = A[iy];
-      if (A[iy] != 0.0F) {
-        ix = jj + 1;
-        i = jA + 22;
-        b = (jA - j) + 40;
-        for (jp1j = i; jp1j <= b; jp1j++) {
-          A[jp1j - 1] += A[ix] * -smax;
-          ix++;
-        }
-      }
-
-      iy += 20;
-      jA += 20;
-    }
-  }
-
-  if ((*info == 0) && (A[399] == 0.0F)) {
-    *info = 20;
   }
 }
 
@@ -7313,55 +7039,117 @@ static void b_xztgevc(const creal32_T A[100], creal32_T V[100])
 static void c_mldivide(const float A[400], float B[200])
 {
   float b_A[400];
-  int ipiv[20];
-  int info;
-  int jBcol;
-  int temp_tmp;
-  float temp;
-  int kAcol;
   int i;
+  int j;
+  signed char ipiv[20];
+  int mmj_tmp;
+  int b;
+  int jA;
+  int jj;
+  int k;
+  int jp1j;
+  int iy;
+  int ix;
+  float smax;
   int i1;
-  int b_i;
-  int i2;
+  float s;
   std::memcpy(&b_A[0], &A[0], 400U * sizeof(float));
-  b_xzgetrf(b_A, ipiv, &info);
-  for (info = 0; info < 19; info++) {
-    if (ipiv[info] != info + 1) {
-      for (jBcol = 0; jBcol < 10; jBcol++) {
-        temp_tmp = info + 20 * jBcol;
-        temp = B[temp_tmp];
-        i = (ipiv[info] + 20 * jBcol) - 1;
-        B[temp_tmp] = B[i];
-        B[i] = temp;
+  for (i = 0; i < 20; i++) {
+    ipiv[i] = static_cast<signed char>((i + 1));
+  }
+
+  for (j = 0; j < 19; j++) {
+    mmj_tmp = 18 - j;
+    b = j * 21;
+    jj = j * 21;
+    jp1j = b + 2;
+    iy = 20 - j;
+    jA = 0;
+    ix = b;
+    smax = std::abs(b_A[jj]);
+    for (k = 2; k <= iy; k++) {
+      ix++;
+      s = std::abs(b_A[ix]);
+      if (s > smax) {
+        jA = k - 1;
+        smax = s;
+      }
+    }
+
+    if (b_A[jj + jA] != 0.0F) {
+      if (jA != 0) {
+        iy = j + jA;
+        ipiv[j] = static_cast<signed char>((iy + 1));
+        ix = j;
+        for (k = 0; k < 20; k++) {
+          smax = b_A[ix];
+          b_A[ix] = b_A[iy];
+          b_A[iy] = smax;
+          ix += 20;
+          iy += 20;
+        }
+      }
+
+      i = (jj - j) + 20;
+      for (ix = jp1j; ix <= i; ix++) {
+        b_A[ix - 1] /= b_A[jj];
+      }
+    }
+
+    iy = b + 20;
+    jA = jj;
+    for (b = 0; b <= mmj_tmp; b++) {
+      smax = b_A[iy];
+      if (b_A[iy] != 0.0F) {
+        ix = jj + 1;
+        i = jA + 22;
+        i1 = (jA - j) + 40;
+        for (jp1j = i; jp1j <= i1; jp1j++) {
+          b_A[jp1j - 1] += b_A[ix] * -smax;
+          ix++;
+        }
+      }
+
+      iy += 20;
+      jA += 20;
+    }
+
+    if (ipiv[j] != j + 1) {
+      for (iy = 0; iy < 10; iy++) {
+        jA = j + 20 * iy;
+        smax = B[jA];
+        i = (ipiv[j] + 20 * iy) - 1;
+        B[jA] = B[i];
+        B[i] = smax;
       }
     }
   }
 
-  for (info = 0; info < 10; info++) {
-    jBcol = 20 * info;
-    for (temp_tmp = 0; temp_tmp < 20; temp_tmp++) {
-      kAcol = 20 * temp_tmp;
-      i = temp_tmp + jBcol;
+  for (j = 0; j < 10; j++) {
+    jA = 20 * j;
+    for (k = 0; k < 20; k++) {
+      iy = 20 * k;
+      i = k + jA;
       if (B[i] != 0.0F) {
-        i1 = temp_tmp + 2;
-        for (b_i = i1; b_i < 21; b_i++) {
-          i2 = (b_i + jBcol) - 1;
-          B[i2] -= B[i] * b_A[(b_i + kAcol) - 1];
+        i1 = k + 2;
+        for (ix = i1; ix < 21; ix++) {
+          b = (ix + jA) - 1;
+          B[b] -= B[i] * b_A[(ix + iy) - 1];
         }
       }
     }
   }
 
-  for (info = 0; info < 10; info++) {
-    jBcol = 20 * info;
-    for (temp_tmp = 19; temp_tmp >= 0; temp_tmp--) {
-      kAcol = 20 * temp_tmp;
-      i = temp_tmp + jBcol;
+  for (j = 0; j < 10; j++) {
+    jA = 20 * j;
+    for (k = 19; k >= 0; k--) {
+      iy = 20 * k;
+      i = k + jA;
       if (B[i] != 0.0F) {
-        B[i] /= b_A[temp_tmp + kAcol];
-        for (b_i = 0; b_i < temp_tmp; b_i++) {
-          i1 = b_i + jBcol;
-          B[i1] -= B[i] * b_A[b_i + kAcol];
+        B[i] /= b_A[k + iy];
+        for (ix = 0; ix < k; ix++) {
+          i1 = ix + jA;
+          B[i1] -= B[i] * b_A[ix + iy];
         }
       }
     }
@@ -8227,260 +8015,6 @@ static void c_qr(const double A[32], double Q[64], double R[32])
 }
 
 //
-// Arguments    : const double A[9]
-// Return Type  : double
-//
-static double c_rcond(const double A[9])
-{
-  double result;
-  double normA;
-  int j;
-  double s;
-  double b_A[9];
-  int ipiv[3];
-  int jA;
-  int exitg1;
-  double ainvnm;
-  int iter;
-  int kase;
-  int jump;
-  double x[3];
-  int exitg2;
-  int exitg3;
-  int exitg4;
-  int exitg5;
-  int b_j;
-  int i;
-  int b_i;
-  int ix;
-  double absrexk;
-  double ainvnm_tmp;
-  result = 0.0;
-  normA = 0.0;
-  for (j = 0; j < 3; j++) {
-    s = (std::abs(A[3 * j]) + std::abs(A[3 * j + 1])) + std::abs(A[3 * j + 2]);
-    if (s > normA) {
-      normA = s;
-    }
-  }
-
-  if (normA != 0.0) {
-    std::memcpy(&b_A[0], &A[0], 9U * sizeof(double));
-    c_xzgetrf(b_A, ipiv, &jA);
-    jA = 2;
-    do {
-      exitg1 = 0;
-      if (jA + 1 > 0) {
-        if (b_A[jA + 3 * jA] == 0.0) {
-          exitg1 = 1;
-        } else {
-          jA--;
-        }
-      } else {
-        ainvnm = 0.0;
-        iter = 2;
-        kase = 1;
-        jump = 1;
-        j = 0;
-        x[0] = 0.33333333333333331;
-        x[1] = 0.33333333333333331;
-        x[2] = 0.33333333333333331;
-        do {
-          exitg2 = 0;
-          do {
-            exitg3 = 0;
-            do {
-              exitg4 = 0;
-              do {
-                exitg5 = 0;
-                if (kase == 1) {
-                  for (b_j = 0; b_j < 3; b_j++) {
-                    jA = b_j + b_j * 3;
-                    i = 1 - b_j;
-                    for (b_i = 0; b_i <= i; b_i++) {
-                      ix = (b_j + b_i) + 1;
-                      x[ix] -= x[b_j] * b_A[(jA + b_i) + 1];
-                    }
-                  }
-
-                  for (b_j = 2; b_j >= 0; b_j--) {
-                    jA = b_j + b_j * 3;
-                    x[b_j] /= b_A[jA];
-                    for (b_i = 0; b_i < b_j; b_i++) {
-                      ix = (b_j - b_i) - 1;
-                      x[ix] -= x[b_j] * b_A[(jA - b_i) - 1];
-                    }
-                  }
-                } else {
-                  for (b_j = 0; b_j < 3; b_j++) {
-                    jA = b_j * 3;
-                    s = x[b_j];
-                    for (b_i = 0; b_i < b_j; b_i++) {
-                      s -= b_A[jA + b_i] * x[b_i];
-                    }
-
-                    x[b_j] = s / b_A[jA + b_j];
-                  }
-
-                  for (b_j = 2; b_j >= 0; b_j--) {
-                    jA = b_j * 3;
-                    s = x[b_j];
-                    i = b_j + 2;
-                    for (b_i = 3; b_i >= i; b_i--) {
-                      s -= b_A[(jA + b_i) - 1] * x[b_i - 1];
-                    }
-
-                    x[b_j] = s;
-                  }
-                }
-
-                if (jump == 1) {
-                  s = std::abs(x[0]);
-                  if (s > 2.2250738585072014E-308) {
-                    x[0] /= s;
-                  } else {
-                    x[0] = 1.0;
-                  }
-
-                  ainvnm = s + std::abs(x[1]);
-                  s = std::abs(x[1]);
-                  if (s > 2.2250738585072014E-308) {
-                    x[1] /= s;
-                  } else {
-                    x[1] = 1.0;
-                  }
-
-                  ainvnm += std::abs(x[2]);
-                  s = std::abs(x[2]);
-                  if (s > 2.2250738585072014E-308) {
-                    x[2] /= s;
-                  } else {
-                    x[2] = 1.0;
-                  }
-
-                  kase = 2;
-                  jump = 2;
-                } else {
-                  exitg5 = 1;
-                }
-              } while (exitg5 == 0);
-
-              if (jump == 2) {
-                j = 0;
-                s = std::abs(x[0]);
-                absrexk = std::abs(x[1]);
-                if (absrexk > s) {
-                  j = 1;
-                  s = absrexk;
-                }
-
-                if (std::abs(x[2]) > s) {
-                  j = 2;
-                }
-
-                iter = 2;
-                x[0] = 0.0;
-                x[1] = 0.0;
-                x[2] = 0.0;
-                x[j] = 1.0;
-                kase = 1;
-                jump = 3;
-              } else {
-                exitg4 = 1;
-              }
-            } while (exitg4 == 0);
-
-            if (jump == 3) {
-              s = std::abs(x[0]);
-              absrexk = std::abs(x[1]);
-              ainvnm_tmp = std::abs(x[2]);
-              ainvnm = (s + absrexk) + ainvnm_tmp;
-              if (ainvnm <= x[0]) {
-                x[0] = 1.0;
-                x[1] = -1.5;
-                x[2] = 2.0;
-                kase = 1;
-                jump = 5;
-              } else {
-                if (s > 2.2250738585072014E-308) {
-                  x[0] /= s;
-                } else {
-                  x[0] = 1.0;
-                }
-
-                if (absrexk > 2.2250738585072014E-308) {
-                  x[1] /= absrexk;
-                } else {
-                  x[1] = 1.0;
-                }
-
-                if (ainvnm_tmp > 2.2250738585072014E-308) {
-                  x[2] /= ainvnm_tmp;
-                } else {
-                  x[2] = 1.0;
-                }
-
-                kase = 2;
-                jump = 4;
-              }
-            } else {
-              exitg3 = 1;
-            }
-          } while (exitg3 == 0);
-
-          if (jump == 4) {
-            jA = j;
-            j = 0;
-            s = std::abs(x[0]);
-            absrexk = std::abs(x[1]);
-            if (absrexk > s) {
-              j = 1;
-              s = absrexk;
-            }
-
-            if (std::abs(x[2]) > s) {
-              j = 2;
-            }
-
-            if ((std::abs(x[jA]) != std::abs(x[j])) && (iter <= 5)) {
-              iter++;
-              x[0] = 0.0;
-              x[1] = 0.0;
-              x[2] = 0.0;
-              x[j] = 1.0;
-              kase = 1;
-              jump = 3;
-            } else {
-              x[0] = 1.0;
-              x[1] = -1.5;
-              x[2] = 2.0;
-              kase = 1;
-              jump = 5;
-            }
-          } else {
-            exitg2 = 1;
-          }
-        } while ((exitg2 == 0) || (!(jump == 5)));
-
-        s = 2.0 * ((std::abs(x[0]) + std::abs(x[1])) + std::abs(x[2])) / 3.0 /
-          3.0;
-        if (s > ainvnm) {
-          ainvnm = s;
-        }
-
-        if (ainvnm != 0.0) {
-          result = 1.0 / ainvnm / normA;
-        }
-
-        exitg1 = 1;
-      }
-    } while (exitg1 == 0);
-  }
-
-  return result;
-}
-
-//
 // Arguments    : creal32_T *x
 // Return Type  : void
 //
@@ -8645,98 +8179,6 @@ static void c_xrot(int n, float x[100], int ix0, int iy0, float c, float s)
       iy++;
       ix++;
     }
-  }
-}
-
-//
-// Arguments    : double A[9]
-//                int ipiv[3]
-//                int *info
-// Return Type  : void
-//
-static void c_xzgetrf(double A[9], int ipiv[3], int *info)
-{
-  int j;
-  int mmj_tmp;
-  int b_tmp;
-  int jp1j;
-  int iy;
-  int jA;
-  int ix;
-  double smax;
-  int k;
-  double s;
-  int i;
-  int ijA;
-  ipiv[0] = 1;
-  ipiv[1] = 2;
-  ipiv[2] = 3;
-  *info = 0;
-  for (j = 0; j < 2; j++) {
-    mmj_tmp = 1 - j;
-    b_tmp = j << 2;
-    jp1j = b_tmp + 2;
-    iy = 3 - j;
-    jA = 0;
-    ix = b_tmp;
-    smax = std::abs(A[b_tmp]);
-    for (k = 2; k <= iy; k++) {
-      ix++;
-      s = std::abs(A[ix]);
-      if (s > smax) {
-        jA = k - 1;
-        smax = s;
-      }
-    }
-
-    if (A[b_tmp + jA] != 0.0) {
-      if (jA != 0) {
-        iy = j + jA;
-        ipiv[j] = iy + 1;
-        smax = A[j];
-        A[j] = A[iy];
-        A[iy] = smax;
-        ix = j + 3;
-        iy += 3;
-        smax = A[ix];
-        A[ix] = A[iy];
-        A[iy] = smax;
-        ix += 3;
-        iy += 3;
-        smax = A[ix];
-        A[ix] = A[iy];
-        A[iy] = smax;
-      }
-
-      i = (b_tmp - j) + 3;
-      for (iy = jp1j; iy <= i; iy++) {
-        A[iy - 1] /= A[b_tmp];
-      }
-    } else {
-      *info = j + 1;
-    }
-
-    iy = b_tmp + 3;
-    jA = b_tmp;
-    for (k = 0; k <= mmj_tmp; k++) {
-      smax = A[iy];
-      if (A[iy] != 0.0) {
-        ix = b_tmp + 1;
-        i = jA + 5;
-        jp1j = (jA - j) + 6;
-        for (ijA = i; ijA <= jp1j; ijA++) {
-          A[ijA - 1] += A[ix] * -smax;
-          ix++;
-        }
-      }
-
-      iy += 3;
-      jA += 3;
-    }
-  }
-
-  if ((*info == 0) && (A[8] == 0.0)) {
-    *info = 3;
   }
 }
 
@@ -9823,263 +9265,6 @@ static void d_qr(const double A[9], double Q[9], double R[9])
 }
 
 //
-// Arguments    : const float A[9]
-// Return Type  : float
-//
-static float d_rcond(const float A[9])
-{
-  float result;
-  float normA;
-  int j;
-  float s;
-  int i;
-  float b_A[9];
-  int ipiv[3];
-  int jA;
-  int exitg1;
-  float ainvnm;
-  int iter;
-  int kase;
-  int jump;
-  float x[3];
-  int exitg2;
-  int exitg3;
-  int exitg4;
-  int exitg5;
-  int b_j;
-  int b_i;
-  int ix;
-  float absrexk;
-  float ainvnm_tmp;
-  result = 0.0F;
-  normA = 0.0F;
-  for (j = 0; j < 3; j++) {
-    s = (std::abs(A[3 * j]) + std::abs(A[3 * j + 1])) + std::abs(A[3 * j + 2]);
-    if (s > normA) {
-      normA = s;
-    }
-  }
-
-  if (normA != 0.0F) {
-    for (i = 0; i < 9; i++) {
-      b_A[i] = A[i];
-    }
-
-    d_xzgetrf(b_A, ipiv, &jA);
-    jA = 2;
-    do {
-      exitg1 = 0;
-      if (jA + 1 > 0) {
-        if (b_A[jA + 3 * jA] == 0.0F) {
-          exitg1 = 1;
-        } else {
-          jA--;
-        }
-      } else {
-        ainvnm = 0.0F;
-        iter = 2;
-        kase = 1;
-        jump = 1;
-        j = 0;
-        x[0] = 0.333333343F;
-        x[1] = 0.333333343F;
-        x[2] = 0.333333343F;
-        do {
-          exitg2 = 0;
-          do {
-            exitg3 = 0;
-            do {
-              exitg4 = 0;
-              do {
-                exitg5 = 0;
-                if (kase == 1) {
-                  for (b_j = 0; b_j < 3; b_j++) {
-                    jA = b_j + b_j * 3;
-                    i = 1 - b_j;
-                    for (b_i = 0; b_i <= i; b_i++) {
-                      ix = (b_j + b_i) + 1;
-                      x[ix] -= x[b_j] * b_A[(jA + b_i) + 1];
-                    }
-                  }
-
-                  for (b_j = 2; b_j >= 0; b_j--) {
-                    jA = b_j + b_j * 3;
-                    x[b_j] /= b_A[jA];
-                    for (b_i = 0; b_i < b_j; b_i++) {
-                      ix = (b_j - b_i) - 1;
-                      x[ix] -= x[b_j] * b_A[(jA - b_i) - 1];
-                    }
-                  }
-                } else {
-                  for (b_j = 0; b_j < 3; b_j++) {
-                    jA = b_j * 3;
-                    s = x[b_j];
-                    for (b_i = 0; b_i < b_j; b_i++) {
-                      s -= b_A[jA + b_i] * x[b_i];
-                    }
-
-                    x[b_j] = s / b_A[jA + b_j];
-                  }
-
-                  for (b_j = 2; b_j >= 0; b_j--) {
-                    jA = b_j * 3;
-                    s = x[b_j];
-                    i = b_j + 2;
-                    for (b_i = 3; b_i >= i; b_i--) {
-                      s -= b_A[(jA + b_i) - 1] * x[b_i - 1];
-                    }
-
-                    x[b_j] = s;
-                  }
-                }
-
-                if (jump == 1) {
-                  s = std::abs(x[0]);
-                  if (s > 1.17549435E-38F) {
-                    x[0] /= s;
-                  } else {
-                    x[0] = 1.0F;
-                  }
-
-                  ainvnm = s + std::abs(x[1]);
-                  s = std::abs(x[1]);
-                  if (s > 1.17549435E-38F) {
-                    x[1] /= s;
-                  } else {
-                    x[1] = 1.0F;
-                  }
-
-                  ainvnm += std::abs(x[2]);
-                  s = std::abs(x[2]);
-                  if (s > 1.17549435E-38F) {
-                    x[2] /= s;
-                  } else {
-                    x[2] = 1.0F;
-                  }
-
-                  kase = 2;
-                  jump = 2;
-                } else {
-                  exitg5 = 1;
-                }
-              } while (exitg5 == 0);
-
-              if (jump == 2) {
-                j = 0;
-                s = std::abs(x[0]);
-                absrexk = std::abs(x[1]);
-                if (absrexk > s) {
-                  j = 1;
-                  s = absrexk;
-                }
-
-                if (std::abs(x[2]) > s) {
-                  j = 2;
-                }
-
-                iter = 2;
-                x[0] = 0.0F;
-                x[1] = 0.0F;
-                x[2] = 0.0F;
-                x[j] = 1.0F;
-                kase = 1;
-                jump = 3;
-              } else {
-                exitg4 = 1;
-              }
-            } while (exitg4 == 0);
-
-            if (jump == 3) {
-              s = std::abs(x[0]);
-              absrexk = std::abs(x[1]);
-              ainvnm_tmp = std::abs(x[2]);
-              ainvnm = (s + absrexk) + ainvnm_tmp;
-              if (ainvnm <= x[0]) {
-                x[0] = 1.0F;
-                x[1] = -1.5F;
-                x[2] = 2.0F;
-                kase = 1;
-                jump = 5;
-              } else {
-                if (s > 1.17549435E-38F) {
-                  x[0] /= s;
-                } else {
-                  x[0] = 1.0F;
-                }
-
-                if (absrexk > 1.17549435E-38F) {
-                  x[1] /= absrexk;
-                } else {
-                  x[1] = 1.0F;
-                }
-
-                if (ainvnm_tmp > 1.17549435E-38F) {
-                  x[2] /= ainvnm_tmp;
-                } else {
-                  x[2] = 1.0F;
-                }
-
-                kase = 2;
-                jump = 4;
-              }
-            } else {
-              exitg3 = 1;
-            }
-          } while (exitg3 == 0);
-
-          if (jump == 4) {
-            jA = j;
-            j = 0;
-            s = std::abs(x[0]);
-            absrexk = std::abs(x[1]);
-            if (absrexk > s) {
-              j = 1;
-              s = absrexk;
-            }
-
-            if (std::abs(x[2]) > s) {
-              j = 2;
-            }
-
-            if ((std::abs(x[jA]) != std::abs(x[j])) && (iter <= 5)) {
-              iter++;
-              x[0] = 0.0F;
-              x[1] = 0.0F;
-              x[2] = 0.0F;
-              x[j] = 1.0F;
-              kase = 1;
-              jump = 3;
-            } else {
-              x[0] = 1.0F;
-              x[1] = -1.5F;
-              x[2] = 2.0F;
-              kase = 1;
-              jump = 5;
-            }
-          } else {
-            exitg2 = 1;
-          }
-        } while ((exitg2 == 0) || (!(jump == 5)));
-
-        s = 2.0F * ((std::abs(x[0]) + std::abs(x[1])) + std::abs(x[2])) / 3.0F /
-          3.0F;
-        if (s > ainvnm) {
-          ainvnm = s;
-        }
-
-        if (ainvnm != 0.0F) {
-          result = 1.0F / ainvnm / normA;
-        }
-
-        exitg1 = 1;
-      }
-    } while (exitg1 == 0);
-  }
-
-  return result;
-}
-
-//
 // Arguments    : int m
 //                int n
 //                double alpha1
@@ -10181,98 +9366,6 @@ static void d_xrot(float x[100], int ix0, int iy0, float c, float s)
     x[ix] = temp;
     iy++;
     ix++;
-  }
-}
-
-//
-// Arguments    : float A[9]
-//                int ipiv[3]
-//                int *info
-// Return Type  : void
-//
-static void d_xzgetrf(float A[9], int ipiv[3], int *info)
-{
-  int j;
-  int mmj_tmp;
-  int b_tmp;
-  int jp1j;
-  int iy;
-  int jA;
-  int ix;
-  float smax;
-  int k;
-  float s;
-  int i;
-  int ijA;
-  ipiv[0] = 1;
-  ipiv[1] = 2;
-  ipiv[2] = 3;
-  *info = 0;
-  for (j = 0; j < 2; j++) {
-    mmj_tmp = 1 - j;
-    b_tmp = j << 2;
-    jp1j = b_tmp + 2;
-    iy = 3 - j;
-    jA = 0;
-    ix = b_tmp;
-    smax = std::abs(A[b_tmp]);
-    for (k = 2; k <= iy; k++) {
-      ix++;
-      s = std::abs(A[ix]);
-      if (s > smax) {
-        jA = k - 1;
-        smax = s;
-      }
-    }
-
-    if (A[b_tmp + jA] != 0.0F) {
-      if (jA != 0) {
-        iy = j + jA;
-        ipiv[j] = iy + 1;
-        smax = A[j];
-        A[j] = A[iy];
-        A[iy] = smax;
-        ix = j + 3;
-        iy += 3;
-        smax = A[ix];
-        A[ix] = A[iy];
-        A[iy] = smax;
-        ix += 3;
-        iy += 3;
-        smax = A[ix];
-        A[ix] = A[iy];
-        A[iy] = smax;
-      }
-
-      i = (b_tmp - j) + 3;
-      for (iy = jp1j; iy <= i; iy++) {
-        A[iy - 1] /= A[b_tmp];
-      }
-    } else {
-      *info = j + 1;
-    }
-
-    iy = b_tmp + 3;
-    jA = b_tmp;
-    for (k = 0; k <= mmj_tmp; k++) {
-      smax = A[iy];
-      if (A[iy] != 0.0F) {
-        ix = b_tmp + 1;
-        i = jA + 5;
-        jp1j = (jA - j) + 6;
-        for (ijA = i; ijA <= jp1j; ijA++) {
-          A[ijA - 1] += A[ix] * -smax;
-          ix++;
-        }
-      }
-
-      iy += 3;
-      jA += 3;
-    }
-  }
-
-  if ((*info == 0) && (A[8] == 0.0F)) {
-    *info = 3;
   }
 }
 
@@ -15269,224 +14362,6 @@ static void quadruple_constraint(double i, double j, double k, const double x[4]
 }
 
 //
-// Arguments    : const double A[400]
-// Return Type  : double
-//
-static double rcond(const double A[400])
-{
-  double result;
-  double normA;
-  int j;
-  double s;
-  double b_A[400];
-  int i;
-  int ipiv[20];
-  int jA;
-  int jjA;
-  int exitg1;
-  double ainvnm;
-  int iter;
-  int kase;
-  int jump;
-  double x[20];
-  int b_j;
-  int b_i;
-  double absrexk;
-  result = 0.0;
-  normA = 0.0;
-  for (j = 0; j < 20; j++) {
-    s = 0.0;
-    for (i = 0; i < 20; i++) {
-      s += std::abs(A[i + 20 * j]);
-    }
-
-    if (s > normA) {
-      normA = s;
-    }
-  }
-
-  if (normA != 0.0) {
-    std::memcpy(&b_A[0], &A[0], 400U * sizeof(double));
-    xzgetrf(b_A, ipiv, &jA);
-    jjA = 19;
-    do {
-      exitg1 = 0;
-      if (jjA + 1 > 0) {
-        if (b_A[jjA + 20 * jjA] == 0.0) {
-          exitg1 = 1;
-        } else {
-          jjA--;
-        }
-      } else {
-        ainvnm = 0.0;
-        iter = 2;
-        kase = 1;
-        jump = 1;
-        j = 0;
-        for (i = 0; i < 20; i++) {
-          x[i] = 0.05;
-        }
-
-        while (kase != 0) {
-          if (kase == 1) {
-            for (b_j = 0; b_j < 20; b_j++) {
-              jjA = b_j + b_j * 20;
-              b_i = 18 - b_j;
-              for (i = 0; i <= b_i; i++) {
-                jA = (b_j + i) + 1;
-                x[jA] -= x[b_j] * b_A[(jjA + i) + 1];
-              }
-            }
-
-            for (b_j = 19; b_j >= 0; b_j--) {
-              jjA = b_j + b_j * 20;
-              x[b_j] /= b_A[jjA];
-              for (i = 0; i < b_j; i++) {
-                jA = (b_j - i) - 1;
-                x[jA] -= x[b_j] * b_A[(jjA - i) - 1];
-              }
-            }
-          } else {
-            for (b_j = 0; b_j < 20; b_j++) {
-              jA = b_j * 20;
-              s = x[b_j];
-              for (i = 0; i < b_j; i++) {
-                s -= b_A[jA + i] * x[i];
-              }
-
-              x[b_j] = s / b_A[jA + b_j];
-            }
-
-            for (b_j = 19; b_j >= 0; b_j--) {
-              jA = b_j * 20;
-              s = x[b_j];
-              b_i = b_j + 2;
-              for (i = 20; i >= b_i; i--) {
-                s -= b_A[(jA + i) - 1] * x[i - 1];
-              }
-
-              x[b_j] = s;
-            }
-          }
-
-          if (jump == 1) {
-            ainvnm = 0.0;
-            for (jjA = 0; jjA < 20; jjA++) {
-              s = std::abs(x[jjA]);
-              ainvnm += s;
-              if (s > 2.2250738585072014E-308) {
-                x[jjA] /= s;
-              } else {
-                x[jjA] = 1.0;
-              }
-            }
-
-            kase = 2;
-            jump = 2;
-          } else if (jump == 2) {
-            j = 0;
-            s = std::abs(x[0]);
-            for (jjA = 0; jjA < 19; jjA++) {
-              absrexk = std::abs(x[jjA + 1]);
-              if (absrexk > s) {
-                j = jjA + 1;
-                s = absrexk;
-              }
-            }
-
-            iter = 2;
-            std::memset(&x[0], 0, 20U * sizeof(double));
-            x[j] = 1.0;
-            kase = 1;
-            jump = 3;
-          } else if (jump == 3) {
-            ainvnm = 0.0;
-            for (jjA = 0; jjA < 20; jjA++) {
-              ainvnm += std::abs(x[jjA]);
-            }
-
-            if (ainvnm <= x[0]) {
-              s = 1.0;
-              for (jjA = 0; jjA < 20; jjA++) {
-                x[jjA] = s * (((static_cast<double>(jjA) + 1.0) - 1.0) / 19.0 +
-                              1.0);
-                s = -s;
-              }
-
-              kase = 1;
-              jump = 5;
-            } else {
-              for (jjA = 0; jjA < 20; jjA++) {
-                s = std::abs(x[jjA]);
-                if (s > 2.2250738585072014E-308) {
-                  x[jjA] /= s;
-                } else {
-                  x[jjA] = 1.0;
-                }
-              }
-
-              kase = 2;
-              jump = 4;
-            }
-          } else if (jump == 4) {
-            jA = j;
-            j = 0;
-            s = std::abs(x[0]);
-            for (jjA = 0; jjA < 19; jjA++) {
-              absrexk = std::abs(x[jjA + 1]);
-              if (absrexk > s) {
-                j = jjA + 1;
-                s = absrexk;
-              }
-            }
-
-            if ((std::abs(x[jA]) != std::abs(x[j])) && (iter <= 5)) {
-              iter++;
-              std::memset(&x[0], 0, 20U * sizeof(double));
-              x[j] = 1.0;
-              kase = 1;
-              jump = 3;
-            } else {
-              s = 1.0;
-              for (jjA = 0; jjA < 20; jjA++) {
-                x[jjA] = s * (((static_cast<double>(jjA) + 1.0) - 1.0) / 19.0 +
-                              1.0);
-                s = -s;
-              }
-
-              kase = 1;
-              jump = 5;
-            }
-          } else {
-            if (jump == 5) {
-              s = 0.0;
-              for (jjA = 0; jjA < 20; jjA++) {
-                s += std::abs(x[jjA]);
-              }
-
-              s = 2.0 * s / 3.0 / 20.0;
-              if (s > ainvnm) {
-                ainvnm = s;
-              }
-
-              kase = 0;
-            }
-          }
-        }
-
-        if (ainvnm != 0.0) {
-          result = 1.0 / ainvnm / normA;
-        }
-
-        exitg1 = 1;
-      }
-    } while (exitg1 == 0);
-  }
-
-  return result;
-}
-
-//
 // Arguments    : const creal_T y
 // Return Type  : creal_T
 //
@@ -16086,29 +14961,22 @@ static void solve_3Q3(const double c[30], double *n, double xs_data[], int
   double u_mons_tmp;
   double v_mons_tmp;
   double w_mons_tmp;
-  double C[13];
+  double C[6];
+  double b_C[6];
   double y[20];
-  double b_C[13];
-  double c_C[13];
+  double c_C[5];
+  double d_C[9];
+  double c_A[9];
   creal_T xs_complex_data[8];
   int xs_complex_size[1];
   double b_xs_data[8];
-  double c_A[9];
+  double c_xs_data[13];
 
   // 'solve_3Q3:4' xs = zeros(1, 0, 'like', c);
-  xs_size[0] = 1;
-  xs_size[1] = 0;
-
   // 'solve_3Q3:5' coder.varsize('xs', [1 13], [0 1]);
   // 'solve_3Q3:6' ys = zeros(1, 0, 'like', c);
-  ys_size[0] = 1;
-  ys_size[1] = 0;
-
   // 'solve_3Q3:7' coder.varsize('ys', [1 13], [0 1]);
   // 'solve_3Q3:8' zs = zeros(1, 0, 'like', c);
-  zs_size[0] = 1;
-  zs_size[1] = 0;
-
   // 'solve_3Q3:9' coder.varsize('zs', [1 13], [0 1]);
   // 'solve_3Q3:11' A = find_A(c);
   // 'solve_3Q3:47' A = [c(1, 2), c(1, 3), c(1, 6);
@@ -16124,532 +14992,544 @@ static void solve_3Q3(const double c[30], double *n, double xs_data[], int
   A[5] = c[8];
   A[8] = c[17];
 
-  // 'solve_3Q3:12' if rcond(A) < eps
- //if(c_rcond(A) < 2.2204460492503131E-16) { //todo: rcond
-  if(false){
-    // 'solve_3Q3:13' n = 0;
-    *n = 0.0;
-  } else {
-    // 'solve_3Q3:16' P = find_P(c);
-    // 'solve_3Q3:53' P = zeros(3, 3, 3, 'like', c);
-    // [x^2, x, 1]
-    // 'solve_3Q3:54' for i = 1 : 3
-    for (i = 0; i < 3; i++) {
-      // 'solve_3Q3:55' P(i, 1, :) = [0, -c(i, 4), -c(i, 8)];
-      P[i] = 0.0;
-      P[i + 9] = -c[i + 9];
-      P[i + 18] = -c[i + 21];
+  //      if rcond(A) < eps
+  //           n = 0;
+  //           return;
+  //      end
+  // 'solve_3Q3:16' P = find_P(c);
+  // 'solve_3Q3:53' P = zeros(3, 3, 3, 'like', c);
+  // [x^2, x, 1]
+  // 'solve_3Q3:54' for i = 1 : 3
+  for (i = 0; i < 3; i++) {
+    // 'solve_3Q3:55' P(i, 1, :) = [0, -c(i, 4), -c(i, 8)];
+    P[i] = 0.0;
+    P[i + 9] = -c[i + 9];
+    P[i + 18] = -c[i + 21];
 
-      // y
-      // 'solve_3Q3:56' P(i, 2, :) = [0, -c(i, 5), -c(i, 9)];
-      P[i + 3] = 0.0;
-      P[i + 12] = -c[i + 12];
-      P[i + 21] = -c[i + 24];
+    // y
+    // 'solve_3Q3:56' P(i, 2, :) = [0, -c(i, 5), -c(i, 9)];
+    P[i + 3] = 0.0;
+    P[i + 12] = -c[i + 12];
+    P[i + 21] = -c[i + 24];
 
-      // z
-      // 'solve_3Q3:57' P(i, 3, :) = [-c(i, 1), -c(i, 7), -c(i, 10)];
-      P[i + 6] = -c[i];
-      P[i + 15] = -c[i + 18];
-      P[i + 24] = -c[i + 27];
+    // z
+    // 'solve_3Q3:57' P(i, 3, :) = [-c(i, 1), -c(i, 7), -c(i, 10)];
+    P[i + 6] = -c[i];
+    P[i + 15] = -c[i + 18];
+    P[i + 24] = -c[i + 27];
 
-      // 1
+    // 1
+  }
+
+  // 'solve_3Q3:17' P_prime = zeros(3, 3, 3, 'like', c);
+  // 'solve_3Q3:18' for i = 1 : 3
+  a21 = std::abs(c[4]);
+  for (i = 0; i < 3; i++) {
+    // 'solve_3Q3:19' P_prime(:, :, i) = A\P(:, :, i);
+    std::memcpy(&b_A[0], &A[0], 9U * sizeof(double));
+    r1 = 0;
+    r2 = 1;
+    r3 = 2;
+    maxval = std::abs(A[0]);
+    if (a21 > maxval) {
+      maxval = a21;
+      r1 = 1;
+      r2 = 0;
     }
 
-    // 'solve_3Q3:17' P_prime = zeros(3, 3, 3, 'like', c);
-    // 'solve_3Q3:18' for i = 1 : 3
-    a21 = std::abs(c[4]);
-    for (i = 0; i < 3; i++) {
-      // 'solve_3Q3:19' P_prime(:, :, i) = A\P(:, :, i);
-      std::memcpy(&b_A[0], &A[0], 9U * sizeof(double));
-      r1 = 0;
+    if (std::abs(A[2]) > maxval) {
+      r1 = 2;
       r2 = 1;
-      r3 = 2;
-      maxval = std::abs(A[0]);
-      if (a21 > maxval) {
-        maxval = a21;
-        r1 = 1;
-        r2 = 0;
-      }
-
-      if (std::abs(A[2]) > maxval) {
-        r1 = 2;
-        r2 = 1;
-        r3 = 0;
-      }
-
-      b_A[r2] = A[r2] / A[r1];
-      b_A[r3] /= b_A[r1];
-      b_A[r2 + 3] -= b_A[r2] * b_A[r1 + 3];
-      b_A[r3 + 3] -= b_A[r3] * b_A[r1 + 3];
-      b_A[r2 + 6] -= b_A[r2] * b_A[r1 + 6];
-      b_A[r3 + 6] -= b_A[r3] * b_A[r1 + 6];
-      if (std::abs(b_A[r3 + 3]) > std::abs(b_A[r2 + 3])) {
-        rtemp = r2;
-        r2 = r3;
-        r3 = rtemp;
-      }
-
-      b_A[r3 + 3] /= b_A[r2 + 3];
-      b_A[r3 + 6] -= b_A[r3 + 3] * b_A[r2 + 6];
-      rtemp = r1 + 9 * i;
-      k = r2 + 9 * i;
-      maxval = P[k] - P[rtemp] * b_A[r2];
-      b_k = r3 + 9 * i;
-      mons_tmp = b_A[r3 + 3];
-      b_mons_tmp = b_A[r3 + 6];
-      c_mons_tmp = ((P[b_k] - P[rtemp] * b_A[r3]) - maxval * mons_tmp) /
-        b_mons_tmp;
-      P_prime[9 * i + 2] = c_mons_tmp;
-      d_mons_tmp = b_A[r1 + 6];
-      e_mons_tmp = b_A[r2 + 6];
-      maxval -= c_mons_tmp * e_mons_tmp;
-      f_mons_tmp = b_A[r2 + 3];
-      maxval /= f_mons_tmp;
-      P_prime[9 * i + 1] = maxval;
-      g_mons_tmp = b_A[r1 + 3];
-      P_prime[9 * i] = ((P[rtemp] - c_mons_tmp * d_mons_tmp) - maxval *
-                        g_mons_tmp) / b_A[r1];
-      h_mons_tmp = P[rtemp + 3];
-      maxval = P[k + 3] - h_mons_tmp * b_A[r2];
-      c_mons_tmp = ((P[b_k + 3] - h_mons_tmp * b_A[r3]) - maxval * mons_tmp) /
-        b_mons_tmp;
-      P_prime[9 * i + 5] = c_mons_tmp;
-      h_mons_tmp -= c_mons_tmp * d_mons_tmp;
-      maxval -= c_mons_tmp * e_mons_tmp;
-      maxval /= f_mons_tmp;
-      P_prime[9 * i + 4] = maxval;
-      h_mons_tmp -= maxval * g_mons_tmp;
-      h_mons_tmp /= b_A[r1];
-      P_prime[9 * i + 3] = h_mons_tmp;
-      h_mons_tmp = P[rtemp + 6];
-      maxval = P[k + 6] - h_mons_tmp * b_A[r2];
-      c_mons_tmp = ((P[b_k + 6] - h_mons_tmp * b_A[r3]) - maxval * mons_tmp) /
-        b_mons_tmp;
-      P_prime[9 * i + 8] = c_mons_tmp;
-      h_mons_tmp -= c_mons_tmp * d_mons_tmp;
-      maxval -= c_mons_tmp * e_mons_tmp;
-      maxval /= f_mons_tmp;
-      P_prime[9 * i + 7] = maxval;
-      h_mons_tmp -= maxval * g_mons_tmp;
-      h_mons_tmp /= b_A[r1];
-      P_prime[9 * i + 6] = h_mons_tmp;
+      r3 = 0;
     }
 
-    // 'solve_3Q3:21' M = find_M(P_prime);
-    // 'find_M:2' M = zeros(5, 3, 3, 'like', P);
-    std::memset(&M[0], 0, 45U * sizeof(double));
-
-    // 'find_M:3' M(:, 1, 1) = [0, 0, P(1, 2, 2)*P(2, 1, 2) - P(3, 3, 1) - P(1, 1, 2)*P(3, 1, 2) + P(3, 1, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 1, 3) - P(3, 3, 2) + P(1, 2, 3)*P(2, 1, 2) - P(1, 1, 2)*P(3, 1, 3) - P(1, 1, 3)*P(3, 1, 2) + P(3, 1, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 1, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 1, 3) - P(3, 3, 3) - P(1, 1, 3)*P(3, 1, 3) + P(3, 1, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
-    mons[0] = 0.0;
-    mons[1] = 0.0;
-    maxval = P_prime[9] - P_prime[14];
-    mons_tmp = P_prime[12] * P_prime[10];
-    mons[2] = ((mons_tmp - P_prime[8]) - P_prime[9] * P_prime[11]) + P_prime[11]
-      * maxval;
-    b_mons_tmp = P_prime[18] - P_prime[23];
-    c_mons_tmp = P_prime[12] * P_prime[19];
-    d_mons_tmp = P_prime[21] * P_prime[10];
-    mons[3] = (((((c_mons_tmp - P_prime[17]) + d_mons_tmp) - P_prime[9] *
-                 P_prime[20]) - P_prime[18] * P_prime[11]) + P_prime[20] *
-               maxval) + P_prime[11] * b_mons_tmp;
-    e_mons_tmp = P_prime[21] * P_prime[19];
-    mons[4] = ((e_mons_tmp - P_prime[26]) - P_prime[18] * P_prime[20]) +
-      P_prime[20] * b_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp] = mons[rtemp];
+    b_A[r2] = A[r2] / A[r1];
+    b_A[r3] /= b_A[r1];
+    b_A[r2 + 3] -= b_A[r2] * b_A[r1 + 3];
+    b_A[r3 + 3] -= b_A[r3] * b_A[r1 + 3];
+    b_A[r2 + 6] -= b_A[r2] * b_A[r1 + 6];
+    b_A[r3 + 6] -= b_A[r3] * b_A[r1 + 6];
+    if (std::abs(b_A[r3 + 3]) > std::abs(b_A[r2 + 3])) {
+      rtemp = r2;
+      r2 = r3;
+      r3 = rtemp;
     }
 
-    //  degree = 2
-    // 'find_M:5' M(:, 1, 2) = [0, 0, P(1, 3, 1) + P(1, 2, 2)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 2) + P(3, 2, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 3, 2) + P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 3) - P(1, 2, 3)*P(3, 1, 2) + P(3, 2, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 2, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 3, 3) + P(1, 2, 3)*P(2, 2, 3) - P(1, 2, 3)*P(3, 1, 3) + P(3, 2, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
-    mons[0] = 0.0;
-    mons[1] = 0.0;
-    f_mons_tmp = P_prime[12] * P_prime[13];
-    mons[2] = ((P_prime[6] + f_mons_tmp) - P_prime[12] * P_prime[11]) + P_prime
-      [14] * maxval;
-    g_mons_tmp = P_prime[12] * P_prime[22];
-    h_mons_tmp = P_prime[21] * P_prime[13];
-    mons[3] = (((((P_prime[15] + g_mons_tmp) + h_mons_tmp) - P_prime[12] *
-                 P_prime[20]) - P_prime[21] * P_prime[11]) + P_prime[23] *
-               maxval) + P_prime[14] * b_mons_tmp;
-    a21 = P_prime[21] * P_prime[22];
-    mons[4] = ((P_prime[24] + a21) - P_prime[21] * P_prime[20]) + P_prime[23] *
+    b_A[r3 + 3] /= b_A[r2 + 3];
+    b_A[r3 + 6] -= b_A[r3 + 3] * b_A[r2 + 6];
+    rtemp = r1 + 9 * i;
+    k = r2 + 9 * i;
+    maxval = P[k] - P[rtemp] * b_A[r2];
+    b_k = r3 + 9 * i;
+    mons_tmp = b_A[r3 + 3];
+    b_mons_tmp = b_A[r3 + 6];
+    c_mons_tmp = ((P[b_k] - P[rtemp] * b_A[r3]) - maxval * mons_tmp) /
       b_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 15] = mons[rtemp];
-    }
-
-    //  degree = 2
-    // 'find_M:7' M(:, 1, 3) = [0, P(1, 2, 2)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 2) + P(3, 3, 1)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 3, 2) + P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 3) - P(1, 3, 2)*P(3, 1, 2) + P(3, 3, 2)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 1)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 2)*P(2, 3, 3) + P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(3, 1, 3) - P(1, 3, 3)*P(3, 1, 2) + P(3, 3, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 3, 3) - P(1, 3, 3)*P(3, 1, 3) + P(3, 3, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
-    mons[0] = 0.0;
-    i_mons_tmp = P_prime[12] * P_prime[7];
-    mons[1] = (i_mons_tmp - P_prime[6] * P_prime[11]) + P_prime[8] * maxval;
-    j_mons_tmp = P_prime[12] * P_prime[16];
-    k_mons_tmp = P_prime[21] * P_prime[7];
-    mons[2] = ((((j_mons_tmp + k_mons_tmp) - P_prime[6] * P_prime[20]) -
-                P_prime[15] * P_prime[11]) + P_prime[17] * maxval) + P_prime[8] *
+    P_prime[9 * i + 2] = c_mons_tmp;
+    d_mons_tmp = b_A[r1 + 6];
+    e_mons_tmp = b_A[r2 + 6];
+    maxval -= c_mons_tmp * e_mons_tmp;
+    f_mons_tmp = b_A[r2 + 3];
+    maxval /= f_mons_tmp;
+    P_prime[9 * i + 1] = maxval;
+    g_mons_tmp = b_A[r1 + 3];
+    P_prime[9 * i] = ((P[rtemp] - c_mons_tmp * d_mons_tmp) - maxval * g_mons_tmp)
+      / b_A[r1];
+    h_mons_tmp = P[rtemp + 3];
+    maxval = P[k + 3] - h_mons_tmp * b_A[r2];
+    c_mons_tmp = ((P[b_k + 3] - h_mons_tmp * b_A[r3]) - maxval * mons_tmp) /
       b_mons_tmp;
-    l_mons_tmp = P_prime[12] * P_prime[25];
-    m_mons_tmp = P_prime[21] * P_prime[16];
-    mons[3] = ((((l_mons_tmp + m_mons_tmp) - P_prime[15] * P_prime[20]) -
-                P_prime[24] * P_prime[11]) + P_prime[26] * maxval) + P_prime[17]
-      * b_mons_tmp;
-    maxval = P_prime[21] * P_prime[25];
-    mons[4] = (maxval - P_prime[24] * P_prime[20]) + P_prime[26] * b_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 30] = mons[rtemp];
+    P_prime[9 * i + 5] = c_mons_tmp;
+    h_mons_tmp -= c_mons_tmp * d_mons_tmp;
+    maxval -= c_mons_tmp * e_mons_tmp;
+    maxval /= f_mons_tmp;
+    P_prime[9 * i + 4] = maxval;
+    h_mons_tmp -= maxval * g_mons_tmp;
+    h_mons_tmp /= b_A[r1];
+    P_prime[9 * i + 3] = h_mons_tmp;
+    h_mons_tmp = P[rtemp + 6];
+    maxval = P[k + 6] - h_mons_tmp * b_A[r2];
+    c_mons_tmp = ((P[b_k + 6] - h_mons_tmp * b_A[r3]) - maxval * mons_tmp) /
+      b_mons_tmp;
+    P_prime[9 * i + 8] = c_mons_tmp;
+    h_mons_tmp -= c_mons_tmp * d_mons_tmp;
+    maxval -= c_mons_tmp * e_mons_tmp;
+    maxval /= f_mons_tmp;
+    P_prime[9 * i + 7] = maxval;
+    h_mons_tmp -= maxval * g_mons_tmp;
+    h_mons_tmp /= b_A[r1];
+    P_prime[9 * i + 6] = h_mons_tmp;
+  }
+
+  // 'solve_3Q3:21' M = find_M(P_prime);
+  // 'find_M:2' M = zeros(5, 3, 3, 'like', P);
+  std::memset(&M[0], 0, 45U * sizeof(double));
+
+  // 'find_M:3' M(:, 1, 1) = [0, 0, P(1, 2, 2)*P(2, 1, 2) - P(3, 3, 1) - P(1, 1, 2)*P(3, 1, 2) + P(3, 1, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 1, 3) - P(3, 3, 2) + P(1, 2, 3)*P(2, 1, 2) - P(1, 1, 2)*P(3, 1, 3) - P(1, 1, 3)*P(3, 1, 2) + P(3, 1, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 1, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 1, 3) - P(3, 3, 3) - P(1, 1, 3)*P(3, 1, 3) + P(3, 1, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
+  mons[0] = 0.0;
+  mons[1] = 0.0;
+  maxval = P_prime[9] - P_prime[14];
+  mons_tmp = P_prime[12] * P_prime[10];
+  mons[2] = ((mons_tmp - P_prime[8]) - P_prime[9] * P_prime[11]) + P_prime[11] *
+    maxval;
+  b_mons_tmp = P_prime[18] - P_prime[23];
+  c_mons_tmp = P_prime[12] * P_prime[19];
+  d_mons_tmp = P_prime[21] * P_prime[10];
+  mons[3] = (((((c_mons_tmp - P_prime[17]) + d_mons_tmp) - P_prime[9] * P_prime
+               [20]) - P_prime[18] * P_prime[11]) + P_prime[20] * maxval) +
+    P_prime[11] * b_mons_tmp;
+  e_mons_tmp = P_prime[21] * P_prime[19];
+  mons[4] = ((e_mons_tmp - P_prime[26]) - P_prime[18] * P_prime[20]) + P_prime
+    [20] * b_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp] = mons[rtemp];
+  }
+
+  //  degree = 2
+  // 'find_M:5' M(:, 1, 2) = [0, 0, P(1, 3, 1) + P(1, 2, 2)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 2) + P(3, 2, 2)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 3, 2) + P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - P(1, 2, 2)*P(3, 1, 3) - P(1, 2, 3)*P(3, 1, 2) + P(3, 2, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 2, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 3, 3) + P(1, 2, 3)*P(2, 2, 3) - P(1, 2, 3)*P(3, 1, 3) + P(3, 2, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
+  mons[0] = 0.0;
+  mons[1] = 0.0;
+  f_mons_tmp = P_prime[12] * P_prime[13];
+  mons[2] = ((P_prime[6] + f_mons_tmp) - P_prime[12] * P_prime[11]) + P_prime[14]
+    * maxval;
+  g_mons_tmp = P_prime[12] * P_prime[22];
+  h_mons_tmp = P_prime[21] * P_prime[13];
+  mons[3] = (((((P_prime[15] + g_mons_tmp) + h_mons_tmp) - P_prime[12] *
+               P_prime[20]) - P_prime[21] * P_prime[11]) + P_prime[23] * maxval)
+    + P_prime[14] * b_mons_tmp;
+  a21 = P_prime[21] * P_prime[22];
+  mons[4] = ((P_prime[24] + a21) - P_prime[21] * P_prime[20]) + P_prime[23] *
+    b_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 15] = mons[rtemp];
+  }
+
+  //  degree = 2
+  // 'find_M:7' M(:, 1, 3) = [0, P(1, 2, 2)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 2) + P(3, 3, 1)*(P(1, 1, 2) - P(3, 2, 2)), P(1, 2, 2)*P(2, 3, 2) + P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(3, 1, 3) - P(1, 3, 2)*P(3, 1, 2) + P(3, 3, 2)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 1)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 2)*P(2, 3, 3) + P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(3, 1, 3) - P(1, 3, 3)*P(3, 1, 2) + P(3, 3, 3)*(P(1, 1, 2) - P(3, 2, 2)) + P(3, 3, 2)*(P(1, 1, 3) - P(3, 2, 3)), P(1, 2, 3)*P(2, 3, 3) - P(1, 3, 3)*P(3, 1, 3) + P(3, 3, 3)*(P(1, 1, 3) - P(3, 2, 3))]; 
+  mons[0] = 0.0;
+  i_mons_tmp = P_prime[12] * P_prime[7];
+  mons[1] = (i_mons_tmp - P_prime[6] * P_prime[11]) + P_prime[8] * maxval;
+  j_mons_tmp = P_prime[12] * P_prime[16];
+  k_mons_tmp = P_prime[21] * P_prime[7];
+  mons[2] = ((((j_mons_tmp + k_mons_tmp) - P_prime[6] * P_prime[20]) - P_prime
+              [15] * P_prime[11]) + P_prime[17] * maxval) + P_prime[8] *
+    b_mons_tmp;
+  l_mons_tmp = P_prime[12] * P_prime[25];
+  m_mons_tmp = P_prime[21] * P_prime[16];
+  mons[3] = ((((l_mons_tmp + m_mons_tmp) - P_prime[15] * P_prime[20]) - P_prime
+              [24] * P_prime[11]) + P_prime[26] * maxval) + P_prime[17] *
+    b_mons_tmp;
+  maxval = P_prime[21] * P_prime[25];
+  mons[4] = (maxval - P_prime[24] * P_prime[20]) + P_prime[26] * b_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 30] = mons[rtemp];
+  }
+
+  //  degree = 3
+  // 'find_M:9' M(:, 2, 1) = [0, 0, P(2, 1, 2)*P(3, 2, 2) - P(1, 1, 2)*P(2, 1, 2) - P(2, 3, 1) - P(3, 1, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 1, 2)*P(3, 2, 3) - P(1, 1, 2)*P(2, 1, 3) - P(1, 1, 3)*P(2, 1, 2) - P(2, 3, 2) + P(2, 1, 3)*P(3, 2, 2) - P(3, 1, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 1, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 1, 3)*P(3, 2, 3) - P(1, 1, 3)*P(2, 1, 3) - P(2, 3, 3) - P(3, 1, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
+  mons[0] = 0.0;
+  mons[1] = 0.0;
+  b_mons_tmp = P_prime[13] - P_prime[11];
+  n_mons_tmp = P_prime[9] * P_prime[10];
+  mons[2] = ((P_prime[10] * P_prime[14] - n_mons_tmp) - P_prime[7]) - P_prime[11]
+    * b_mons_tmp;
+  o_mons_tmp = P_prime[22] - P_prime[20];
+  p_mons_tmp = P_prime[9] * P_prime[19];
+  q_mons_tmp = P_prime[18] * P_prime[10];
+  mons[3] = (((((P_prime[10] * P_prime[23] - p_mons_tmp) - q_mons_tmp) -
+               P_prime[16]) + P_prime[19] * P_prime[14]) - P_prime[20] *
+             b_mons_tmp) - P_prime[11] * o_mons_tmp;
+  r_mons_tmp = P_prime[18] * P_prime[19];
+  mons[4] = ((P_prime[19] * P_prime[23] - r_mons_tmp) - P_prime[25]) - P_prime
+    [20] * o_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 5] = mons[rtemp];
+  }
+
+  //  degree = 2
+  // 'find_M:11' M(:, 2, 2) = [0, 0, P(3, 3, 1) - P(1, 2, 2)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 2) - P(3, 2, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(3, 3, 2) - P(1, 2, 2)*P(2, 1, 3) - P(1, 2, 3)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 3) + P(2, 2, 3)*P(3, 2, 2) - P(3, 2, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 2, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(3, 3, 3) - P(1, 2, 3)*P(2, 1, 3) + P(2, 2, 3)*P(3, 2, 3) - P(3, 2, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
+  mons[0] = 0.0;
+  mons[1] = 0.0;
+  mons[2] = ((P_prime[8] - mons_tmp) + P_prime[13] * P_prime[14]) - P_prime[14] *
+    b_mons_tmp;
+  mons[3] = (((((P_prime[17] - c_mons_tmp) - d_mons_tmp) + P_prime[13] *
+               P_prime[23]) + P_prime[22] * P_prime[14]) - P_prime[23] *
+             b_mons_tmp) - P_prime[14] * o_mons_tmp;
+  mons[4] = ((P_prime[26] - e_mons_tmp) + P_prime[22] * P_prime[23]) - P_prime
+    [23] * o_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 20] = mons[rtemp];
+  }
+
+  //  degree = 2
+  // 'find_M:13' M(:, 2, 3) = [0, P(2, 3, 1)*P(3, 2, 2) - P(1, 3, 1)*P(2, 1, 2) - P(3, 3, 1)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 3, 1)*P(3, 2, 3) - P(1, 3, 2)*P(2, 1, 2) - P(1, 3, 1)*P(2, 1, 3) + P(2, 3, 2)*P(3, 2, 2) - P(3, 3, 2)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 1)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 2)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 2) - P(1, 3, 2)*P(2, 1, 3) + P(2, 3, 3)*P(3, 2, 2) - P(3, 3, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 3)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 3) - P(3, 3, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
+  mons[0] = 0.0;
+  s_mons_tmp = P_prime[6] * P_prime[10];
+  mons[1] = (P_prime[7] * P_prime[14] - s_mons_tmp) - P_prime[8] * b_mons_tmp;
+  t_mons_tmp = P_prime[6] * P_prime[19];
+  u_mons_tmp = P_prime[15] * P_prime[10];
+  mons[2] = ((((P_prime[7] * P_prime[23] - u_mons_tmp) - t_mons_tmp) + P_prime
+              [16] * P_prime[14]) - P_prime[17] * b_mons_tmp) - P_prime[8] *
+    o_mons_tmp;
+  v_mons_tmp = P_prime[15] * P_prime[19];
+  w_mons_tmp = P_prime[24] * P_prime[10];
+  mons[3] = ((((P_prime[16] * P_prime[23] - w_mons_tmp) - v_mons_tmp) + P_prime
+              [25] * P_prime[14]) - P_prime[26] * b_mons_tmp) - P_prime[17] *
+    o_mons_tmp;
+  b_mons_tmp = P_prime[24] * P_prime[19];
+  mons[4] = (P_prime[25] * P_prime[23] - b_mons_tmp) - P_prime[26] * o_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 35] = mons[rtemp];
+  }
+
+  //  degree = 3
+  // 'find_M:15' M(:, 3, 1) = [0, 2*P(3, 1, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 1, 2) - P(1, 1, 2)*P(2, 3, 1) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 2) - P(1, 1, 2)*P(2, 3, 2) - P(1, 1, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 1, 3) - P(1, 3, 2)*P(2, 1, 2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 1) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 3) - P(1, 1, 2)*P(2, 3, 3) - P(1, 1, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 1, 3) - P(1, 3, 3)*P(2, 1, 2) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 2) - P(1, 1, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 1, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 1, 3) - P(1, 1, 3)*P(2, 3, 3) - P(1, 1, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 1, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
+  mons[0] = 0.0;
+  n_mons_tmp -= P_prime[11] * P_prime[11];
+  f_mons_tmp -= P_prime[14] * P_prime[14];
+  mons_tmp = (P_prime[9] * P_prime[13] + mons_tmp) - 2.0 * P_prime[11] *
+    P_prime[14];
+  mons[1] = ((((2.0 * P_prime[11] * P_prime[8] - s_mons_tmp) - P_prime[9] *
+               P_prime[7]) - P_prime[9] * n_mons_tmp) - P_prime[10] * f_mons_tmp)
+    - P_prime[11] * mons_tmp;
+  c_mons_tmp = ((((P_prime[9] * P_prime[22] + P_prime[18] * P_prime[13]) +
+                  c_mons_tmp) + d_mons_tmp) - 2.0 * P_prime[11] * P_prime[23]) -
+    2.0 * P_prime[20] * P_prime[14];
+  d_mons_tmp = (p_mons_tmp + q_mons_tmp) - 2.0 * P_prime[11] * P_prime[20];
+  g_mons_tmp = (g_mons_tmp + h_mons_tmp) - 2.0 * P_prime[14] * P_prime[23];
+  mons[2] = ((((((((((2.0 * P_prime[11] * P_prime[17] - P_prime[9] * P_prime[16])
+                     - P_prime[18] * P_prime[7]) - t_mons_tmp) - u_mons_tmp) -
+                  P_prime[11] * c_mons_tmp) + 2.0 * P_prime[20] * P_prime[8]) -
+                P_prime[18] * n_mons_tmp) - P_prime[19] * f_mons_tmp) - P_prime
+              [9] * d_mons_tmp) - P_prime[10] * g_mons_tmp) - P_prime[20] *
+    mons_tmp;
+  h_mons_tmp = r_mons_tmp - P_prime[20] * P_prime[20];
+  a21 -= P_prime[23] * P_prime[23];
+  e_mons_tmp = (P_prime[18] * P_prime[22] + e_mons_tmp) - 2.0 * P_prime[20] *
+    P_prime[23];
+  mons[3] = ((((((((((2.0 * P_prime[11] * P_prime[26] - P_prime[9] * P_prime[25])
+                     - P_prime[18] * P_prime[16]) - v_mons_tmp) - w_mons_tmp) -
+                  P_prime[20] * c_mons_tmp) + 2.0 * P_prime[20] * P_prime[17]) -
+                P_prime[9] * h_mons_tmp) - P_prime[10] * a21) - P_prime[18] *
+              d_mons_tmp) - P_prime[19] * g_mons_tmp) - P_prime[11] * e_mons_tmp;
+  mons[4] = ((((2.0 * P_prime[20] * P_prime[26] - b_mons_tmp) - P_prime[18] *
+               P_prime[25]) - P_prime[18] * h_mons_tmp) - P_prime[19] * a21) -
+    P_prime[20] * e_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 10] = mons[rtemp];
+  }
+
+  //  degree = 3
+  // 'find_M:17' M(:, 3, 2) = [0, 2*P(3, 2, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 2, 2) - P(1, 2, 2)*P(2, 3, 1) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 2) - P(1, 2, 2)*P(2, 3, 2) - P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 2, 3) - P(1, 3, 2)*P(2, 2, 2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 1) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 3) - P(1, 2, 2)*P(2, 3, 3) - P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 2, 3) - P(1, 3, 3)*P(2, 2, 2) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 2) - P(1, 2, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 2, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 2, 3) - P(1, 2, 3)*P(2, 3, 3) - P(1, 2, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 2, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
+  mons[0] = 0.0;
+  mons[1] = ((((2.0 * P_prime[14] * P_prime[8] - P_prime[6] * P_prime[13]) -
+               i_mons_tmp) - P_prime[12] * n_mons_tmp) - P_prime[13] *
+             f_mons_tmp) - P_prime[14] * mons_tmp;
+  mons[2] = ((((((((((2.0 * P_prime[14] * P_prime[17] - j_mons_tmp) - k_mons_tmp)
+                    - P_prime[6] * P_prime[22]) - P_prime[15] * P_prime[13]) -
+                  P_prime[14] * c_mons_tmp) + 2.0 * P_prime[23] * P_prime[8]) -
+                P_prime[21] * n_mons_tmp) - P_prime[22] * f_mons_tmp) - P_prime
+              [12] * d_mons_tmp) - P_prime[13] * g_mons_tmp) - P_prime[23] *
+    mons_tmp;
+  mons[3] = ((((((((((2.0 * P_prime[14] * P_prime[26] - l_mons_tmp) - m_mons_tmp)
+                    - P_prime[15] * P_prime[22]) - P_prime[24] * P_prime[13]) -
+                  P_prime[23] * c_mons_tmp) + 2.0 * P_prime[23] * P_prime[17]) -
+                P_prime[12] * h_mons_tmp) - P_prime[13] * a21) - P_prime[21] *
+              d_mons_tmp) - P_prime[22] * g_mons_tmp) - P_prime[14] * e_mons_tmp;
+  mons[4] = ((((2.0 * P_prime[23] * P_prime[26] - P_prime[24] * P_prime[22]) -
+               maxval) - P_prime[21] * h_mons_tmp) - P_prime[22] * a21) -
+    P_prime[23] * e_mons_tmp;
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 25] = mons[rtemp];
+  }
+
+  //  degree = 3
+  // 'find_M:19' M(:, 3, 3) = [P(3, 3, 1)^2 - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(1, 3, 1)*P(2, 3, 1), 2*P(3, 3, 1)*P(3, 3, 2) - P(1, 3, 1)*P(2, 3, 2) - P(1, 3, 2)*P(2, 3, 1) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 3, 1)*P(3, 3, 3) - P(1, 3, 1)*P(2, 3, 3) - P(1, 3, 2)*P(2, 3, 2) - P(1, 3, 3)*P(2, 3, 1) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(1, 3, 1)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(2, 3, 1)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(3, 3, 1)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) + P(3, 3, 2)^2, 2*P(3, 3, 2)*P(3, 3, 3) - P(1, 3, 2)*P(2, 3, 3) - P(1, 3, 3)*P(2, 3, 2) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), P(3, 3, 3)^2 - P(1, 3, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 3, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) - P(1, 3, 3)*P(2, 3, 3)]; 
+  mons[0] = (((P_prime[8] * P_prime[8] - P_prime[6] * n_mons_tmp) - P_prime[7] *
+              f_mons_tmp) - P_prime[8] * mons_tmp) - P_prime[6] * P_prime[7];
+  mons[1] = (((((((2.0 * P_prime[8] * P_prime[17] - P_prime[6] * P_prime[16]) -
+                  P_prime[15] * P_prime[7]) - P_prime[8] * c_mons_tmp) -
+                P_prime[15] * n_mons_tmp) - P_prime[16] * f_mons_tmp) - P_prime
+              [6] * d_mons_tmp) - P_prime[7] * g_mons_tmp) - P_prime[17] *
+    mons_tmp;
+  mons[2] = ((((((((((((2.0 * P_prime[8] * P_prime[26] - P_prime[6] * P_prime[25])
+                       - P_prime[15] * P_prime[16]) - P_prime[24] * P_prime[7])
+                     - P_prime[17] * c_mons_tmp) - P_prime[24] * n_mons_tmp) -
+                   P_prime[6] * h_mons_tmp) - P_prime[25] * f_mons_tmp) -
+                 P_prime[7] * a21) - P_prime[15] * d_mons_tmp) - P_prime[16] *
+               g_mons_tmp) - P_prime[26] * mons_tmp) - P_prime[8] * e_mons_tmp)
+    + P_prime[17] * P_prime[17];
+  mons[3] = (((((((2.0 * P_prime[17] * P_prime[26] - P_prime[15] * P_prime[25])
+                  - P_prime[24] * P_prime[16]) - P_prime[26] * c_mons_tmp) -
+                P_prime[15] * h_mons_tmp) - P_prime[16] * a21) - P_prime[24] *
+              d_mons_tmp) - P_prime[25] * g_mons_tmp) - P_prime[17] * e_mons_tmp;
+  mons[4] = (((P_prime[26] * P_prime[26] - P_prime[24] * h_mons_tmp) - P_prime
+              [25] * a21) - P_prime[26] * e_mons_tmp) - P_prime[24] * P_prime[25];
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    M[rtemp + 40] = mons[rtemp];
+  }
+
+  //  degree = 4
+  // 'solve_3Q3:22' pol = find_det_M(M);
+  // 'solve_3Q3:62' d = conv(M(2:5, 3, 1), find_det23(M(:, 1:2, 2:3))) - ...
+  // 'solve_3Q3:63'          conv(M(2:5, 3, 2), find_det23(cat(3, M(:, 1:2, 1), M(:, 1:2, 3)))) + ... 
+  // 'solve_3Q3:64'          conv(M(:, 3, 3), find_det22(M(:, 1:2, 1:2)));
+  // 'solve_3Q3:72' d = conv(M(3:5, 1, 1), M(2:5, 2, 2)) - conv(M(2:5, 1, 2), M(3:5, 2, 1)); 
+  for (i = 0; i < 6; i++) {
+    C[i] = 0.0;
+  }
+
+  for (k = 0; k < 3; k++) {
+    maxval = M[k + 17];
+    C[k] += maxval * M[36];
+    C[k + 1] += maxval * M[37];
+    C[k + 2] += maxval * M[38];
+    C[k + 3] += maxval * M[39];
+  }
+
+  for (i = 0; i < 6; i++) {
+    b_C[i] = 0.0;
+  }
+
+  for (k = 0; k < 3; k++) {
+    maxval = M[k + 22];
+    b_C[k] += maxval * M[31];
+    b_C[k + 1] += maxval * M[32];
+    b_C[k + 2] += maxval * M[33];
+    b_C[k + 3] += maxval * M[34];
+  }
+
+  for (rtemp = 0; rtemp < 6; rtemp++) {
+    C[rtemp] -= b_C[rtemp];
+  }
+
+  std::memset(&A[0], 0, 9U * sizeof(double));
+  for (k = 0; k < 4; k++) {
+    for (b_k = 0; b_k < 6; b_k++) {
+      rtemp = k + b_k;
+      A[rtemp] += M[k + 11] * C[b_k];
     }
+  }
 
-    //  degree = 3
-    // 'find_M:9' M(:, 2, 1) = [0, 0, P(2, 1, 2)*P(3, 2, 2) - P(1, 1, 2)*P(2, 1, 2) - P(2, 3, 1) - P(3, 1, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 1, 2)*P(3, 2, 3) - P(1, 1, 2)*P(2, 1, 3) - P(1, 1, 3)*P(2, 1, 2) - P(2, 3, 2) + P(2, 1, 3)*P(3, 2, 2) - P(3, 1, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 1, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 1, 3)*P(3, 2, 3) - P(1, 1, 3)*P(2, 1, 3) - P(2, 3, 3) - P(3, 1, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
-    mons[0] = 0.0;
-    mons[1] = 0.0;
-    b_mons_tmp = P_prime[13] - P_prime[11];
-    n_mons_tmp = P_prime[9] * P_prime[10];
-    mons[2] = ((P_prime[10] * P_prime[14] - n_mons_tmp) - P_prime[7]) - P_prime
-      [11] * b_mons_tmp;
-    o_mons_tmp = P_prime[22] - P_prime[20];
-    p_mons_tmp = P_prime[9] * P_prime[19];
-    q_mons_tmp = P_prime[18] * P_prime[10];
-    mons[3] = (((((P_prime[10] * P_prime[23] - p_mons_tmp) - q_mons_tmp) -
-                 P_prime[16]) + P_prime[19] * P_prime[14]) - P_prime[20] *
-               b_mons_tmp) - P_prime[11] * o_mons_tmp;
-    r_mons_tmp = P_prime[18] * P_prime[19];
-    mons[4] = ((P_prime[19] * P_prime[23] - r_mons_tmp) - P_prime[25]) -
-      P_prime[20] * o_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 5] = mons[rtemp];
+  rtemp = -1;
+  for (r1 = 0; r1 < 10; r1++) {
+    rtemp++;
+    y[rtemp] = M[r1 % 5 + 5 * (r1 / 5)];
+  }
+
+  for (r1 = 0; r1 < 10; r1++) {
+    rtemp++;
+    y[rtemp] = M[(r1 % 5 + 5 * (r1 / 5)) + 30];
+  }
+
+  // 'solve_3Q3:72' d = conv(M(3:5, 1, 1), M(2:5, 2, 2)) - conv(M(2:5, 1, 2), M(3:5, 2, 1)); 
+  for (i = 0; i < 6; i++) {
+    C[i] = 0.0;
+  }
+
+  for (k = 0; k < 3; k++) {
+    maxval = y[k + 2];
+    C[k] += maxval * y[16];
+    C[k + 1] += maxval * y[17];
+    C[k + 2] += maxval * y[18];
+    C[k + 3] += maxval * y[19];
+  }
+
+  for (i = 0; i < 6; i++) {
+    b_C[i] = 0.0;
+  }
+
+  for (k = 0; k < 3; k++) {
+    maxval = y[k + 7];
+    b_C[k] += maxval * y[11];
+    b_C[k + 1] += maxval * y[12];
+    b_C[k + 2] += maxval * y[13];
+    b_C[k + 3] += maxval * y[14];
+  }
+
+  for (rtemp = 0; rtemp < 6; rtemp++) {
+    C[rtemp] -= b_C[rtemp];
+  }
+
+  std::memset(&b_A[0], 0, 9U * sizeof(double));
+  for (k = 0; k < 4; k++) {
+    for (b_k = 0; b_k < 6; b_k++) {
+      rtemp = k + b_k;
+      b_A[rtemp] += M[k + 26] * C[b_k];
     }
+  }
 
-    //  degree = 2
-    // 'find_M:11' M(:, 2, 2) = [0, 0, P(3, 3, 1) - P(1, 2, 2)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 2) - P(3, 2, 2)*(P(2, 2, 2) - P(3, 1, 2)), P(3, 3, 2) - P(1, 2, 2)*P(2, 1, 3) - P(1, 2, 3)*P(2, 1, 2) + P(2, 2, 2)*P(3, 2, 3) + P(2, 2, 3)*P(3, 2, 2) - P(3, 2, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 2, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(3, 3, 3) - P(1, 2, 3)*P(2, 1, 3) + P(2, 2, 3)*P(3, 2, 3) - P(3, 2, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
-    mons[0] = 0.0;
-    mons[1] = 0.0;
-    mons[2] = ((P_prime[8] - mons_tmp) + P_prime[13] * P_prime[14]) - P_prime[14]
-      * b_mons_tmp;
-    mons[3] = (((((P_prime[17] - c_mons_tmp) - d_mons_tmp) + P_prime[13] *
-                 P_prime[23]) + P_prime[22] * P_prime[14]) - P_prime[23] *
-               b_mons_tmp) - P_prime[14] * o_mons_tmp;
-    mons[4] = ((P_prime[26] - e_mons_tmp) + P_prime[22] * P_prime[23]) -
-      P_prime[23] * o_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 20] = mons[rtemp];
+  // 'solve_3Q3:68' d = conv(M(3:5, 1, 1), M(3:5, 2, 2)) - conv(M(3:5, 1, 2), M(3:5, 2, 1)); 
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    mons[rtemp] = 0.0;
+  }
+
+  for (k = 0; k < 3; k++) {
+    maxval = M[k + 22];
+    mons[k] += maxval * M[2];
+    mons[k + 1] += maxval * M[3];
+    mons[k + 2] += maxval * M[4];
+  }
+
+  for (i = 0; i < 5; i++) {
+    c_C[i] = 0.0;
+  }
+
+  for (k = 0; k < 3; k++) {
+    maxval = M[k + 7];
+    c_C[k] += maxval * M[17];
+    c_C[k + 1] += maxval * M[18];
+    c_C[k + 2] += maxval * M[19];
+  }
+
+  for (rtemp = 0; rtemp < 5; rtemp++) {
+    mons[rtemp] -= c_C[rtemp];
+  }
+
+  std::memset(&d_C[0], 0, 9U * sizeof(double));
+  for (k = 0; k < 5; k++) {
+    for (b_k = 0; b_k < 5; b_k++) {
+      rtemp = k + b_k;
+      d_C[rtemp] += mons[k] * M[b_k + 40];
     }
+  }
 
-    //  degree = 2
-    // 'find_M:13' M(:, 2, 3) = [0, P(2, 3, 1)*P(3, 2, 2) - P(1, 3, 1)*P(2, 1, 2) - P(3, 3, 1)*(P(2, 2, 2) - P(3, 1, 2)), P(2, 3, 1)*P(3, 2, 3) - P(1, 3, 2)*P(2, 1, 2) - P(1, 3, 1)*P(2, 1, 3) + P(2, 3, 2)*P(3, 2, 2) - P(3, 3, 2)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 1)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 2)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 2) - P(1, 3, 2)*P(2, 1, 3) + P(2, 3, 3)*P(3, 2, 2) - P(3, 3, 3)*(P(2, 2, 2) - P(3, 1, 2)) - P(3, 3, 2)*(P(2, 2, 3) - P(3, 1, 3)), P(2, 3, 3)*P(3, 2, 3) - P(1, 3, 3)*P(2, 1, 3) - P(3, 3, 3)*(P(2, 2, 3) - P(3, 1, 3))]; 
-    mons[0] = 0.0;
-    s_mons_tmp = P_prime[6] * P_prime[10];
-    mons[1] = (P_prime[7] * P_prime[14] - s_mons_tmp) - P_prime[8] * b_mons_tmp;
-    t_mons_tmp = P_prime[6] * P_prime[19];
-    u_mons_tmp = P_prime[15] * P_prime[10];
-    mons[2] = ((((P_prime[7] * P_prime[23] - u_mons_tmp) - t_mons_tmp) +
-                P_prime[16] * P_prime[14]) - P_prime[17] * b_mons_tmp) -
-      P_prime[8] * o_mons_tmp;
-    v_mons_tmp = P_prime[15] * P_prime[19];
-    w_mons_tmp = P_prime[24] * P_prime[10];
-    mons[3] = ((((P_prime[16] * P_prime[23] - w_mons_tmp) - v_mons_tmp) +
-                P_prime[25] * P_prime[14]) - P_prime[26] * b_mons_tmp) -
-      P_prime[17] * o_mons_tmp;
-    b_mons_tmp = P_prime[24] * P_prime[19];
-    mons[4] = (P_prime[25] * P_prime[23] - b_mons_tmp) - P_prime[26] *
-      o_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 35] = mons[rtemp];
-    }
+  // 'solve_3Q3:23' assert(numel(pol)==9);
+  // 'solve_3Q3:24' if ~isfinite(pol)
+  // 'solve_3Q3:29' xs_complex = roots(pol');
+  for (rtemp = 0; rtemp < 9; rtemp++) {
+    c_A[rtemp] = (A[rtemp] - b_A[rtemp]) + d_C[rtemp];
+  }
 
-    //  degree = 3
-    // 'find_M:15' M(:, 3, 1) = [0, 2*P(3, 1, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 1, 2) - P(1, 1, 2)*P(2, 3, 1) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 2) - P(1, 1, 2)*P(2, 3, 2) - P(1, 1, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 1, 3) - P(1, 3, 2)*P(2, 1, 2) - P(3, 1, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 1) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 1, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 1, 2)*P(3, 3, 3) - P(1, 1, 2)*P(2, 3, 3) - P(1, 1, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 1, 3) - P(1, 3, 3)*P(2, 1, 2) - P(3, 1, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 1, 3)*P(3, 3, 2) - P(1, 1, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 1, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 1, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 1, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 1, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 1, 3) - P(1, 1, 3)*P(2, 3, 3) - P(1, 1, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 1, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 1, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
-    mons[0] = 0.0;
-    n_mons_tmp -= P_prime[11] * P_prime[11];
-    f_mons_tmp -= P_prime[14] * P_prime[14];
-    mons_tmp = (P_prime[9] * P_prime[13] + mons_tmp) - 2.0 * P_prime[11] *
-      P_prime[14];
-    mons[1] = ((((2.0 * P_prime[11] * P_prime[8] - s_mons_tmp) - P_prime[9] *
-                 P_prime[7]) - P_prime[9] * n_mons_tmp) - P_prime[10] *
-               f_mons_tmp) - P_prime[11] * mons_tmp;
-    c_mons_tmp = ((((P_prime[9] * P_prime[22] + P_prime[18] * P_prime[13]) +
-                    c_mons_tmp) + d_mons_tmp) - 2.0 * P_prime[11] * P_prime[23])
-      - 2.0 * P_prime[20] * P_prime[14];
-    d_mons_tmp = (p_mons_tmp + q_mons_tmp) - 2.0 * P_prime[11] * P_prime[20];
-    g_mons_tmp = (g_mons_tmp + h_mons_tmp) - 2.0 * P_prime[14] * P_prime[23];
-    mons[2] = ((((((((((2.0 * P_prime[11] * P_prime[17] - P_prime[9] * P_prime
-                        [16]) - P_prime[18] * P_prime[7]) - t_mons_tmp) -
-                     u_mons_tmp) - P_prime[11] * c_mons_tmp) + 2.0 * P_prime[20]
-                   * P_prime[8]) - P_prime[18] * n_mons_tmp) - P_prime[19] *
-                 f_mons_tmp) - P_prime[9] * d_mons_tmp) - P_prime[10] *
-               g_mons_tmp) - P_prime[20] * mons_tmp;
-    h_mons_tmp = r_mons_tmp - P_prime[20] * P_prime[20];
-    a21 -= P_prime[23] * P_prime[23];
-    e_mons_tmp = (P_prime[18] * P_prime[22] + e_mons_tmp) - 2.0 * P_prime[20] *
-      P_prime[23];
-    mons[3] = ((((((((((2.0 * P_prime[11] * P_prime[26] - P_prime[9] * P_prime
-                        [25]) - P_prime[18] * P_prime[16]) - v_mons_tmp) -
-                     w_mons_tmp) - P_prime[20] * c_mons_tmp) + 2.0 * P_prime[20]
-                   * P_prime[17]) - P_prime[9] * h_mons_tmp) - P_prime[10] * a21)
-                - P_prime[18] * d_mons_tmp) - P_prime[19] * g_mons_tmp) -
-      P_prime[11] * e_mons_tmp;
-    mons[4] = ((((2.0 * P_prime[20] * P_prime[26] - b_mons_tmp) - P_prime[18] *
-                 P_prime[25]) - P_prime[18] * h_mons_tmp) - P_prime[19] * a21) -
-      P_prime[20] * e_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 10] = mons[rtemp];
-    }
+  roots(c_A, xs_complex_data, xs_complex_size);
 
-    //  degree = 3
-    // 'find_M:17' M(:, 3, 2) = [0, 2*P(3, 2, 2)*P(3, 3, 1) - P(1, 3, 1)*P(2, 2, 2) - P(1, 2, 2)*P(2, 3, 1) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 2) - P(1, 2, 2)*P(2, 3, 2) - P(1, 2, 3)*P(2, 3, 1) - P(1, 3, 1)*P(2, 2, 3) - P(1, 3, 2)*P(2, 2, 2) - P(3, 2, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 1) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 2, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 2, 2)*P(3, 3, 3) - P(1, 2, 2)*P(2, 3, 3) - P(1, 2, 3)*P(2, 3, 2) - P(1, 3, 2)*P(2, 2, 3) - P(1, 3, 3)*P(2, 2, 2) - P(3, 2, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) + 2*P(3, 2, 3)*P(3, 3, 2) - P(1, 2, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 2, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 2, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 2, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), 2*P(3, 2, 3)*P(3, 3, 3) - P(1, 3, 3)*P(2, 2, 3) - P(1, 2, 3)*P(2, 3, 3) - P(1, 2, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 2, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 2, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3))]; 
-    mons[0] = 0.0;
-    mons[1] = ((((2.0 * P_prime[14] * P_prime[8] - P_prime[6] * P_prime[13]) -
-                 i_mons_tmp) - P_prime[12] * n_mons_tmp) - P_prime[13] *
-               f_mons_tmp) - P_prime[14] * mons_tmp;
-    mons[2] = ((((((((((2.0 * P_prime[14] * P_prime[17] - j_mons_tmp) -
-                       k_mons_tmp) - P_prime[6] * P_prime[22]) - P_prime[15] *
-                     P_prime[13]) - P_prime[14] * c_mons_tmp) + 2.0 * P_prime[23]
-                   * P_prime[8]) - P_prime[21] * n_mons_tmp) - P_prime[22] *
-                 f_mons_tmp) - P_prime[12] * d_mons_tmp) - P_prime[13] *
-               g_mons_tmp) - P_prime[23] * mons_tmp;
-    mons[3] = ((((((((((2.0 * P_prime[14] * P_prime[26] - l_mons_tmp) -
-                       m_mons_tmp) - P_prime[15] * P_prime[22]) - P_prime[24] *
-                     P_prime[13]) - P_prime[23] * c_mons_tmp) + 2.0 * P_prime[23]
-                   * P_prime[17]) - P_prime[12] * h_mons_tmp) - P_prime[13] *
-                 a21) - P_prime[21] * d_mons_tmp) - P_prime[22] * g_mons_tmp) -
-      P_prime[14] * e_mons_tmp;
-    mons[4] = ((((2.0 * P_prime[23] * P_prime[26] - P_prime[24] * P_prime[22]) -
-                 maxval) - P_prime[21] * h_mons_tmp) - P_prime[22] * a21) -
-      P_prime[23] * e_mons_tmp;
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 25] = mons[rtemp];
-    }
+  // 'solve_3Q3:30' xs = zeros(1, length(xs_complex), 'like', c);
+  k = xs_complex_size[0];
+  if (0 <= k - 1) {
+    std::memset(&xs_data[0], 0, k * sizeof(double));
+  }
 
-    //  degree = 3
-    // 'find_M:19' M(:, 3, 3) = [P(3, 3, 1)^2 - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(1, 3, 1)*P(2, 3, 1), 2*P(3, 3, 1)*P(3, 3, 2) - P(1, 3, 1)*P(2, 3, 2) - P(1, 3, 2)*P(2, 3, 1) - P(3, 3, 1)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(1, 3, 1)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 1)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)), 2*P(3, 3, 1)*P(3, 3, 3) - P(1, 3, 1)*P(2, 3, 3) - P(1, 3, 2)*P(2, 3, 2) - P(1, 3, 3)*P(2, 3, 1) - P(3, 3, 2)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 2) - P(3, 1, 2)^2) - P(1, 3, 1)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 2) - P(3, 2, 2)^2) - P(2, 3, 1)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 2)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 2)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 2)) - P(3, 3, 1)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) + P(3, 3, 2)^2, 2*P(3, 3, 2)*P(3, 3, 3) - P(1, 3, 2)*P(2, 3, 3) - P(1, 3, 3)*P(2, 3, 2) - P(3, 3, 3)*(P(1, 1, 2)*P(2, 2, 3) + P(1, 1, 3)*P(2, 2, 2) + P(1, 2, 2)*P(2, 1, 3) + P(1, 2, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 2, 3) - 2*P(3, 1, 3)*P(3, 2, 2)) - P(1, 3, 2)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 2)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(1, 3, 3)*(P(1, 1, 2)*P(2, 1, 3) + P(1, 1, 3)*P(2, 1, 2) - 2*P(3, 1, 2)*P(3, 1, 3)) - P(2, 3, 3)*(P(1, 2, 2)*P(2, 2, 3) + P(1, 2, 3)*P(2, 2, 2) - 2*P(3, 2, 2)*P(3, 2, 3)) - P(3, 3, 2)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)), P(3, 3, 3)^2 - P(1, 3, 3)*(P(1, 1, 3)*P(2, 1, 3) - P(3, 1, 3)^2) - P(2, 3, 3)*(P(1, 2, 3)*P(2, 2, 3) - P(3, 2, 3)^2) - P(3, 3, 3)*(P(1, 1, 3)*P(2, 2, 3) + P(1, 2, 3)*P(2, 1, 3) - 2*P(3, 1, 3)*P(3, 2, 3)) - P(1, 3, 3)*P(2, 3, 3)]; 
-    mons[0] = (((P_prime[8] * P_prime[8] - P_prime[6] * n_mons_tmp) - P_prime[7]
-                * f_mons_tmp) - P_prime[8] * mons_tmp) - P_prime[6] * P_prime[7];
-    mons[1] = (((((((2.0 * P_prime[8] * P_prime[17] - P_prime[6] * P_prime[16])
-                    - P_prime[15] * P_prime[7]) - P_prime[8] * c_mons_tmp) -
-                  P_prime[15] * n_mons_tmp) - P_prime[16] * f_mons_tmp) -
-                P_prime[6] * d_mons_tmp) - P_prime[7] * g_mons_tmp) - P_prime[17]
-      * mons_tmp;
-    mons[2] = ((((((((((((2.0 * P_prime[8] * P_prime[26] - P_prime[6] * P_prime
-                          [25]) - P_prime[15] * P_prime[16]) - P_prime[24] *
-                        P_prime[7]) - P_prime[17] * c_mons_tmp) - P_prime[24] *
-                      n_mons_tmp) - P_prime[6] * h_mons_tmp) - P_prime[25] *
-                    f_mons_tmp) - P_prime[7] * a21) - P_prime[15] * d_mons_tmp)
-                 - P_prime[16] * g_mons_tmp) - P_prime[26] * mons_tmp) -
-               P_prime[8] * e_mons_tmp) + P_prime[17] * P_prime[17];
-    mons[3] = (((((((2.0 * P_prime[17] * P_prime[26] - P_prime[15] * P_prime[25])
-                    - P_prime[24] * P_prime[16]) - P_prime[26] * c_mons_tmp) -
-                  P_prime[15] * h_mons_tmp) - P_prime[16] * a21) - P_prime[24] *
-                d_mons_tmp) - P_prime[25] * g_mons_tmp) - P_prime[17] *
-      e_mons_tmp;
-    mons[4] = (((P_prime[26] * P_prime[26] - P_prime[24] * h_mons_tmp) -
-                P_prime[25] * a21) - P_prime[26] * e_mons_tmp) - P_prime[24] *
-      P_prime[25];
-    for (rtemp = 0; rtemp < 5; rtemp++) {
-      M[rtemp + 40] = mons[rtemp];
-    }
+  // 'solve_3Q3:31' n = 0;
+  *n = 0.0;
 
-    //  degree = 4
-    // 'solve_3Q3:22' pol = find_det_M(M);
-    // 'solve_3Q3:62' d_ = conv(M(:, 1, 1), find_det2(M(:, 2:3, 2:3))) - ...
-    // 'solve_3Q3:63'          conv(M(:, 1, 2), find_det2(cat(3, M(:, 2:3, 1), M(:, 2:3, 3)))) + ... 
-    // 'solve_3Q3:64'          conv(M(:, 1, 3), find_det2(M(:, 2:3, 1:2)));
-    // 'solve_3Q3:70' d = conv(M(:, 1, 1), M(:, 2, 2)) - conv(M(:, 1, 2), M(:, 2, 1)); 
-    std::memset(&A[0], 0, 9U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 5; b_k++) {
-        rtemp = k + b_k;
-        A[rtemp] += M[k + 40] * M[b_k + 20];
-      }
-    }
+  // 'solve_3Q3:33' for i = 1 : length(xs_complex)
+  rtemp = xs_complex_size[0];
+  for (i = 0; i < rtemp; i++) {
+    // 'solve_3Q3:34' n = n + 1;
+    (*n)++;
 
-    std::memset(&b_A[0], 0, 9U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 5; b_k++) {
-        rtemp = k + b_k;
-        b_A[rtemp] += M[k + 25] * M[b_k + 35];
-      }
-    }
+    // 'solve_3Q3:35' xs(n) = real(xs_complex(i));
+    xs_data[static_cast<int>(*n) - 1] = xs_complex_data[i].re;
+  }
 
-    for (rtemp = 0; rtemp < 9; rtemp++) {
-      A[rtemp] -= b_A[rtemp];
-    }
-
-    std::memset(&C[0], 0, 13U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 9; b_k++) {
-        rtemp = k + b_k;
-        C[rtemp] += M[k] * A[b_k];
-      }
-    }
-
-    rtemp = -1;
-    for (r1 = 0; r1 < 10; r1++) {
-      rtemp++;
-      y[rtemp] = M[r1 % 5 + 5 * (r1 / 5 + 1)];
-    }
-
-    for (r1 = 0; r1 < 10; r1++) {
-      rtemp++;
-      y[rtemp] = M[(r1 % 5 + 5 * (r1 / 5 + 1)) + 30];
-    }
-
-    // 'solve_3Q3:70' d = conv(M(:, 1, 1), M(:, 2, 2)) - conv(M(:, 1, 2), M(:, 2, 1)); 
-    std::memset(&A[0], 0, 9U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 5; b_k++) {
-        rtemp = k + b_k;
-        A[rtemp] += y[k + 15] * y[b_k];
-      }
-    }
-
-    std::memset(&b_A[0], 0, 9U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 5; b_k++) {
-        rtemp = k + b_k;
-        b_A[rtemp] += y[k + 5] * y[b_k + 10];
-      }
-    }
-
-    for (rtemp = 0; rtemp < 9; rtemp++) {
-      A[rtemp] -= b_A[rtemp];
-    }
-
-    std::memset(&b_C[0], 0, 13U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 9; b_k++) {
-        rtemp = k + b_k;
-        b_C[rtemp] += M[k + 15] * A[b_k];
-      }
-    }
-
-    // 'solve_3Q3:70' d = conv(M(:, 1, 1), M(:, 2, 2)) - conv(M(:, 1, 2), M(:, 2, 1)); 
-    std::memset(&A[0], 0, 9U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 5; b_k++) {
-        rtemp = k + b_k;
-        A[rtemp] += M[k + 25] * M[b_k + 5];
-      }
-    }
-
-    std::memset(&b_A[0], 0, 9U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 5; b_k++) {
-        rtemp = k + b_k;
-        b_A[rtemp] += M[k + 10] * M[b_k + 20];
-      }
-    }
-
-    for (rtemp = 0; rtemp < 9; rtemp++) {
-      A[rtemp] -= b_A[rtemp];
-    }
-
-    std::memset(&c_C[0], 0, 13U * sizeof(double));
-    for (k = 0; k < 5; k++) {
-      for (b_k = 0; b_k < 9; b_k++) {
-        rtemp = k + b_k;
-        c_C[rtemp] += M[k + 30] * A[b_k];
-      }
-    }
-
-    //  Due to the structure of M, d is 8-degree polynomial
-    // 'solve_3Q3:66' d = d_(end-8:end);
-    // 'solve_3Q3:23' assert(numel(pol)==9);
-    // 'solve_3Q3:24' if ~isfinite(pol)
-    // 'solve_3Q3:29' xs_complex = roots(pol');
-    for (rtemp = 0; rtemp < 13; rtemp++) {
-      C[rtemp] = (C[rtemp] - b_C[rtemp]) + c_C[rtemp];
-    }
-
-    roots(*(double (*)[9])&C[4], xs_complex_data, xs_complex_size);
-
-    // 'solve_3Q3:30' xs = zeros(1, length(xs_complex), 'like', c);
-    k = xs_complex_size[0];
-    if (0 <= k - 1) {
-      std::memset(&xs_data[0], 0, k * sizeof(double));
-    }
-
-    // 'solve_3Q3:31' n = 0;
-    *n = 0.0;
-
-    // 'solve_3Q3:33' for i = 1 : length(xs_complex)
-    rtemp = xs_complex_size[0];
-    for (i = 0; i < rtemp; i++) {
-      // 'solve_3Q3:34' n = n + 1;
-      (*n)++;
-
-      // 'solve_3Q3:35' xs(n) = real(xs_complex(i));
-      xs_data[static_cast<int>(*n) - 1] = xs_complex_data[i].re;
-    }
-
-    // 'solve_3Q3:38' xs = xs(1:n);
-    if (1.0 > *n) {
-      k = 0;
-    } else {
-      k = static_cast<int>(*n);
-    }
-
-    if (0 <= k - 1) {
-      std::memcpy(&b_xs_data[0], &xs_data[0], k * sizeof(double));
-      std::memcpy(&C[0], &xs_data[0], k * sizeof(double));
-    }
-
-    xs_size[0] = 1;
-    xs_size[1] = k;
-    if (0 <= k - 1) {
-      std::memcpy(&xs_data[0], &C[0], k * sizeof(double));
-    }
-
-    // 'solve_3Q3:39' ys = zeros(1, n, 'like', c);
-    ys_size[0] = 1;
+  // 'solve_3Q3:38' xs = xs(1:n);
+  if (1.0 > *n) {
+    k = 0;
+  } else {
     k = static_cast<int>(*n);
-    ys_size[1] = k;
+  }
 
-    // 'solve_3Q3:40' zs = zeros(1, n, 'like', c);
-    zs_size[0] = 1;
-    zs_size[1] = k;
-    if (0 <= k - 1) {
-      std::memset(&ys_data[0], 0, k * sizeof(double));
-      std::memset(&zs_data[0], 0, k * sizeof(double));
-    }
+  if (0 <= k - 1) {
+    std::memcpy(&b_xs_data[0], &xs_data[0], k * sizeof(double));
+    std::memcpy(&c_xs_data[0], &xs_data[0], k * sizeof(double));
+  }
 
-    // 'solve_3Q3:41' for i = 1 : n
-    if (0 <= k - 1) {
-      mons[4] = 1.0;
-    }
+  xs_size[0] = 1;
+  xs_size[1] = k;
+  if (0 <= k - 1) {
+    std::memcpy(&xs_data[0], &c_xs_data[0], k * sizeof(double));
+  }
 
-    for (i = 0; i < k; i++) {
-      // 'solve_3Q3:42' [ys(i), zs(i)] = find_yz(M, xs(i));
-      // 'find_yz:2' M_subs = zeros(3, 'like', x);
-      // 'find_yz:3' mons = [x^4, x^3, x^2, x, 1];
-      mons[0] = pow(b_xs_data[i], 4.0);
-      mons[1] = pow(b_xs_data[i], 3.0);
-      mons[2] = b_xs_data[i] * b_xs_data[i];
-      mons[3] = xs_data[i];
+  // 'solve_3Q3:39' ys = zeros(1, n, 'like', c);
+  ys_size[0] = 1;
+  k = static_cast<int>(*n);
+  ys_size[1] = k;
 
-      // 'find_yz:4' for i = 1 : 3
-      // 'find_yz:9' [Q, ~] = qr(M_subs');
-      for (b_k = 0; b_k < 3; b_k++) {
-        // 'find_yz:5' for j = 1 : 3
-        for (r1 = 0; r1 < 3; r1++) {
-          // 'find_yz:6' M_subs(i, j) = mons * M(:, i, j);
-          maxval = 0.0;
-          for (rtemp = 0; rtemp < 5; rtemp++) {
-            maxval += mons[rtemp] * M[(rtemp + 5 * b_k) + 15 * r1];
-          }
+  // 'solve_3Q3:40' zs = zeros(1, n, 'like', c);
+  zs_size[0] = 1;
+  zs_size[1] = k;
+  if (0 <= k - 1) {
+    std::memset(&ys_data[0], 0, k * sizeof(double));
+    std::memset(&zs_data[0], 0, k * sizeof(double));
+  }
 
-          c_A[r1 + 3 * b_k] = maxval;
+  // 'solve_3Q3:41' for i = 1 : n
+  if (0 <= k - 1) {
+    mons[4] = 1.0;
+  }
+
+  for (i = 0; i < k; i++) {
+    // 'solve_3Q3:42' [ys(i), zs(i)] = find_yz(M, xs(i));
+    // 'find_yz:2' M_subs = zeros(3, 'like', x);
+    // 'find_yz:3' mons = [x^4, x^3, x^2, x, 1];
+    mons[0] = pow(b_xs_data[i], 4.0);
+    mons[1] = pow(b_xs_data[i], 3.0);
+    mons[2] = b_xs_data[i] * b_xs_data[i];
+    mons[3] = xs_data[i];
+
+    // 'find_yz:4' for i = 1 : 3
+    // 'find_yz:9' [Q, ~] = qr(M_subs');
+    for (b_k = 0; b_k < 3; b_k++) {
+      // 'find_yz:5' for j = 1 : 3
+      for (r1 = 0; r1 < 3; r1++) {
+        // 'find_yz:6' M_subs(i, j) = mons * M(:, i, j);
+        maxval = 0.0;
+        for (rtemp = 0; rtemp < 5; rtemp++) {
+          maxval += mons[rtemp] * M[(rtemp + 5 * b_k) + 15 * r1];
         }
+
+        c_A[r1 + 3 * b_k] = maxval;
       }
-
-      d_qr(c_A, A, b_A);
-
-      // 'find_yz:9' ~
-      // 'find_yz:10' y = Q(1, 3) / Q(3, 3);
-      ys_data[i] = A[6] / A[8];
-
-      // 'find_yz:11' z = Q(2, 3) / Q(3, 3);
-      zs_data[i] = A[7] / A[8];
     }
+
+    d_qr(c_A, A, b_A);
+
+    // 'find_yz:9' ~
+    // 'find_yz:10' y = Q(1, 3) / Q(3, 3);
+    ys_data[i] = A[6] / A[8];
+
+    // 'find_yz:11' z = Q(2, 3) / Q(3, 3);
+    zs_data[i] = A[7] / A[8];
   }
 }
 
@@ -17671,95 +16551,6 @@ static void xzgeev(const creal_T A_data[], const int A_size[2], int *info,
         alpha1_data[b_i].im *= a;
       }
     }
-  }
-}
-
-//
-// Arguments    : double A[400]
-//                int ipiv[20]
-//                int *info
-// Return Type  : void
-//
-static void xzgetrf(double A[400], int ipiv[20], int *info)
-{
-  int i;
-  int j;
-  int mmj_tmp;
-  int b;
-  int jj;
-  int jp1j;
-  int iy;
-  int jA;
-  int ix;
-  double smax;
-  int k;
-  double s;
-  for (i = 0; i < 20; i++) {
-    ipiv[i] = i + 1;
-  }
-
-  *info = 0;
-  for (j = 0; j < 19; j++) {
-    mmj_tmp = 18 - j;
-    b = j * 21;
-    jj = j * 21;
-    jp1j = b + 2;
-    iy = 20 - j;
-    jA = 0;
-    ix = b;
-    smax = std::abs(A[jj]);
-    for (k = 2; k <= iy; k++) {
-      ix++;
-      s = std::abs(A[ix]);
-      if (s > smax) {
-        jA = k - 1;
-        smax = s;
-      }
-    }
-
-    if (A[jj + jA] != 0.0) {
-      if (jA != 0) {
-        iy = j + jA;
-        ipiv[j] = iy + 1;
-        ix = j;
-        for (k = 0; k < 20; k++) {
-          smax = A[ix];
-          A[ix] = A[iy];
-          A[iy] = smax;
-          ix += 20;
-          iy += 20;
-        }
-      }
-
-      i = (jj - j) + 20;
-      for (iy = jp1j; iy <= i; iy++) {
-        A[iy - 1] /= A[jj];
-      }
-    } else {
-      *info = j + 1;
-    }
-
-    iy = b + 20;
-    jA = jj;
-    for (k = 0; k <= mmj_tmp; k++) {
-      smax = A[iy];
-      if (A[iy] != 0.0) {
-        ix = jj + 1;
-        i = jA + 22;
-        b = (jA - j) + 40;
-        for (jp1j = i; jp1j <= b; jp1j++) {
-          A[jp1j - 1] += A[ix] * -smax;
-          ix++;
-        }
-      }
-
-      iy += 20;
-      jA += 20;
-    }
-  }
-
-  if ((*info == 0) && (A[399] == 0.0)) {
-    *info = 20;
   }
 }
 
@@ -19224,10 +18015,9 @@ static void xztgevc(const creal_T A[100], creal_T V[100])
 }
 
 //
-// function [n,f,r,t] = p35p_double(X, x, y, e)
+// function [n,f,r,t] = p35pf_double(X, xy, e)
 // Arguments    : const double X[12]
-//                const double x[4]
-//                const double y[4]
+//                const double xy[8]
 //                double e
 //                int *n
 //                double f_data[]
@@ -19238,11 +18028,13 @@ static void xztgevc(const creal_T A[100], creal_T V[100])
 //                int t_size[2]
 // Return Type  : void
 //
-void p35p_double(const double X[12], const double x[4], const double y[4],
-                 double e, int *n, double f_data[], int f_size[2], double
-                 r_data[], int r_size[3], double t_data[], int t_size[2])
+void p35pf_double(const double X[12], const double xy[8], double e, int *n,
+                  double f_data[], int f_size[2], double r_data[], int r_size[3],
+                  double t_data[], int t_size[2])
 {
   double F[72];
+  double b_xy[4];
+  double c_xy[4];
   static const double R[54] = { 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0,
     0.0, 2.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0,
     0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, -2.0, 0.0, 0.0, 0.0, -2.0,
@@ -19252,8 +18044,8 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
   int i;
   double dv1[112];
   double G20[900];
-  double A[400];
   double C[200];
+  double b_G20[400];
   double M[100];
   int b_i;
   double b_M[100];
@@ -19275,7 +18067,7 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
   double s_tmp;
   double R_xy[9];
   double R_xy_tmp;
-  double b_x;
+  double d_xy;
   double T[3];
   double fc_set[9];
   double b_fc_set[12];
@@ -19288,11 +18080,10 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
   double b_t_data[30];
   int t_data_tmp;
 
-  // 'p35p_double:2' assert(isa(X, 'double'));
-  // 'p35p_double:3' assert(isa(x, 'double'));
-  // 'p35p_double:4' assert(isa(y, 'double'));
-  // 'p35p_double:5' assert(isa(e, 'double'));
-  // 'p35p_double:7' [n, f, r, t] = p35p_solver(X, x, y, e);
+  // 'p35pf_double:2' assert(isa(X, 'double'));
+  // 'p35pf_double:3' assert(isa(xy, 'double'));
+  // 'p35pf_double:4' assert(isa(e, 'double'));
+  // 'p35pf_double:6' [n, f, r, t] = p35p_solver(X, xy(1, :), xy(2, :), e);
   // 'p35p_solver:2' type = class(X);
   // 'p35p_solver:3' assert(strcmp(type, class(y)));
   // 'p35p_solver:4' assert(strcmp(type, class(x)));
@@ -19322,7 +18113,15 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
   std::memset(&F[0], 0, 72U * sizeof(double));
 
   // 'init_F:3' F(1, :, :) = quadruple_constraint(1, 2, 3, x, y, X, R);
-  quadruple_constraint(1.0, 2.0, 3.0, x, y, X, R, dv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  quadruple_constraint(1.0, 2.0, 3.0, b_xy, c_xy, X, R, dv);
   for (i = 0; i < 6; i++) {
     F[12 * i] = dv[3 * i];
     F[12 * i + 4] = dv[3 * i + 1];
@@ -19330,7 +18129,15 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
   }
 
   // 'init_F:4' F(2, :, :) = quadruple_constraint(1, 3, 2, x, y, X, R);
-  quadruple_constraint(1.0, 3.0, 2.0, x, y, X, R, dv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  quadruple_constraint(1.0, 3.0, 2.0, b_xy, c_xy, X, R, dv);
   for (i = 0; i < 6; i++) {
     F[12 * i + 1] = dv[3 * i];
     F[12 * i + 5] = dv[3 * i + 1];
@@ -19338,7 +18145,15 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
   }
 
   // 'init_F:5' F(3, :, :) = quadruple_constraint(2, 4, 3, x, y, X, R);
-  quadruple_constraint(2.0, 4.0, 3.0, x, y, X, R, dv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  quadruple_constraint(2.0, 4.0, 3.0, b_xy, c_xy, X, R, dv);
   for (i = 0; i < 6; i++) {
     F[12 * i + 2] = dv[3 * i];
     F[12 * i + 6] = dv[3 * i + 1];
@@ -19346,7 +18161,15 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
   }
 
   // 'init_F:6' F(4, :, :) = quadruple_constraint(3, 4, 2, x, y, X, R);
-  quadruple_constraint(3.0, 4.0, 2.0, x, y, X, R, dv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  quadruple_constraint(3.0, 4.0, 2.0, b_xy, c_xy, X, R, dv);
   for (i = 0; i < 6; i++) {
     F[12 * i + 3] = dv[3 * i];
     F[12 * i + 7] = dv[3 * i + 1];
@@ -19362,330 +18185,328 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
 
   // 20x45
   // 'p35p_solver:20' A = [G20(:, 1:2), G20(:, 10:13), G20(:, 18:22), G20(:, 25:28), G20(:, 31:35)]; 
-  for (i = 0; i < 2; i++) {
-    std::memcpy(&A[i * 20], &G20[i * 20], 20U * sizeof(double));
-  }
-
-  for (i = 0; i < 4; i++) {
-    std::memcpy(&A[i * 20 + 40], &G20[i * 20 + 180], 20U * sizeof(double));
-  }
-
-  for (i = 0; i < 5; i++) {
-    std::memcpy(&A[i * 20 + 120], &G20[i * 20 + 340], 20U * sizeof(double));
-  }
-
-  for (i = 0; i < 4; i++) {
-    std::memcpy(&A[i * 20 + 220], &G20[i * 20 + 480], 20U * sizeof(double));
-  }
-
-  for (i = 0; i < 5; i++) {
-    std::memcpy(&A[i * 20 + 300], &G20[i * 20 + 600], 20U * sizeof(double));
-  }
-
   // 'p35p_solver:21' B = G20(:, 36:45);
-  // 'p35p_solver:22' if rcond(A) < e
-  //if (rcond(A) >= e) { //todo: rcond
-  if(true){
-    // 'p35p_solver:26' C = A\B;
+  //      if rcond(A) < e
+  //          return;
+  //      end
+  // 'p35p_solver:26' C = A\B;
+  for (i = 0; i < 10; i++) {
+    std::memcpy(&C[i * 20], &G20[i * 20 + 700], 20U * sizeof(double));
+  }
+
+  for (i = 0; i < 2; i++) {
+    std::memcpy(&b_G20[i * 20], &G20[i * 20], 20U * sizeof(double));
+  }
+
+  for (i = 0; i < 4; i++) {
+    std::memcpy(&b_G20[i * 20 + 40], &G20[i * 20 + 180], 20U * sizeof(double));
+  }
+
+  for (i = 0; i < 5; i++) {
+    std::memcpy(&b_G20[i * 20 + 120], &G20[i * 20 + 340], 20U * sizeof(double));
+  }
+
+  for (i = 0; i < 4; i++) {
+    std::memcpy(&b_G20[i * 20 + 220], &G20[i * 20 + 480], 20U * sizeof(double));
+  }
+
+  for (i = 0; i < 5; i++) {
+    std::memcpy(&b_G20[i * 20 + 300], &G20[i * 20 + 600], 20U * sizeof(double));
+  }
+
+  b_mldivide(b_G20, C);
+
+  // 'p35p_solver:27' M = make_mult_matrix(C);
+  // this function creates a matrix for multiplication by x in the monomial
+  // basis B
+  // monomial basis B = {x^3, ...., 1} -- monomials up to the 3d degree, #B = 10 
+  // x^3, x^2*y, x*y^2, y^3, x^2, x*y, y^2, x, y, 1
+  // 'make_mult_matrix:6' M = zeros(10, 10, 'like', C);
+  std::memset(&M[0], 0, 100U * sizeof(double));
+
+  // 'make_mult_matrix:7' for i = 1 : 4
+  for (b_i = 0; b_i < 4; b_i++) {
+    // 'make_mult_matrix:8' M(:, i) = -C(15 + i, :)';
     for (i = 0; i < 10; i++) {
-      std::memcpy(&C[i * 20], &G20[i * 20 + 700], 20U * sizeof(double));
+      M[i + 10 * b_i] = -C[(b_i + 20 * i) + 15];
     }
+  }
 
-    b_mldivide(A, C);
+  // 'make_mult_matrix:10' M(1, 5) = 1;
+  M[40] = 1.0;
 
-    // 'p35p_solver:27' M = make_mult_matrix(C);
-    // this function creates a matrix for multiplication by x in the monomial
-    // basis B
-    // monomial basis B = {x^3, ...., 1} -- monomials up to the 3d degree, #B = 10 
-    // x^3, x^2*y, x*y^2, y^3, x^2, x*y, y^2, x, y, 1
-    // 'make_mult_matrix:6' M = zeros(10, 10, 'like', C);
-    std::memset(&M[0], 0, 100U * sizeof(double));
+  // 'make_mult_matrix:11' M(2, 6) = 1;
+  M[51] = 1.0;
 
-    // 'make_mult_matrix:7' for i = 1 : 4
-    for (b_i = 0; b_i < 4; b_i++) {
-      // 'make_mult_matrix:8' M(:, i) = -C(15 + i, :)';
-      for (i = 0; i < 10; i++) {
-        M[i + 10 * b_i] = -C[(b_i + 20 * i) + 15];
-      }
+  // 'make_mult_matrix:12' M(3, 7) = 1;
+  M[62] = 1.0;
+
+  // 'make_mult_matrix:13' M(5, 8) = 1;
+  M[74] = 1.0;
+
+  // 'make_mult_matrix:14' M(6, 9) = 1;
+  M[85] = 1.0;
+
+  // 'make_mult_matrix:15' M(8, 10) = 1;
+  M[97] = 1.0;
+
+  // 'p35p_solver:29' [W,D] = eig(M');
+  for (i = 0; i < 10; i++) {
+    for (i1 = 0; i1 < 10; i1++) {
+      b_M[i1 + 10 * i] = M[i + 10 * i1];
     }
+  }
 
-    // 'make_mult_matrix:10' M(1, 5) = 1;
-    M[40] = 1.0;
+  eig(b_M, W, D);
 
-    // 'make_mult_matrix:11' M(2, 6) = 1;
-    M[51] = 1.0;
+  // 'p35p_solver:31' for i = 1 : 10
+  for (b_i = 0; b_i < 10; b_i++) {
+    // 'p35p_solver:32' qx = D(i, i);
+    // 'p35p_solver:33' qy = W(9, i) / W(10, i);
+    // 'p35p_solver:35' qx = real(qx);
+    qx = D[b_i + 10 * b_i].re;
 
-    // 'make_mult_matrix:12' M(3, 7) = 1;
-    M[62] = 1.0;
-
-    // 'make_mult_matrix:13' M(5, 8) = 1;
-    M[74] = 1.0;
-
-    // 'make_mult_matrix:14' M(6, 9) = 1;
-    M[85] = 1.0;
-
-    // 'make_mult_matrix:15' M(8, 10) = 1;
-    M[97] = 1.0;
-
-    // 'p35p_solver:29' [W,D] = eig(M');
-    for (i = 0; i < 10; i++) {
-      for (i1 = 0; i1 < 10; i1++) {
-        b_M[i1 + 10 * i] = M[i + 10 * i1];
-      }
-    }
-
-    eig(b_M, W, D);
-
-    // 'p35p_solver:31' for i = 1 : 10
-    for (b_i = 0; b_i < 10; b_i++) {
-      // 'p35p_solver:32' qx = D(i, i);
-      // 'p35p_solver:33' qy = W(9, i) / W(10, i);
-      // 'p35p_solver:35' qx = real(qx);
-      qx = D[b_i + 10 * b_i].re;
-
-      // 'p35p_solver:36' qy = real(qy);
-      ar_tmp = 10 * b_i + 8;
-      br_tmp = 10 * b_i + 9;
-      if (W[br_tmp].im == 0.0) {
-        if (W[ar_tmp].im == 0.0) {
-          W_re = W[ar_tmp].re / W[br_tmp].re;
-        } else if (W[ar_tmp].re == 0.0) {
-          W_re = 0.0;
-        } else {
-          W_re = W[ar_tmp].re / W[br_tmp].re;
-        }
-      } else if (W[br_tmp].re == 0.0) {
-        if (W[ar_tmp].re == 0.0) {
-          W_re = W[ar_tmp].im / W[br_tmp].im;
-        } else if (W[ar_tmp].im == 0.0) {
-          W_re = 0.0;
-        } else {
-          W_re = W[ar_tmp].im / W[br_tmp].im;
-        }
+    // 'p35p_solver:36' qy = real(qy);
+    ar_tmp = 10 * b_i + 8;
+    br_tmp = 10 * b_i + 9;
+    if (W[br_tmp].im == 0.0) {
+      if (W[ar_tmp].im == 0.0) {
+        W_re = W[ar_tmp].re / W[br_tmp].re;
+      } else if (W[ar_tmp].re == 0.0) {
+        W_re = 0.0;
       } else {
-        f = std::abs(W[br_tmp].re);
-        bim = std::abs(W[br_tmp].im);
-        if (f > bim) {
-          s = W[br_tmp].im / W[br_tmp].re;
-          W_re = (W[ar_tmp].re + s * W[ar_tmp].im) / (W[br_tmp].re + s *
-            W[br_tmp].im);
-        } else if (bim == f) {
-          if (W[br_tmp].re > 0.0) {
-            W_re = 0.5;
-          } else {
-            W_re = -0.5;
-          }
-
-          if (W[br_tmp].im > 0.0) {
-            bim = 0.5;
-          } else {
-            bim = -0.5;
-          }
-
-          W_re = (W[ar_tmp].re * W_re + W[ar_tmp].im * bim) / f;
+        W_re = W[ar_tmp].re / W[br_tmp].re;
+      }
+    } else if (W[br_tmp].re == 0.0) {
+      if (W[ar_tmp].re == 0.0) {
+        W_re = W[ar_tmp].im / W[br_tmp].im;
+      } else if (W[ar_tmp].im == 0.0) {
+        W_re = 0.0;
+      } else {
+        W_re = W[ar_tmp].im / W[br_tmp].im;
+      }
+    } else {
+      f = std::abs(W[br_tmp].re);
+      bim = std::abs(W[br_tmp].im);
+      if (f > bim) {
+        s = W[br_tmp].im / W[br_tmp].re;
+        W_re = (W[ar_tmp].re + s * W[ar_tmp].im) / (W[br_tmp].re + s * W[br_tmp]
+          .im);
+      } else if (bim == f) {
+        if (W[br_tmp].re > 0.0) {
+          W_re = 0.5;
         } else {
-          s = W[br_tmp].re / W[br_tmp].im;
-          W_re = (s * W[ar_tmp].re + W[ar_tmp].im) / (W[br_tmp].im + s *
-            W[br_tmp].re);
+          W_re = -0.5;
+        }
+
+        if (W[br_tmp].im > 0.0) {
+          bim = 0.5;
+        } else {
+          bim = -0.5;
+        }
+
+        W_re = (W[ar_tmp].re * W_re + W[ar_tmp].im * bim) / f;
+      } else {
+        s = W[br_tmp].re / W[br_tmp].im;
+        W_re = (s * W[ar_tmp].re + W[ar_tmp].im) / (W[br_tmp].im + s * W[br_tmp]
+          .re);
+      }
+    }
+
+    // 'p35p_solver:37' [fc_set, fs_set, f_num] = find_f(F, qx, qy, e);
+    find_f(F, qx, W_re, e, fc_set_data, fc_set_size, fs_set_data, fs_set_size,
+           &f);
+
+    // 'p35p_solver:39' for j = 1 : f_num
+    i = static_cast<int>(f);
+    if (0 <= i - 1) {
+      bim = W_re * W_re;
+      s_tmp = qx * qx;
+      s = 1.0 / ((s_tmp + 1.0) + bim);
+      R_xy[0] = 1.0 - 2.0 * s * bim;
+      f = 2.0 * s * qx;
+      R_xy_tmp = f * W_re;
+      R_xy[3] = R_xy_tmp;
+      R_xy[6] = 2.0 * s * W_re;
+      R_xy[1] = R_xy_tmp;
+      R_xy[4] = 1.0 - 2.0 * s * s_tmp;
+      R_xy[7] = -2.0 * s * qx;
+      R_xy[2] = -2.0 * s * W_re;
+      R_xy[5] = f;
+      R_xy[8] = 1.0 - 2.0 * s * (s_tmp + bim);
+      d_xy = xy[2];
+    }
+
+    for (j = 0; j < i; j++) {
+      // 'p35p_solver:40' fc = fc_set(j);
+      // 'p35p_solver:41' fs = fs_set(j);
+      // 'p35p_solver:43' s = 1/(1 + qx^2 + qy^2);
+      // 'p35p_solver:44' R_xy = [1 - 2*s*qy^2, 2*s*qx*qy,     2*s*qy;
+      // 'p35p_solver:45'                       2*s*qx*qy,    1 - 2*s*qx^2, -2*s*qx; 
+      // 'p35p_solver:46'                      -2*s*qy,       2*s*qx,        1 - 2*s*(qx^2 + qy^2)]; 
+      // li = find_lamda(R, fc, fs, Xi, Xj, xi, xj) -- signature
+      // 'p35p_solver:49' lambda1 = find_lamda(R_xy, fc, fs, X(:, 1), X(:, 2), x(1), x(2)); 
+      // 'find_lamda:2' li = -(fc*R(1, :) - fs*R(2, :) - xj*R(3, :))*(Xj - Xi)/(xi - xj); 
+      R_xy_tmp = fc_set_data[j] * R_xy[0] - fs_set_data[j] * R_xy[1];
+      f = fc_set_data[j] * R_xy[3] - fs_set_data[j] * R_xy[4];
+      bim = fc_set_data[j] * R_xy[6] - fs_set_data[j] * R_xy[7];
+      s_tmp = ((-(R_xy_tmp - d_xy * R_xy[2]) * (X[3] - X[0]) + -(f - d_xy *
+                 R_xy[5]) * (X[4] - X[1])) + -(bim - d_xy * R_xy[8]) * (X[5] -
+                X[2])) / (xy[0] - xy[2]);
+
+      // T = find_translation(R, fc, fs, li, Xi, xi, yi)
+      // 'p35p_solver:51' T = find_translation(R_xy, fc, fs, lambda1, X(:, 1), x(1), y(1)); 
+      // 'find_translation:2' T = [li*xi - (fc*R(1, :) - fs*R(2, :))*Xi;
+      // 'find_translation:3'          li*yi - (fs*R(1, :) + fc*R(2, :))*Xi;
+      // 'find_translation:4'          li - R(3, :)*Xi];
+      T[0] = s_tmp * xy[0] - ((R_xy_tmp * X[0] + f * X[1]) + bim * X[2]);
+      T[1] = s_tmp * xy[1] - (((fs_set_data[j] * R_xy[0] + fc_set_data[j] *
+        R_xy[1]) * X[0] + (fs_set_data[j] * R_xy[3] + fc_set_data[j] * R_xy[4]) *
+        X[1]) + (fs_set_data[j] * R_xy[6] + fc_set_data[j] * R_xy[7]) * X[2]);
+      T[2] = s_tmp - ((R_xy[2] * X[0] + R_xy[5] * X[1]) + R_xy[8] * X[2]);
+
+      // 'p35p_solver:53' f = hypot(fs, fc);
+      f = rt_hypotd(fs_set_data[j], fc_set_data[j]);
+
+      // 'p35p_solver:54' K = [fc, -fs, 0;
+      // 'p35p_solver:55'                  fs,  fc, 0;
+      // 'p35p_solver:56'                    0,  0, 1];
+      // 'p35p_solver:57' P = [K*R_xy, T];
+      // 'p35p_solver:59' p4 = P*[X(:, 4); 1];
+      fc_set[0] = fc_set_data[j];
+      fc_set[3] = -fs_set_data[j];
+      fc_set[6] = 0.0;
+      fc_set[1] = fs_set_data[j];
+      fc_set[4] = fc_set_data[j];
+      fc_set[7] = 0.0;
+      fc_set[2] = 0.0;
+      fc_set[5] = 0.0;
+      fc_set[8] = 1.0;
+      for (i1 = 0; i1 < 3; i1++) {
+        bim = fc_set[i1 + 3];
+        ar_tmp = static_cast<int>(fc_set[i1 + 6]);
+        for (br_tmp = 0; br_tmp < 3; br_tmp++) {
+          c_fc_set[i1 + 3 * br_tmp] = (fc_set[i1] * R_xy[3 * br_tmp] + bim *
+            R_xy[3 * br_tmp + 1]) + static_cast<double>(ar_tmp) * R_xy[3 *
+            br_tmp + 2];
         }
       }
 
-      // 'p35p_solver:37' [fc_set, fs_set, f_num] = find_f(F, qx, qy, e);
-      find_f(F, qx, W_re, e, fc_set_data, fc_set_size, fs_set_data, fs_set_size,
-             &f);
-
-      // 'p35p_solver:39' for j = 1 : f_num
-      i = static_cast<int>(f);
-      if (0 <= i - 1) {
-        bim = W_re * W_re;
-        s_tmp = qx * qx;
-        s = 1.0 / ((s_tmp + 1.0) + bim);
-        R_xy[0] = 1.0 - 2.0 * s * bim;
-        f = 2.0 * s * qx;
-        R_xy_tmp = f * W_re;
-        R_xy[3] = R_xy_tmp;
-        R_xy[6] = 2.0 * s * W_re;
-        R_xy[1] = R_xy_tmp;
-        R_xy[4] = 1.0 - 2.0 * s * s_tmp;
-        R_xy[7] = -2.0 * s * qx;
-        R_xy[2] = -2.0 * s * W_re;
-        R_xy[5] = f;
-        R_xy[8] = 1.0 - 2.0 * s * (s_tmp + bim);
-        b_x = x[1];
+      for (i1 = 0; i1 < 3; i1++) {
+        b_fc_set[3 * i1] = c_fc_set[3 * i1];
+        ar_tmp = 3 * i1 + 1;
+        b_fc_set[ar_tmp] = c_fc_set[ar_tmp];
+        ar_tmp = 3 * i1 + 2;
+        b_fc_set[ar_tmp] = c_fc_set[ar_tmp];
+        b_fc_set[i1 + 9] = T[i1];
+        b_X[i1] = X[i1 + 9];
       }
 
-      for (j = 0; j < i; j++) {
-        // 'p35p_solver:40' fc = fc_set(j);
-        // 'p35p_solver:41' fs = fs_set(j);
-        // 'p35p_solver:43' s = 1/(1 + qx^2 + qy^2);
-        // 'p35p_solver:44' R_xy = [1 - 2*s*qy^2, 2*s*qx*qy,     2*s*qy;
-        // 'p35p_solver:45'                       2*s*qx*qy,    1 - 2*s*qx^2, -2*s*qx; 
-        // 'p35p_solver:46'                      -2*s*qy,       2*s*qx,        1 - 2*s*(qx^2 + qy^2)]; 
-        // li = find_lamda(R, fc, fs, Xi, Xj, xi, xj) -- signature
-        // 'p35p_solver:49' lambda1 = find_lamda(R_xy, fc, fs, X(:, 1), X(:, 2), x(1), x(2)); 
-        // 'find_lamda:2' li = -(fc*R(1, :) - fs*R(2, :) - xj*R(3, :))*(Xj - Xi)/(xi - xj); 
-        R_xy_tmp = fc_set_data[j] * R_xy[0] - fs_set_data[j] * R_xy[1];
-        f = fc_set_data[j] * R_xy[3] - fs_set_data[j] * R_xy[4];
-        bim = fc_set_data[j] * R_xy[6] - fs_set_data[j] * R_xy[7];
-        s_tmp = ((-(R_xy_tmp - b_x * R_xy[2]) * (X[3] - X[0]) + -(f - b_x *
-                   R_xy[5]) * (X[4] - X[1])) + -(bim - b_x * R_xy[8]) * (X[5] -
-                  X[2])) / (x[0] - x[1]);
+      for (i1 = 0; i1 < 3; i1++) {
+        p4[i1] = ((b_fc_set[i1] * b_X[0] + b_fc_set[i1 + 3] * b_X[1]) +
+                  b_fc_set[i1 + 6] * b_X[2]) + b_fc_set[i1 + 9];
+      }
 
-        // T = find_translation(R, fc, fs, li, Xi, xi, yi)
-        // 'p35p_solver:51' T = find_translation(R_xy, fc, fs, lambda1, X(:, 1), x(1), y(1)); 
-        // 'find_translation:2' T = [li*xi - (fc*R(1, :) - fs*R(2, :))*Xi;
-        // 'find_translation:3'          li*yi - (fs*R(1, :) + fc*R(2, :))*Xi;
-        // 'find_translation:4'          li - R(3, :)*Xi];
-        T[0] = s_tmp * x[0] - ((R_xy_tmp * X[0] + f * X[1]) + bim * X[2]);
-        T[1] = s_tmp * y[0] - (((fs_set_data[j] * R_xy[0] + fc_set_data[j] *
-          R_xy[1]) * X[0] + (fs_set_data[j] * R_xy[3] + fc_set_data[j] * R_xy[4])
-          * X[1]) + (fs_set_data[j] * R_xy[6] + fc_set_data[j] * R_xy[7]) * X[2]);
-        T[2] = s_tmp - ((R_xy[2] * X[0] + R_xy[5] * X[1]) + R_xy[8] * X[2]);
+      // 'p35p_solver:60' y4 = p4(2)/p4(3);
+      // 'p35p_solver:62' if abs(y4 - y(4)) < 0.01*f
+      if (std::abs(p4[1] / p4[2] - xy[7]) < 0.01 * f) {
+        // 'p35p_solver:63' solution_num = solution_num + 1;
+        (*n)++;
 
-        // 'p35p_solver:53' f = hypot(fs, fc);
-        f = rt_hypotd(fs_set_data[j], fc_set_data[j]);
-
-        // 'p35p_solver:54' K = [fc, -fs, 0;
-        // 'p35p_solver:55'                  fs,  fc, 0;
-        // 'p35p_solver:56'                    0,  0, 1];
-        // 'p35p_solver:57' P = [K*R_xy, T];
-        // 'p35p_solver:59' p4 = P*[X(:, 4); 1];
-        fc_set[0] = fc_set_data[j];
-        fc_set[3] = -fs_set_data[j];
+        // 'p35p_solver:64' R_z = [fc/f, -fs/f, 0;
+        // 'p35p_solver:65'                        fs/f,  fc/f, 0;
+        // 'p35p_solver:66'                        0,        0, 1];
+        // 'p35p_solver:67' R_curr = R_z*R_xy;
+        R_xy_tmp = fc_set_data[j] / f;
+        fc_set[0] = R_xy_tmp;
+        fc_set[3] = -fs_set_data[j] / f;
         fc_set[6] = 0.0;
-        fc_set[1] = fs_set_data[j];
-        fc_set[4] = fc_set_data[j];
+        fc_set[1] = fs_set_data[j] / f;
+        fc_set[4] = R_xy_tmp;
         fc_set[7] = 0.0;
         fc_set[2] = 0.0;
         fc_set[5] = 0.0;
         fc_set[8] = 1.0;
+
+        // 'p35p_solver:68' f_sol = [f_sol, f];
+        i1 = f_size[1];
+        f_size[1]++;
+        f_data[i1] = f;
+
+        // 'p35p_solver:69' T = -R_curr'*([1/f; 1/f; 1].*T);
         for (i1 = 0; i1 < 3; i1++) {
-          bim = fc_set[i1 + 3];
           ar_tmp = static_cast<int>(fc_set[i1 + 6]);
+          bim = fc_set[i1 + 3];
           for (br_tmp = 0; br_tmp < 3; br_tmp++) {
-            c_fc_set[i1 + 3 * br_tmp] = (fc_set[i1] * R_xy[3 * br_tmp] + bim *
-              R_xy[3 * br_tmp + 1]) + static_cast<double>(ar_tmp) * R_xy[3 *
-              br_tmp + 2];
+            s_tmp = (fc_set[i1] * R_xy[3 * br_tmp] + bim * R_xy[3 * br_tmp + 1])
+              + static_cast<double>(ar_tmp) * R_xy[3 * br_tmp + 2];
+            R_curr[i1 + 3 * br_tmp] = s_tmp;
+            c_fc_set[br_tmp + 3 * i1] = -s_tmp;
           }
         }
 
+        bim = 1.0 / f * T[0];
+        s_tmp = 1.0 / f * T[1];
+        f = T[2];
         for (i1 = 0; i1 < 3; i1++) {
-          b_fc_set[3 * i1] = c_fc_set[3 * i1];
-          ar_tmp = 3 * i1 + 1;
-          b_fc_set[ar_tmp] = c_fc_set[ar_tmp];
-          ar_tmp = 3 * i1 + 2;
-          b_fc_set[ar_tmp] = c_fc_set[ar_tmp];
-          b_fc_set[i1 + 9] = T[i1];
-          b_X[i1] = X[i1 + 9];
+          T[i1] = (c_fc_set[i1] * bim + c_fc_set[i1 + 3] * s_tmp) + c_fc_set[i1
+            + 6] * f;
         }
 
-        for (i1 = 0; i1 < 3; i1++) {
-          p4[i1] = ((b_fc_set[i1] * b_X[0] + b_fc_set[i1 + 3] * b_X[1]) +
-                    b_fc_set[i1 + 6] * b_X[2]) + b_fc_set[i1 + 9];
-        }
-
-        // 'p35p_solver:60' y4 = p4(2)/p4(3);
-        // 'p35p_solver:62' if abs(y4 - y(4)) < 0.01*f
-        if (std::abs(p4[1] / p4[2] - y[3]) < 0.01 * f) {
-          // 'p35p_solver:63' solution_num = solution_num + 1;
-          (*n)++;
-
-          // 'p35p_solver:64' R_z = [fc/f, -fs/f, 0;
-          // 'p35p_solver:65'                        fs/f,  fc/f, 0;
-          // 'p35p_solver:66'                        0,        0, 1];
-          // 'p35p_solver:67' R_curr = R_z*R_xy;
-          R_xy_tmp = fc_set_data[j] / f;
-          fc_set[0] = R_xy_tmp;
-          fc_set[3] = -fs_set_data[j] / f;
-          fc_set[6] = 0.0;
-          fc_set[1] = fs_set_data[j] / f;
-          fc_set[4] = R_xy_tmp;
-          fc_set[7] = 0.0;
-          fc_set[2] = 0.0;
-          fc_set[5] = 0.0;
-          fc_set[8] = 1.0;
-
-          // 'p35p_solver:68' f_sol = [f_sol, f];
-          i1 = f_size[1];
-          f_size[1]++;
-          f_data[i1] = f;
-
-          // 'p35p_solver:69' T = -R_curr'*([1/f; 1/f; 1].*T);
-          for (i1 = 0; i1 < 3; i1++) {
-            ar_tmp = static_cast<int>(fc_set[i1 + 6]);
-            bim = fc_set[i1 + 3];
-            for (br_tmp = 0; br_tmp < 3; br_tmp++) {
-              s_tmp = (fc_set[i1] * R_xy[3 * br_tmp] + bim * R_xy[3 * br_tmp + 1])
-                + static_cast<double>(ar_tmp) * R_xy[3 * br_tmp + 2];
-              R_curr[i1 + 3 * br_tmp] = s_tmp;
-              c_fc_set[br_tmp + 3 * i1] = -s_tmp;
-            }
-          }
-
-          bim = 1.0 / f * T[0];
-          s_tmp = 1.0 / f * T[1];
-          f = T[2];
-          for (i1 = 0; i1 < 3; i1++) {
-            T[i1] = (c_fc_set[i1] * bim + c_fc_set[i1 + 3] * s_tmp) +
-              c_fc_set[i1 + 6] * f;
-          }
-
-          // 'p35p_solver:70' if solution_num == 1
-          if (*n == 1) {
-            // 'p35p_solver:71' R_sol = R_curr;
-            r_size[0] = 3;
-            r_size[1] = 3;
-            r_size[2] = 1;
-            std::memcpy(&r_data[0], &R_curr[0], 9U * sizeof(double));
-          } else {
-            // 'p35p_solver:72' else
-            // 'p35p_solver:73' R_sol = cat(3, R_sol, R_curr);
-            cat(r_data, r_size, R_curr, tmp_data, tmp_size);
-            r_size[0] = 3;
-            r_size[1] = 3;
-            r_size[2] = tmp_size[2];
-            ar_tmp = tmp_size[0] * tmp_size[1] * tmp_size[2];
-            if (0 <= ar_tmp - 1) {
-              std::memcpy(&r_data[0], &tmp_data[0], ar_tmp * sizeof(double));
-            }
-          }
-
-          // 'p35p_solver:75' T_sol = [T_sol, T];
-          ar_tmp = t_size[1];
-          br_tmp = t_size[1] + 1;
-          for (i1 = 0; i1 < ar_tmp; i1++) {
-            b_t_data[3 * i1] = t_data[3 * i1];
-            t_data_tmp = 3 * i1 + 1;
-            b_t_data[t_data_tmp] = t_data[t_data_tmp];
-            t_data_tmp = 3 * i1 + 2;
-            b_t_data[t_data_tmp] = t_data[t_data_tmp];
-          }
-
-          b_t_data[3 * t_size[1]] = T[0];
-          b_t_data[3 * t_size[1] + 1] = T[1];
-          b_t_data[3 * t_size[1] + 2] = T[2];
-          t_size[0] = 3;
-          t_size[1] = br_tmp;
-          ar_tmp = 3 * br_tmp;
+        // 'p35p_solver:70' if solution_num == 1
+        if (*n == 1) {
+          // 'p35p_solver:71' R_sol = R_curr;
+          r_size[0] = 3;
+          r_size[1] = 3;
+          r_size[2] = 1;
+          std::memcpy(&r_data[0], &R_curr[0], 9U * sizeof(double));
+        } else {
+          // 'p35p_solver:72' else
+          // 'p35p_solver:73' R_sol = cat(3, R_sol, R_curr);
+          cat(r_data, r_size, R_curr, tmp_data, tmp_size);
+          r_size[0] = 3;
+          r_size[1] = 3;
+          r_size[2] = tmp_size[2];
+          ar_tmp = tmp_size[0] * tmp_size[1] * tmp_size[2];
           if (0 <= ar_tmp - 1) {
-            std::memcpy(&t_data[0], &b_t_data[0], ar_tmp * sizeof(double));
+            std::memcpy(&r_data[0], &tmp_data[0], ar_tmp * sizeof(double));
           }
+        }
+
+        // 'p35p_solver:75' T_sol = [T_sol, T];
+        ar_tmp = t_size[1];
+        br_tmp = t_size[1] + 1;
+        for (i1 = 0; i1 < ar_tmp; i1++) {
+          b_t_data[3 * i1] = t_data[3 * i1];
+          t_data_tmp = 3 * i1 + 1;
+          b_t_data[t_data_tmp] = t_data[t_data_tmp];
+          t_data_tmp = 3 * i1 + 2;
+          b_t_data[t_data_tmp] = t_data[t_data_tmp];
+        }
+
+        b_t_data[3 * t_size[1]] = T[0];
+        b_t_data[3 * t_size[1] + 1] = T[1];
+        b_t_data[3 * t_size[1] + 2] = T[2];
+        t_size[0] = 3;
+        t_size[1] = br_tmp;
+        ar_tmp = 3 * br_tmp;
+        if (0 <= ar_tmp - 1) {
+          std::memcpy(&t_data[0], &b_t_data[0], ar_tmp * sizeof(double));
         }
       }
     }
   }
 
-  // 'p35p_double:8' assert(isa(n, 'int32'));
-  // 'p35p_double:9' assert(isa(f, 'double'));
-  // 'p35p_double:10' assert(isa(r, 'double'));
-  // 'p35p_double:11' assert(isa(t, 'double'));
+  // 'p35pf_double:7' assert(isa(n, 'int32'));
+  // 'p35pf_double:8' assert(isa(f, 'double'));
+  // 'p35pf_double:9' assert(isa(r, 'double'));
+  // 'p35pf_double:10' assert(isa(t, 'double'));
 }
 
 //
-// function [n,f,r,t] = p35p_single(X, x, y, e)
+// function [n,f,r,t] = p35pf_single(X, xy, e)
 // Arguments    : const float X[12]
-//                const float x[4]
-//                const float y[4]
+//                const float xy[8]
 //                float e
 //                int *n
 //                float f_data[]
@@ -19696,11 +18517,13 @@ void p35p_double(const double X[12], const double x[4], const double y[4],
 //                int t_size[2]
 // Return Type  : void
 //
-void p35p_single(const float X[12], const float x[4], const float y[4], float e,
-                 int *n, float f_data[], int f_size[2], float r_data[], int
-                 r_size[3], float t_data[], int t_size[2])
+void p35pf_single(const float X[12], const float xy[8], float e, int *n, float
+                  f_data[], int f_size[2], float r_data[], int r_size[3], float
+                  t_data[], int t_size[2])
 {
   float F[72];
+  float b_xy[4];
+  float c_xy[4];
   static const float R[54] = { 1.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F,
     -1.0F, 0.0F, 2.0F, 0.0F, 2.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F,
     0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
@@ -19711,8 +18534,8 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
   int i;
   float fv1[112];
   float G20[900];
-  float A[400];
   float C[200];
+  float b_G20[400];
   float M[100];
   int b_i;
   float b_M[100];
@@ -19735,7 +18558,7 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
   float R_xy_tmp;
   float b_R_xy_tmp;
   float R_xy[9];
-  float b_x;
+  float d_xy;
   float T[3];
   float fc_set[9];
   float b_fc_set[12];
@@ -19747,11 +18570,10 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
   float b_t_data[30];
   int t_data_tmp;
 
-  // 'p35p_single:2' assert(isa(X, 'single'));
-  // 'p35p_single:3' assert(isa(x, 'single'));
-  // 'p35p_single:4' assert(isa(y, 'single'));
-  // 'p35p_single:5' assert(isa(e, 'single'));
-  // 'p35p_single:7' [n, f, r, t] = p35p_solver(X, x, y, e);
+  // 'p35pf_single:2' assert(isa(X, 'single'));
+  // 'p35pf_single:3' assert(isa(xy, 'single'));
+  // 'p35pf_single:4' assert(isa(e, 'single'));
+  // 'p35pf_single:6' [n, f, r, t] = p35p_solver(X, xy(1, :), xy(2, :), e);
   // 'p35p_solver:2' type = class(X);
   // 'p35p_solver:3' assert(strcmp(type, class(y)));
   // 'p35p_solver:4' assert(strcmp(type, class(x)));
@@ -19781,7 +18603,15 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
   std::memset(&F[0], 0, 72U * sizeof(float));
 
   // 'init_F:3' F(1, :, :) = quadruple_constraint(1, 2, 3, x, y, X, R);
-  b_quadruple_constraint(1.0, 2.0, 3.0, x, y, X, R, fv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  b_quadruple_constraint(1.0, 2.0, 3.0, b_xy, c_xy, X, R, fv);
   for (i = 0; i < 6; i++) {
     F[12 * i] = fv[3 * i];
     F[12 * i + 4] = fv[3 * i + 1];
@@ -19789,7 +18619,15 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
   }
 
   // 'init_F:4' F(2, :, :) = quadruple_constraint(1, 3, 2, x, y, X, R);
-  b_quadruple_constraint(1.0, 3.0, 2.0, x, y, X, R, fv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  b_quadruple_constraint(1.0, 3.0, 2.0, b_xy, c_xy, X, R, fv);
   for (i = 0; i < 6; i++) {
     F[12 * i + 1] = fv[3 * i];
     F[12 * i + 5] = fv[3 * i + 1];
@@ -19797,7 +18635,15 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
   }
 
   // 'init_F:5' F(3, :, :) = quadruple_constraint(2, 4, 3, x, y, X, R);
-  b_quadruple_constraint(2.0, 4.0, 3.0, x, y, X, R, fv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  b_quadruple_constraint(2.0, 4.0, 3.0, b_xy, c_xy, X, R, fv);
   for (i = 0; i < 6; i++) {
     F[12 * i + 2] = fv[3 * i];
     F[12 * i + 6] = fv[3 * i + 1];
@@ -19805,7 +18651,15 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
   }
 
   // 'init_F:6' F(4, :, :) = quadruple_constraint(3, 4, 2, x, y, X, R);
-  b_quadruple_constraint(3.0, 4.0, 2.0, x, y, X, R, fv);
+  b_xy[0] = xy[0];
+  c_xy[0] = xy[1];
+  b_xy[1] = xy[2];
+  c_xy[1] = xy[3];
+  b_xy[2] = xy[4];
+  c_xy[2] = xy[5];
+  b_xy[3] = xy[6];
+  c_xy[3] = xy[7];
+  b_quadruple_constraint(3.0, 4.0, 2.0, b_xy, c_xy, X, R, fv);
   for (i = 0; i < 6; i++) {
     F[12 * i + 3] = fv[3 * i];
     F[12 * i + 7] = fv[3 * i + 1];
@@ -19821,199 +18675,245 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
 
   // 20x45
   // 'p35p_solver:20' A = [G20(:, 1:2), G20(:, 10:13), G20(:, 18:22), G20(:, 25:28), G20(:, 31:35)]; 
-  for (i = 0; i < 2; i++) {
-    std::memcpy(&A[i * 20], &G20[i * 20], 20U * sizeof(float));
-  }
-
-  for (i = 0; i < 4; i++) {
-    std::memcpy(&A[i * 20 + 40], &G20[i * 20 + 180], 20U * sizeof(float));
-  }
-
-  for (i = 0; i < 5; i++) {
-    std::memcpy(&A[i * 20 + 120], &G20[i * 20 + 340], 20U * sizeof(float));
-  }
-
-  for (i = 0; i < 4; i++) {
-    std::memcpy(&A[i * 20 + 220], &G20[i * 20 + 480], 20U * sizeof(float));
-  }
-
-  for (i = 0; i < 5; i++) {
-    std::memcpy(&A[i * 20 + 300], &G20[i * 20 + 600], 20U * sizeof(float));
-  }
-
   // 'p35p_solver:21' B = G20(:, 36:45);
-  // 'p35p_solver:22' if rcond(A) < e
-  //if (b_rcond(A) >= e) { //todo: rcond
-  if (true) {
-    // 'p35p_solver:26' C = A\B;
+  //      if rcond(A) < e
+  //          return;
+  //      end
+  // 'p35p_solver:26' C = A\B;
+  for (i = 0; i < 10; i++) {
+    std::memcpy(&C[i * 20], &G20[i * 20 + 700], 20U * sizeof(float));
+  }
+
+  for (i = 0; i < 2; i++) {
+    std::memcpy(&b_G20[i * 20], &G20[i * 20], 20U * sizeof(float));
+  }
+
+  for (i = 0; i < 4; i++) {
+    std::memcpy(&b_G20[i * 20 + 40], &G20[i * 20 + 180], 20U * sizeof(float));
+  }
+
+  for (i = 0; i < 5; i++) {
+    std::memcpy(&b_G20[i * 20 + 120], &G20[i * 20 + 340], 20U * sizeof(float));
+  }
+
+  for (i = 0; i < 4; i++) {
+    std::memcpy(&b_G20[i * 20 + 220], &G20[i * 20 + 480], 20U * sizeof(float));
+  }
+
+  for (i = 0; i < 5; i++) {
+    std::memcpy(&b_G20[i * 20 + 300], &G20[i * 20 + 600], 20U * sizeof(float));
+  }
+
+  c_mldivide(b_G20, C);
+
+  // 'p35p_solver:27' M = make_mult_matrix(C);
+  // this function creates a matrix for multiplication by x in the monomial
+  // basis B
+  // monomial basis B = {x^3, ...., 1} -- monomials up to the 3d degree, #B = 10 
+  // x^3, x^2*y, x*y^2, y^3, x^2, x*y, y^2, x, y, 1
+  // 'make_mult_matrix:6' M = zeros(10, 10, 'like', C);
+  std::memset(&M[0], 0, 100U * sizeof(float));
+
+  // 'make_mult_matrix:7' for i = 1 : 4
+  for (b_i = 0; b_i < 4; b_i++) {
+    // 'make_mult_matrix:8' M(:, i) = -C(15 + i, :)';
     for (i = 0; i < 10; i++) {
-      std::memcpy(&C[i * 20], &G20[i * 20 + 700], 20U * sizeof(float));
+      M[i + 10 * b_i] = -C[(b_i + 20 * i) + 15];
     }
+  }
 
-    c_mldivide(A, C);
+  // 'make_mult_matrix:10' M(1, 5) = 1;
+  M[40] = 1.0F;
 
-    // 'p35p_solver:27' M = make_mult_matrix(C);
-    // this function creates a matrix for multiplication by x in the monomial
-    // basis B
-    // monomial basis B = {x^3, ...., 1} -- monomials up to the 3d degree, #B = 10 
-    // x^3, x^2*y, x*y^2, y^3, x^2, x*y, y^2, x, y, 1
-    // 'make_mult_matrix:6' M = zeros(10, 10, 'like', C);
-    std::memset(&M[0], 0, 100U * sizeof(float));
+  // 'make_mult_matrix:11' M(2, 6) = 1;
+  M[51] = 1.0F;
 
-    // 'make_mult_matrix:7' for i = 1 : 4
-    for (b_i = 0; b_i < 4; b_i++) {
-      // 'make_mult_matrix:8' M(:, i) = -C(15 + i, :)';
-      for (i = 0; i < 10; i++) {
-        M[i + 10 * b_i] = -C[(b_i + 20 * i) + 15];
-      }
+  // 'make_mult_matrix:12' M(3, 7) = 1;
+  M[62] = 1.0F;
+
+  // 'make_mult_matrix:13' M(5, 8) = 1;
+  M[74] = 1.0F;
+
+  // 'make_mult_matrix:14' M(6, 9) = 1;
+  M[85] = 1.0F;
+
+  // 'make_mult_matrix:15' M(8, 10) = 1;
+  M[97] = 1.0F;
+
+  // 'p35p_solver:29' [W,D] = eig(M');
+  for (i = 0; i < 10; i++) {
+    for (i1 = 0; i1 < 10; i1++) {
+      b_M[i1 + 10 * i] = M[i + 10 * i1];
     }
+  }
 
-    // 'make_mult_matrix:10' M(1, 5) = 1;
-    M[40] = 1.0F;
+  b_eig(b_M, W, D);
 
-    // 'make_mult_matrix:11' M(2, 6) = 1;
-    M[51] = 1.0F;
+  // 'p35p_solver:31' for i = 1 : 10
+  for (b_i = 0; b_i < 10; b_i++) {
+    // 'p35p_solver:32' qx = D(i, i);
+    // 'p35p_solver:33' qy = W(9, i) / W(10, i);
+    // 'p35p_solver:35' qx = real(qx);
+    qx = D[b_i + 10 * b_i].re;
 
-    // 'make_mult_matrix:12' M(3, 7) = 1;
-    M[62] = 1.0F;
-
-    // 'make_mult_matrix:13' M(5, 8) = 1;
-    M[74] = 1.0F;
-
-    // 'make_mult_matrix:14' M(6, 9) = 1;
-    M[85] = 1.0F;
-
-    // 'make_mult_matrix:15' M(8, 10) = 1;
-    M[97] = 1.0F;
-
-    // 'p35p_solver:29' [W,D] = eig(M');
-    for (i = 0; i < 10; i++) {
-      for (i1 = 0; i1 < 10; i1++) {
-        b_M[i1 + 10 * i] = M[i + 10 * i1];
-      }
-    }
-
-    b_eig(b_M, W, D);
-
-    // 'p35p_solver:31' for i = 1 : 10
-    for (b_i = 0; b_i < 10; b_i++) {
-      // 'p35p_solver:32' qx = D(i, i);
-      // 'p35p_solver:33' qy = W(9, i) / W(10, i);
-      // 'p35p_solver:35' qx = real(qx);
-      qx = D[b_i + 10 * b_i].re;
-
-      // 'p35p_solver:36' qy = real(qy);
-      ar_tmp = 10 * b_i + 8;
-      br_tmp = 10 * b_i + 9;
-      if (W[br_tmp].im == 0.0F) {
-        if (W[ar_tmp].im == 0.0F) {
-          W_re = W[ar_tmp].re / W[br_tmp].re;
-        } else if (W[ar_tmp].re == 0.0F) {
-          W_re = 0.0F;
-        } else {
-          W_re = W[ar_tmp].re / W[br_tmp].re;
-        }
-      } else if (W[br_tmp].re == 0.0F) {
-        if (W[ar_tmp].re == 0.0F) {
-          W_re = W[ar_tmp].im / W[br_tmp].im;
-        } else if (W[ar_tmp].im == 0.0F) {
-          W_re = 0.0F;
-        } else {
-          W_re = W[ar_tmp].im / W[br_tmp].im;
-        }
+    // 'p35p_solver:36' qy = real(qy);
+    ar_tmp = 10 * b_i + 8;
+    br_tmp = 10 * b_i + 9;
+    if (W[br_tmp].im == 0.0F) {
+      if (W[ar_tmp].im == 0.0F) {
+        W_re = W[ar_tmp].re / W[br_tmp].re;
+      } else if (W[ar_tmp].re == 0.0F) {
+        W_re = 0.0F;
       } else {
-        brm = std::abs(W[br_tmp].re);
-        f = std::abs(W[br_tmp].im);
-        if (brm > f) {
-          s = W[br_tmp].im / W[br_tmp].re;
-          W_re = (W[ar_tmp].re + s * W[ar_tmp].im) / (W[br_tmp].re + s *
-            W[br_tmp].im);
-        } else if (f == brm) {
-          if (W[br_tmp].re > 0.0F) {
-            W_re = 0.5F;
-          } else {
-            W_re = -0.5F;
-          }
-
-          if (W[br_tmp].im > 0.0F) {
-            f = 0.5F;
-          } else {
-            f = -0.5F;
-          }
-
-          W_re = (W[ar_tmp].re * W_re + W[ar_tmp].im * f) / brm;
+        W_re = W[ar_tmp].re / W[br_tmp].re;
+      }
+    } else if (W[br_tmp].re == 0.0F) {
+      if (W[ar_tmp].re == 0.0F) {
+        W_re = W[ar_tmp].im / W[br_tmp].im;
+      } else if (W[ar_tmp].im == 0.0F) {
+        W_re = 0.0F;
+      } else {
+        W_re = W[ar_tmp].im / W[br_tmp].im;
+      }
+    } else {
+      brm = std::abs(W[br_tmp].re);
+      f = std::abs(W[br_tmp].im);
+      if (brm > f) {
+        s = W[br_tmp].im / W[br_tmp].re;
+        W_re = (W[ar_tmp].re + s * W[ar_tmp].im) / (W[br_tmp].re + s * W[br_tmp]
+          .im);
+      } else if (f == brm) {
+        if (W[br_tmp].re > 0.0F) {
+          W_re = 0.5F;
         } else {
-          s = W[br_tmp].re / W[br_tmp].im;
-          W_re = (s * W[ar_tmp].re + W[ar_tmp].im) / (W[br_tmp].im + s *
-            W[br_tmp].re);
+          W_re = -0.5F;
+        }
+
+        if (W[br_tmp].im > 0.0F) {
+          f = 0.5F;
+        } else {
+          f = -0.5F;
+        }
+
+        W_re = (W[ar_tmp].re * W_re + W[ar_tmp].im * f) / brm;
+      } else {
+        s = W[br_tmp].re / W[br_tmp].im;
+        W_re = (s * W[ar_tmp].re + W[ar_tmp].im) / (W[br_tmp].im + s * W[br_tmp]
+          .re);
+      }
+    }
+
+    // 'p35p_solver:37' [fc_set, fs_set, f_num] = find_f(F, qx, qy, e);
+    b_find_f(F, qx, W_re, e, fc_set_data, fc_set_size, fs_set_data, fs_set_size,
+             &f_num);
+
+    // 'p35p_solver:39' for j = 1 : f_num
+    i = static_cast<int>(f_num);
+    if (0 <= i - 1) {
+      brm = W_re * W_re;
+      f = qx * qx;
+      s = 1.0F / ((f + 1.0F) + brm);
+      R_xy_tmp = 2.0F * s;
+      b_R_xy_tmp = -2.0F * s;
+      R_xy[0] = 1.0F - R_xy_tmp * brm;
+      R_xy[3] = R_xy_tmp * qx * W_re;
+      R_xy[6] = R_xy_tmp * W_re;
+      R_xy[1] = 2.0F * s * qx * W_re;
+      R_xy[4] = 1.0F - R_xy_tmp * f;
+      R_xy[7] = b_R_xy_tmp * qx;
+      R_xy[2] = b_R_xy_tmp * W_re;
+      R_xy[5] = 2.0F * s * qx;
+      R_xy[8] = 1.0F - R_xy_tmp * (f + brm);
+      d_xy = xy[2];
+    }
+
+    for (j = 0; j < i; j++) {
+      // 'p35p_solver:40' fc = fc_set(j);
+      // 'p35p_solver:41' fs = fs_set(j);
+      // 'p35p_solver:43' s = 1/(1 + qx^2 + qy^2);
+      // 'p35p_solver:44' R_xy = [1 - 2*s*qy^2, 2*s*qx*qy,     2*s*qy;
+      // 'p35p_solver:45'                       2*s*qx*qy,    1 - 2*s*qx^2, -2*s*qx; 
+      // 'p35p_solver:46'                      -2*s*qy,       2*s*qx,        1 - 2*s*(qx^2 + qy^2)]; 
+      // li = find_lamda(R, fc, fs, Xi, Xj, xi, xj) -- signature
+      // 'p35p_solver:49' lambda1 = find_lamda(R_xy, fc, fs, X(:, 1), X(:, 2), x(1), x(2)); 
+      // 'find_lamda:2' li = -(fc*R(1, :) - fs*R(2, :) - xj*R(3, :))*(Xj - Xi)/(xi - xj); 
+      brm = fc_set_data[j] * R_xy[0] - fs_set_data[j] * R_xy[1];
+      f = fc_set_data[j] * R_xy[3] - fs_set_data[j] * R_xy[4];
+      R_xy_tmp = fc_set_data[j] * R_xy[6] - fs_set_data[j] * R_xy[7];
+      b_R_xy_tmp = ((-(brm - d_xy * R_xy[2]) * (X[3] - X[0]) + -(f - d_xy *
+        R_xy[5]) * (X[4] - X[1])) + -(R_xy_tmp - d_xy * R_xy[8]) * (X[5] - X[2]))
+        / (xy[0] - xy[2]);
+
+      // T = find_translation(R, fc, fs, li, Xi, xi, yi)
+      // 'p35p_solver:51' T = find_translation(R_xy, fc, fs, lambda1, X(:, 1), x(1), y(1)); 
+      // 'find_translation:2' T = [li*xi - (fc*R(1, :) - fs*R(2, :))*Xi;
+      // 'find_translation:3'          li*yi - (fs*R(1, :) + fc*R(2, :))*Xi;
+      // 'find_translation:4'          li - R(3, :)*Xi];
+      T[0] = b_R_xy_tmp * xy[0] - ((brm * X[0] + f * X[1]) + R_xy_tmp * X[2]);
+      T[1] = b_R_xy_tmp * xy[1] - (((fs_set_data[j] * R_xy[0] + fc_set_data[j] *
+        R_xy[1]) * X[0] + (fs_set_data[j] * R_xy[3] + fc_set_data[j] * R_xy[4]) *
+        X[1]) + (fs_set_data[j] * R_xy[6] + fc_set_data[j] * R_xy[7]) * X[2]);
+      T[2] = b_R_xy_tmp - ((R_xy[2] * X[0] + R_xy[5] * X[1]) + R_xy[8] * X[2]);
+
+      // 'p35p_solver:53' f = hypot(fs, fc);
+      f = rt_hypotf(fs_set_data[j], fc_set_data[j]);
+
+      // 'p35p_solver:54' K = [fc, -fs, 0;
+      // 'p35p_solver:55'                  fs,  fc, 0;
+      // 'p35p_solver:56'                    0,  0, 1];
+      // 'p35p_solver:57' P = [K*R_xy, T];
+      // 'p35p_solver:59' p4 = P*[X(:, 4); 1];
+      fc_set[0] = fc_set_data[j];
+      fc_set[3] = -fs_set_data[j];
+      fc_set[6] = 0.0F;
+      fc_set[1] = fs_set_data[j];
+      fc_set[4] = fc_set_data[j];
+      fc_set[7] = 0.0F;
+      fc_set[2] = 0.0F;
+      fc_set[5] = 0.0F;
+      fc_set[8] = 1.0F;
+      for (i1 = 0; i1 < 3; i1++) {
+        R_xy_tmp = fc_set[i1 + 3];
+        ar_tmp = static_cast<int>(fc_set[i1 + 6]);
+        for (br_tmp = 0; br_tmp < 3; br_tmp++) {
+          R_curr[i1 + 3 * br_tmp] = (fc_set[i1] * R_xy[3 * br_tmp] + R_xy_tmp *
+            R_xy[3 * br_tmp + 1]) + static_cast<float>(ar_tmp) * R_xy[3 * br_tmp
+            + 2];
         }
       }
 
-      // 'p35p_solver:37' [fc_set, fs_set, f_num] = find_f(F, qx, qy, e);
-      b_find_f(F, qx, W_re, e, fc_set_data, fc_set_size, fs_set_data,
-               fs_set_size, &f_num);
-
-      // 'p35p_solver:39' for j = 1 : f_num
-      i = static_cast<int>(f_num);
-      if (0 <= i - 1) {
-        brm = W_re * W_re;
-        f = qx * qx;
-        s = 1.0F / ((f + 1.0F) + brm);
-        R_xy_tmp = 2.0F * s;
-        b_R_xy_tmp = -2.0F * s;
-        R_xy[0] = 1.0F - R_xy_tmp * brm;
-        R_xy[3] = R_xy_tmp * qx * W_re;
-        R_xy[6] = R_xy_tmp * W_re;
-        R_xy[1] = 2.0F * s * qx * W_re;
-        R_xy[4] = 1.0F - R_xy_tmp * f;
-        R_xy[7] = b_R_xy_tmp * qx;
-        R_xy[2] = b_R_xy_tmp * W_re;
-        R_xy[5] = 2.0F * s * qx;
-        R_xy[8] = 1.0F - R_xy_tmp * (f + brm);
-        b_x = x[1];
+      for (i1 = 0; i1 < 3; i1++) {
+        b_fc_set[3 * i1] = R_curr[3 * i1];
+        ar_tmp = 3 * i1 + 1;
+        b_fc_set[ar_tmp] = R_curr[ar_tmp];
+        ar_tmp = 3 * i1 + 2;
+        b_fc_set[ar_tmp] = R_curr[ar_tmp];
+        b_fc_set[i1 + 9] = T[i1];
+        b_X[i1] = X[i1 + 9];
       }
 
-      for (j = 0; j < i; j++) {
-        // 'p35p_solver:40' fc = fc_set(j);
-        // 'p35p_solver:41' fs = fs_set(j);
-        // 'p35p_solver:43' s = 1/(1 + qx^2 + qy^2);
-        // 'p35p_solver:44' R_xy = [1 - 2*s*qy^2, 2*s*qx*qy,     2*s*qy;
-        // 'p35p_solver:45'                       2*s*qx*qy,    1 - 2*s*qx^2, -2*s*qx; 
-        // 'p35p_solver:46'                      -2*s*qy,       2*s*qx,        1 - 2*s*(qx^2 + qy^2)]; 
-        // li = find_lamda(R, fc, fs, Xi, Xj, xi, xj) -- signature
-        // 'p35p_solver:49' lambda1 = find_lamda(R_xy, fc, fs, X(:, 1), X(:, 2), x(1), x(2)); 
-        // 'find_lamda:2' li = -(fc*R(1, :) - fs*R(2, :) - xj*R(3, :))*(Xj - Xi)/(xi - xj); 
-        brm = fc_set_data[j] * R_xy[0] - fs_set_data[j] * R_xy[1];
-        f = fc_set_data[j] * R_xy[3] - fs_set_data[j] * R_xy[4];
-        R_xy_tmp = fc_set_data[j] * R_xy[6] - fs_set_data[j] * R_xy[7];
-        b_R_xy_tmp = ((-(brm - b_x * R_xy[2]) * (X[3] - X[0]) + -(f - b_x *
-          R_xy[5]) * (X[4] - X[1])) + -(R_xy_tmp - b_x * R_xy[8]) * (X[5] - X[2]))
-          / (x[0] - x[1]);
+      for (i1 = 0; i1 < 3; i1++) {
+        p4[i1] = ((b_fc_set[i1] * b_X[0] + b_fc_set[i1 + 3] * b_X[1]) +
+                  b_fc_set[i1 + 6] * b_X[2]) + b_fc_set[i1 + 9];
+      }
 
-        // T = find_translation(R, fc, fs, li, Xi, xi, yi)
-        // 'p35p_solver:51' T = find_translation(R_xy, fc, fs, lambda1, X(:, 1), x(1), y(1)); 
-        // 'find_translation:2' T = [li*xi - (fc*R(1, :) - fs*R(2, :))*Xi;
-        // 'find_translation:3'          li*yi - (fs*R(1, :) + fc*R(2, :))*Xi;
-        // 'find_translation:4'          li - R(3, :)*Xi];
-        T[0] = b_R_xy_tmp * x[0] - ((brm * X[0] + f * X[1]) + R_xy_tmp * X[2]);
-        T[1] = b_R_xy_tmp * y[0] - (((fs_set_data[j] * R_xy[0] + fc_set_data[j] *
-          R_xy[1]) * X[0] + (fs_set_data[j] * R_xy[3] + fc_set_data[j] * R_xy[4])
-          * X[1]) + (fs_set_data[j] * R_xy[6] + fc_set_data[j] * R_xy[7]) * X[2]);
-        T[2] = b_R_xy_tmp - ((R_xy[2] * X[0] + R_xy[5] * X[1]) + R_xy[8] * X[2]);
+      // 'p35p_solver:60' y4 = p4(2)/p4(3);
+      // 'p35p_solver:62' if abs(y4 - y(4)) < 0.01*f
+      if (std::abs(p4[1] / p4[2] - xy[7]) < 0.01F * f) {
+        // 'p35p_solver:63' solution_num = solution_num + 1;
+        (*n)++;
 
-        // 'p35p_solver:53' f = hypot(fs, fc);
-        f = rt_hypotf(fs_set_data[j], fc_set_data[j]);
+        // 'p35p_solver:64' R_z = [fc/f, -fs/f, 0;
+        // 'p35p_solver:65'                        fs/f,  fc/f, 0;
+        // 'p35p_solver:66'                        0,        0, 1];
+        brm = fc_set_data[j] / f;
 
-        // 'p35p_solver:54' K = [fc, -fs, 0;
-        // 'p35p_solver:55'                  fs,  fc, 0;
-        // 'p35p_solver:56'                    0,  0, 1];
-        // 'p35p_solver:57' P = [K*R_xy, T];
-        // 'p35p_solver:59' p4 = P*[X(:, 4); 1];
-        fc_set[0] = fc_set_data[j];
-        fc_set[3] = -fs_set_data[j];
+        // 'p35p_solver:67' R_curr = R_z*R_xy;
+        fc_set[0] = brm;
+        fc_set[3] = -fs_set_data[j] / f;
         fc_set[6] = 0.0F;
-        fc_set[1] = fs_set_data[j];
-        fc_set[4] = fc_set_data[j];
+        fc_set[1] = fs_set_data[j] / f;
+        fc_set[4] = brm;
         fc_set[7] = 0.0F;
         fc_set[2] = 0.0F;
         fc_set[5] = 0.0F;
@@ -20028,131 +18928,83 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
           }
         }
 
+        // 'p35p_solver:68' f_sol = [f_sol, f];
+        i1 = f_size[1];
+        f_size[1]++;
+        f_data[i1] = f;
+
+        // 'p35p_solver:69' T = -R_curr'*([1/f; 1/f; 1].*T);
+        brm = 1.0F / f;
         for (i1 = 0; i1 < 3; i1++) {
-          b_fc_set[3 * i1] = R_curr[3 * i1];
-          ar_tmp = 3 * i1 + 1;
-          b_fc_set[ar_tmp] = R_curr[ar_tmp];
-          ar_tmp = 3 * i1 + 2;
-          b_fc_set[ar_tmp] = R_curr[ar_tmp];
-          b_fc_set[i1 + 9] = T[i1];
-          b_X[i1] = X[i1 + 9];
+          fc_set[3 * i1] = -R_curr[i1];
+          fc_set[3 * i1 + 1] = -R_curr[i1 + 3];
+          fc_set[3 * i1 + 2] = -R_curr[i1 + 6];
         }
 
+        R_xy_tmp = brm * T[0];
+        brm *= T[1];
+        f = T[2];
         for (i1 = 0; i1 < 3; i1++) {
-          p4[i1] = ((b_fc_set[i1] * b_X[0] + b_fc_set[i1 + 3] * b_X[1]) +
-                    b_fc_set[i1 + 6] * b_X[2]) + b_fc_set[i1 + 9];
+          T[i1] = (fc_set[i1] * R_xy_tmp + fc_set[i1 + 3] * brm) + fc_set[i1 + 6]
+            * f;
         }
 
-        // 'p35p_solver:60' y4 = p4(2)/p4(3);
-        // 'p35p_solver:62' if abs(y4 - y(4)) < 0.01*f
-        if (std::abs(p4[1] / p4[2] - y[3]) < 0.01F * f) {
-          // 'p35p_solver:63' solution_num = solution_num + 1;
-          (*n)++;
-
-          // 'p35p_solver:64' R_z = [fc/f, -fs/f, 0;
-          // 'p35p_solver:65'                        fs/f,  fc/f, 0;
-          // 'p35p_solver:66'                        0,        0, 1];
-          brm = fc_set_data[j] / f;
-
-          // 'p35p_solver:67' R_curr = R_z*R_xy;
-          fc_set[0] = brm;
-          fc_set[3] = -fs_set_data[j] / f;
-          fc_set[6] = 0.0F;
-          fc_set[1] = fs_set_data[j] / f;
-          fc_set[4] = brm;
-          fc_set[7] = 0.0F;
-          fc_set[2] = 0.0F;
-          fc_set[5] = 0.0F;
-          fc_set[8] = 1.0F;
-          for (i1 = 0; i1 < 3; i1++) {
-            R_xy_tmp = fc_set[i1 + 3];
-            ar_tmp = static_cast<int>(fc_set[i1 + 6]);
-            for (br_tmp = 0; br_tmp < 3; br_tmp++) {
-              R_curr[i1 + 3 * br_tmp] = (fc_set[i1] * R_xy[3 * br_tmp] +
-                R_xy_tmp * R_xy[3 * br_tmp + 1]) + static_cast<float>(ar_tmp) *
-                R_xy[3 * br_tmp + 2];
-            }
+        // 'p35p_solver:70' if solution_num == 1
+        if (*n == 1) {
+          // 'p35p_solver:71' R_sol = R_curr;
+          r_size[0] = 3;
+          r_size[1] = 3;
+          r_size[2] = 1;
+          for (i1 = 0; i1 < 9; i1++) {
+            r_data[i1] = R_curr[i1];
           }
-
-          // 'p35p_solver:68' f_sol = [f_sol, f];
-          i1 = f_size[1];
-          f_size[1]++;
-          f_data[i1] = f;
-
-          // 'p35p_solver:69' T = -R_curr'*([1/f; 1/f; 1].*T);
-          brm = 1.0F / f;
-          for (i1 = 0; i1 < 3; i1++) {
-            fc_set[3 * i1] = -R_curr[i1];
-            fc_set[3 * i1 + 1] = -R_curr[i1 + 3];
-            fc_set[3 * i1 + 2] = -R_curr[i1 + 6];
-          }
-
-          R_xy_tmp = brm * T[0];
-          brm *= T[1];
-          f = T[2];
-          for (i1 = 0; i1 < 3; i1++) {
-            T[i1] = (fc_set[i1] * R_xy_tmp + fc_set[i1 + 3] * brm) + fc_set[i1 +
-              6] * f;
-          }
-
-          // 'p35p_solver:70' if solution_num == 1
-          if (*n == 1) {
-            // 'p35p_solver:71' R_sol = R_curr;
-            r_size[0] = 3;
-            r_size[1] = 3;
-            r_size[2] = 1;
-            for (i1 = 0; i1 < 9; i1++) {
-              r_data[i1] = R_curr[i1];
-            }
-          } else {
-            // 'p35p_solver:72' else
-            // 'p35p_solver:73' R_sol = cat(3, R_sol, R_curr);
-            b_cat(r_data, r_size, R_curr, tmp_data, tmp_size);
-            r_size[0] = 3;
-            r_size[1] = 3;
-            r_size[2] = tmp_size[2];
-            ar_tmp = tmp_size[0] * tmp_size[1] * tmp_size[2];
-            if (0 <= ar_tmp - 1) {
-              std::memcpy(&r_data[0], &tmp_data[0], ar_tmp * sizeof(float));
-            }
-          }
-
-          // 'p35p_solver:75' T_sol = [T_sol, T];
-          ar_tmp = t_size[1];
-          br_tmp = t_size[1] + 1;
-          for (i1 = 0; i1 < ar_tmp; i1++) {
-            b_t_data[3 * i1] = t_data[3 * i1];
-            t_data_tmp = 3 * i1 + 1;
-            b_t_data[t_data_tmp] = t_data[t_data_tmp];
-            t_data_tmp = 3 * i1 + 2;
-            b_t_data[t_data_tmp] = t_data[t_data_tmp];
-          }
-
-          b_t_data[3 * t_size[1]] = T[0];
-          b_t_data[3 * t_size[1] + 1] = T[1];
-          b_t_data[3 * t_size[1] + 2] = T[2];
-          t_size[0] = 3;
-          t_size[1] = br_tmp;
-          ar_tmp = 3 * br_tmp;
+        } else {
+          // 'p35p_solver:72' else
+          // 'p35p_solver:73' R_sol = cat(3, R_sol, R_curr);
+          b_cat(r_data, r_size, R_curr, tmp_data, tmp_size);
+          r_size[0] = 3;
+          r_size[1] = 3;
+          r_size[2] = tmp_size[2];
+          ar_tmp = tmp_size[0] * tmp_size[1] * tmp_size[2];
           if (0 <= ar_tmp - 1) {
-            std::memcpy(&t_data[0], &b_t_data[0], ar_tmp * sizeof(float));
+            std::memcpy(&r_data[0], &tmp_data[0], ar_tmp * sizeof(float));
           }
+        }
+
+        // 'p35p_solver:75' T_sol = [T_sol, T];
+        ar_tmp = t_size[1];
+        br_tmp = t_size[1] + 1;
+        for (i1 = 0; i1 < ar_tmp; i1++) {
+          b_t_data[3 * i1] = t_data[3 * i1];
+          t_data_tmp = 3 * i1 + 1;
+          b_t_data[t_data_tmp] = t_data[t_data_tmp];
+          t_data_tmp = 3 * i1 + 2;
+          b_t_data[t_data_tmp] = t_data[t_data_tmp];
+        }
+
+        b_t_data[3 * t_size[1]] = T[0];
+        b_t_data[3 * t_size[1] + 1] = T[1];
+        b_t_data[3 * t_size[1] + 2] = T[2];
+        t_size[0] = 3;
+        t_size[1] = br_tmp;
+        ar_tmp = 3 * br_tmp;
+        if (0 <= ar_tmp - 1) {
+          std::memcpy(&t_data[0], &b_t_data[0], ar_tmp * sizeof(float));
         }
       }
     }
   }
 
-  // 'p35p_single:8' assert(isa(n, 'int32'));
-  // 'p35p_single:9' assert(isa(t, 'single'));
-  // 'p35p_single:10' assert(isa(r, 'single'));
-  // 'p35p_single:11' assert(isa(f, 'single'));
+  // 'p35pf_single:7' assert(isa(n, 'int32'));
+  // 'p35pf_single:8' assert(isa(t, 'single'));
+  // 'p35pf_single:9' assert(isa(r, 'single'));
+  // 'p35pf_single:10' assert(isa(f, 'single'));
 }
 
 //
-// function [n,f,r,t] = p4pf_double(X, x, y, e)
+// function [n,f,r,t] = p4pf_double(X, xy, e)
 // Arguments    : const double X[12]
-//                const double x[4]
-//                const double y[4]
+//                const double xy[8]
 //                double e
 //                int *n
 //                double f_data[]
@@ -20163,29 +19015,29 @@ void p35p_single(const float X[12], const float x[4], const float y[4], float e,
 //                int t_size[2]
 // Return Type  : void
 //
-void p4pf_double(const double X[12], const double x[4], const double y[4],
-                 double e, int *n, double f_data[], int f_size[2], double
-                 r_data[], int r_size[3], double t_data[], int t_size[2])
+void p4pf_double(const double X[12], const double xy[8], double e, int *n,
+                 double f_data[], int f_size[2], double r_data[], int r_size[3],
+                 double t_data[], int t_size[2])
 {
   int i;
   double A[32];
   double Q[64];
   double b_A[32];
-  int X_tmp;
-  double b_x;
-  double b_X[16];
+  int jy;
   double d;
+  double b_X[16];
   double d1;
+  double d2;
+  double scale;
   double B[16];
   double C[16];
-  double scale;
-  int offset;
   int b_i;
+  int offset;
   double ND[48];
   int B_tmp;
-  int j;
   double eqs[40];
-  int b_B_tmp;
+  int j;
+  int jp1j;
   double b_ND[10];
   double c_ND[10];
   double d_ND[10];
@@ -20199,6 +19051,7 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
   int ys_size[2];
   double zs_data[13];
   int zs_size[2];
+  int i1;
   double P1[3];
   double P3[3];
   double b_Q;
@@ -20207,50 +19060,54 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
   double t;
   double alpha;
   double R[9];
-  double c_x[9];
-  int ipiv[3];
+  double x[9];
+  signed char ipiv[3];
   boolean_T isodd;
+  int mmj_tmp;
+  int b_tmp;
+  int ix;
   double c_A[36];
   double b[12];
   double c_Q[3];
-  double d_x[12];
+  int i2;
+  double b_x[12];
   double b_b[8];
   double y_data[99];
 
   // 'p4pf_double:2' assert(isa(X, 'double'));
-  // 'p4pf_double:3' assert(isa(x, 'double'));
-  // 'p4pf_double:4' assert(isa(y, 'double'));
-  // 'p4pf_double:5' assert(isa(e, 'double'));
-  // 'p4pf_double:7' [n, f, r, t] = solve_P4Pf(X, x, y, e);
-  // SOLVE_P4Pf Summary of this function goes here
+  // 'p4pf_double:3' assert(isa(xy, 'double'));
+  // 'p4pf_double:4' assert(isa(e, 'double'));
+  // 'p4pf_double:6' [n, f, r, t] = p4p_solver(X, xy(1, :), xy(2, :), e);
   //        X = [p1, p2, p3, p4], pi = [4, 1]; X(:, i) <-> (u(i), v(i))
   //        if f is a correct foal length, then [R, T] = [R, T] / sign(d)*abs(d)^(1/3); 
   //        where d = det(R)
-  // 'solve_P4Pf:6' X = [X; ones(1, 4, 'like', X)];
-  // 'solve_P4Pf:7' A = find_A(X, u, v);
-  // 'solve_P4Pf:8' [Q, ~] = qr(A');
+  // 'p4p_solver:5' X = [X; ones(1, 4, 'like', X)];
+  // 'p4p_solver:6' A = find_A(X, u, v);
+  // 'p4p_solver:7' [Q, ~] = qr(A');
   // [p11, p12, p13, p14, p21, p22, p23, p24]'
-  // 'solve_P4Pf:70' A = zeros(4, 8, 'like', X);
-  // 'solve_P4Pf:71' for i = 1 : 4
+  // 'p4p_solver:69' A = zeros(4, 8, 'like', X);
+  // 'p4p_solver:70' for i = 1 : 4
   for (i = 0; i < 4; i++) {
-    X_tmp = i << 2;
-    b_x = X[3 * i];
-    b_X[X_tmp] = b_x;
-    d = X[3 * i + 1];
-    b_X[X_tmp + 1] = d;
-    d1 = X[3 * i + 2];
-    b_X[X_tmp + 2] = d1;
-    b_X[X_tmp + 3] = 1.0;
+    jy = i << 2;
+    d = X[3 * i];
+    b_X[jy] = d;
+    d1 = X[3 * i + 1];
+    b_X[jy + 1] = d1;
+    d2 = X[3 * i + 2];
+    b_X[jy + 2] = d2;
+    b_X[jy + 3] = 1.0;
 
-    // 'solve_P4Pf:72' A(i,  :) = [-v(i)*X(:, i)', u(i)*X(:, i)'];
-    b_A[i] = -y[i] * b_x;
-    b_A[i + 16] = x[i] * b_x;
-    b_A[i + 4] = -y[i] * d;
-    b_A[i + 20] = x[i] * d;
-    b_A[i + 8] = -y[i] * d1;
-    b_A[i + 24] = x[i] * d1;
-    b_A[i + 12] = -y[i];
-    b_A[i + 28] = x[i];
+    // 'p4p_solver:71' A(i,  :) = [-v(i)*X(:, i)', u(i)*X(:, i)'];
+    jy = i << 1;
+    scale = -xy[jy + 1];
+    b_A[i] = scale * d;
+    b_A[i + 16] = xy[jy] * d;
+    b_A[i + 4] = scale * d1;
+    b_A[i + 20] = xy[jy] * d1;
+    b_A[i + 8] = scale * d2;
+    b_A[i + 24] = xy[jy] * d2;
+    b_A[i + 12] = scale;
+    b_A[i + 28] = xy[jy];
     for (b_i = 0; b_i < 8; b_i++) {
       A[b_i + (i << 3)] = b_A[i + (b_i << 2)];
     }
@@ -20258,60 +19115,60 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
 
   c_qr(A, Q, b_A);
 
-  // 'solve_P4Pf:8' ~
-  // 'solve_P4Pf:9' N = Q(:, 5:end);
+  // 'p4p_solver:7' ~
+  // 'p4p_solver:8' N = Q(:, 5:end);
   // nullspace
-  // 'solve_P4Pf:10' D = find_D(X, u, v, N, e);
-  // 'solve_P4Pf:77' B = zeros(4, 'double');
-  // 'solve_P4Pf:78' C = zeros(4, 'double');
-  // 'solve_P4Pf:79' for i = 1 : 4
+  // 'p4p_solver:9' D = find_D(X, u, v, N, e);
+  // 'p4p_solver:76' B = zeros(4, 'double');
+  // 'p4p_solver:77' C = zeros(4, 'double');
+  // 'p4p_solver:78' for i = 1 : 4
   for (i = 0; i < 4; i++) {
-    // 'solve_P4Pf:80' if abs(u(i)) < e
-    if (std::abs(x[i]) < e) {
-      // 'solve_P4Pf:81' fctr = v(i);
-      scale = y[i];
+    // 'p4p_solver:79' if abs(u(i)) < e
+    b_i = i << 1;
+    if (std::abs(xy[b_i]) < e) {
+      // 'p4p_solver:80' fctr = v(i);
+      scale = xy[b_i + 1];
 
-      // 'solve_P4Pf:82' offset = 4;
+      // 'p4p_solver:81' offset = 4;
       offset = 4;
     } else {
-      // 'solve_P4Pf:83' else
-      // 'solve_P4Pf:84' fctr = u(i);
-      scale = x[i];
+      // 'p4p_solver:82' else
+      // 'p4p_solver:83' fctr = u(i);
+      scale = xy[b_i];
 
-      // 'solve_P4Pf:85' offset = 0;
+      // 'p4p_solver:84' offset = 0;
       offset = 0;
     }
 
-    // 'solve_P4Pf:87' B(i, :) = fctr*X(:, i)';
-    // 'solve_P4Pf:88' for j = 1 : 4
+    // 'p4p_solver:86' B(i, :) = fctr*X(:, i)';
+    // 'p4p_solver:87' for j = 1 : 4
     B_tmp = i << 2;
     for (j = 0; j < 4; j++) {
-      b_B_tmp = i + (j << 2);
-      B[b_B_tmp] = scale * b_X[j + B_tmp];
+      jp1j = i + (j << 2);
+      B[jp1j] = scale * b_X[j + B_tmp];
 
-      // 'solve_P4Pf:89' C(i, j) = X(:, i)'*ns((1:4)+offset, j);
-      X_tmp = offset + ((j + 4) << 3);
-      C[b_B_tmp] = ((b_X[B_tmp] * Q[X_tmp] + b_X[B_tmp + 1] * Q[X_tmp + 1]) +
-                    b_X[B_tmp + 2] * Q[X_tmp + 2]) + b_X[B_tmp + 3] * Q[X_tmp +
-        3];
+      // 'p4p_solver:88' C(i, j) = X(:, i)'*ns((1:4)+offset, j);
+      jy = offset + ((j + 4) << 3);
+      C[jp1j] = ((b_X[B_tmp] * Q[jy] + b_X[B_tmp + 1] * Q[jy + 1]) + b_X[B_tmp +
+                 2] * Q[jy + 2]) + b_X[B_tmp + 3] * Q[jy + 3];
     }
   }
 
-  // 'solve_P4Pf:92' D_ = B\C;
+  // 'p4p_solver:91' D_ = B\C;
   d_mldivide(B, C);
 
-  // 'solve_P4Pf:93' if isa(X, 'single')
-  // 'solve_P4Pf:95' else
-  // 'solve_P4Pf:96' D = D_;
-  // 'solve_P4Pf:11' eqs = find_eqs([N; D]);
-  // 'solve_P4Pf:12' [n, xs, ys, zs] = solve_3Q3(eqs(1:3, :), e);
+  // 'p4p_solver:92' if isa(X, 'single')
+  // 'p4p_solver:94' else
+  // 'p4p_solver:95' D = D_;
+  // 'p4p_solver:10' eqs = find_eqs([N; D]);
+  // 'p4p_solver:11' [n, xs, ys, zs] = solve_3Q3(eqs(1:3, :), e);
   for (b_i = 0; b_i < 4; b_i++) {
     std::memcpy(&ND[b_i * 12], &Q[b_i * 8 + 32], 8U * sizeof(double));
-    X_tmp = b_i << 2;
-    ND[12 * b_i + 8] = C[X_tmp];
-    ND[12 * b_i + 9] = C[X_tmp + 1];
-    ND[12 * b_i + 10] = C[X_tmp + 2];
-    ND[12 * b_i + 11] = C[X_tmp + 3];
+    jy = b_i << 2;
+    ND[12 * b_i + 8] = C[jy];
+    ND[12 * b_i + 9] = C[jy + 1];
+    ND[12 * b_i + 10] = C[jy + 2];
+    ND[12 * b_i + 11] = C[jy + 3];
   }
 
   // ND = [N; D]
@@ -20588,62 +19445,61 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
   g_ND[8] = scale + scale;
   g_ND[9] = ND[42] * ND[42];
   for (b_i = 0; b_i < 10; b_i++) {
-    X_tmp = b_i << 2;
-    eqs[X_tmp + 3] = ((((b_ND[b_i] + c_ND[b_i]) + d_ND[b_i]) - e_ND[b_i]) -
-                      f_ND[b_i]) - g_ND[b_i];
-    b_eqs[3 * b_i] = eqs[X_tmp];
-    b_eqs[3 * b_i + 1] = eqs[X_tmp + 1];
-    b_eqs[3 * b_i + 2] = eqs[X_tmp + 2];
+    jy = b_i << 2;
+    eqs[jy + 3] = ((((b_ND[b_i] + c_ND[b_i]) + d_ND[b_i]) - e_ND[b_i]) -
+                   f_ND[b_i]) - g_ND[b_i];
+    b_eqs[3 * b_i] = eqs[jy];
+    b_eqs[3 * b_i + 1] = eqs[jy + 1];
+    b_eqs[3 * b_i + 2] = eqs[jy + 2];
   }
 
   solve_3Q3(b_eqs, &scale, xs_data, xs_size, ys_data, ys_size, zs_data, zs_size);
 
   // we may choes another 3 out of 4 eq-s
-  // 'solve_P4Pf:13' fs = zeros(1, 0, 'like', X);
+  // 'p4p_solver:12' fs = zeros(1, 0, 'like', X);
   f_size[0] = 1;
   f_size[1] = 0;
 
-  // 'solve_P4Pf:14' coder.varsize('fs', [1 10], [0 1]);
-  // 'solve_P4Pf:15' Rs = zeros(3, 3, 0, 'like', X);
+  // 'p4p_solver:13' coder.varsize('fs', [1 10], [0 1]);
+  // 'p4p_solver:14' Rs = zeros(3, 3, 0, 'like', X);
   r_size[0] = 3;
   r_size[1] = 3;
   r_size[2] = 0;
 
-  // 'solve_P4Pf:16' coder.varsize('Rs', [3 3 10], [0 0 1]);
-  // 'solve_P4Pf:17' Ts = zeros(3, 0, 'like', X);
+  // 'p4p_solver:15' coder.varsize('Rs', [3 3 10], [0 0 1]);
+  // 'p4p_solver:16' Ts = zeros(3, 0, 'like', X);
   t_size[0] = 3;
   t_size[1] = 0;
 
-  // 'solve_P4Pf:18' coder.varsize('Ts', [3 10], [0 1]);
-  // 'solve_P4Pf:19' solution_num = int32(0);
+  // 'p4p_solver:17' coder.varsize('Ts', [3 10], [0 1]);
+  // 'p4p_solver:18' solution_num = int32(0);
   *n = 0;
 
-  // 'solve_P4Pf:20' for i = 1 : n
+  // 'p4p_solver:19' for i = 1 : n
   b_i = static_cast<int>(scale);
   for (i = 0; i < b_i; i++) {
-    // 'solve_P4Pf:21' P1 = (N(1:3, :)*[xs(i); ys(i); zs(i); 1])';
-    // 'solve_P4Pf:22' P3 = (D(1:3, :)*[xs(i); ys(i); zs(i); 1])';
-    b_x = xs_data[i];
-    d = ys_data[i];
-    d1 = zs_data[i];
-    for (b_B_tmp = 0; b_B_tmp < 3; b_B_tmp++) {
-      P1[b_B_tmp] = ((Q[b_B_tmp + 32] * b_x + Q[b_B_tmp + 40] * d) + Q[b_B_tmp +
-                     48] * d1) + Q[b_B_tmp + 56];
-      P3[b_B_tmp] = ((C[b_B_tmp] * b_x + C[b_B_tmp + 4] * d) + C[b_B_tmp + 8] *
-                     d1) + C[b_B_tmp + 12];
+    // 'p4p_solver:20' P1 = (N(1:3, :)*[xs(i); ys(i); zs(i); 1])';
+    // 'p4p_solver:21' P3 = (D(1:3, :)*[xs(i); ys(i); zs(i); 1])';
+    d = xs_data[i];
+    d1 = ys_data[i];
+    d2 = zs_data[i];
+    for (i1 = 0; i1 < 3; i1++) {
+      P1[i1] = ((Q[i1 + 32] * d + Q[i1 + 40] * d1) + Q[i1 + 48] * d2) + Q[i1 +
+        56];
+      P3[i1] = ((C[i1] * d + C[i1 + 4] * d1) + C[i1 + 8] * d2) + C[i1 + 12];
     }
 
-    // 'solve_P4Pf:23' P21 = N(5, :)*[xs(i); ys(i); zs(i); 1];
-    d = ys_data[i];
-    d1 = zs_data[i];
+    // 'p4p_solver:22' P21 = N(5, :)*[xs(i); ys(i); zs(i); 1];
+    d1 = ys_data[i];
+    d2 = zs_data[i];
     b_Q = ((Q[36] * xs_data[i] + Q[44] * ys_data[i]) + Q[52] * zs_data[i]) + Q
       [60];
 
-    // 'solve_P4Pf:25' w = sqrt(sum(P3(1:3).^2)/sum(P1(1:3).^2));
+    // 'p4p_solver:24' w = sqrt(sum(P3(1:3).^2)/sum(P1(1:3).^2));
     w = std::sqrt(((P3[0] * P3[0] + P3[1] * P3[1]) + P3[2] * P3[2]) / ((P1[0] *
       P1[0] + P1[1] * P1[1]) + P1[2] * P1[2]));
 
-    // 'solve_P4Pf:27' alpha = norm(P1);
+    // 'p4p_solver:26' alpha = norm(P1);
     scale = 3.3121686421112381E-170;
     absxk = std::abs(P1[0]);
     if (absxk > 3.3121686421112381E-170) {
@@ -20676,29 +19532,29 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
 
     alpha = scale * std::sqrt(alpha);
 
-    // 'solve_P4Pf:28' R1 = P1/alpha;
-    // 'solve_P4Pf:29' R3 = P3/(w*alpha);
+    // 'p4p_solver:27' R1 = P1/alpha;
+    // 'p4p_solver:28' R3 = P3/(w*alpha);
     scale = w * alpha;
-    for (b_B_tmp = 0; b_B_tmp < 3; b_B_tmp++) {
-      P1[b_B_tmp] = (((Q[b_B_tmp + 32] * b_x + Q[b_B_tmp + 40] * d) + Q[b_B_tmp
-                      + 48] * d1) + Q[b_B_tmp + 56]) / alpha;
-      P3[b_B_tmp] = (((C[b_B_tmp] * b_x + C[b_B_tmp + 4] * d) + C[b_B_tmp + 8] *
-                      d1) + C[b_B_tmp + 12]) / scale;
+    for (i1 = 0; i1 < 3; i1++) {
+      P1[i1] = (((Q[i1 + 32] * d + Q[i1 + 40] * d1) + Q[i1 + 48] * d2) + Q[i1 +
+                56]) / alpha;
+      P3[i1] = (((C[i1] * d + C[i1 + 4] * d1) + C[i1 + 8] * d2) + C[i1 + 12]) /
+        scale;
     }
 
-    // 'solve_P4Pf:30' R2 = cross(R1, R3);
+    // 'p4p_solver:29' R2 = cross(R1, R3);
     scale = P1[1] * P3[2] - P1[2] * P3[1];
     absxk = P1[2] * P3[0] - P1[0] * P3[2];
     t = P1[0] * P3[1] - P1[1] * P3[0];
 
     // R2 = -R2/norm(R2);
-    // 'solve_P4Pf:32' if sign(R2(1)) == sign(P21)
-    b_x = scale;
+    // 'p4p_solver:31' if sign(R2(1)) == sign(P21)
+    alpha = scale;
     if (scale < 0.0) {
-      b_x = -1.0;
+      alpha = -1.0;
     } else {
       if (scale > 0.0) {
-        b_x = 1.0;
+        alpha = 1.0;
       }
     }
 
@@ -20710,8 +19566,8 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
       }
     }
 
-    if (b_x == b_Q) {
-      // 'solve_P4Pf:33' R = [R1; R2; R3];
+    if (alpha == b_Q) {
+      // 'p4p_solver:32' R = [R1; R2; R3];
       R[0] = P1[0];
       R[1] = scale;
       R[2] = P3[0];
@@ -20722,8 +19578,8 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
       R[7] = t;
       R[8] = P3[2];
     } else {
-      // 'solve_P4Pf:34' else
-      // 'solve_P4Pf:35' R = [R1; -R2; R3];
+      // 'p4p_solver:33' else
+      // 'p4p_solver:34' R = [R1; -R2; R3];
       R[0] = P1[0];
       R[1] = -scale;
       R[2] = P3[0];
@@ -20735,11 +19591,73 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
       R[8] = P3[2];
     }
 
-    // 'solve_P4Pf:37' if det(R) < 0
-    std::memcpy(&c_x[0], &R[0], 9U * sizeof(double));
-    c_xzgetrf(c_x, ipiv, &X_tmp);
+    // 'p4p_solver:36' if det(R) < 0
+    std::memcpy(&x[0], &R[0], 9U * sizeof(double));
+    ipiv[0] = 1;
+    ipiv[1] = 2;
+    for (j = 0; j < 2; j++) {
+      mmj_tmp = 1 - j;
+      b_tmp = j << 2;
+      jp1j = b_tmp + 2;
+      jy = 3 - j;
+      offset = 0;
+      ix = b_tmp;
+      scale = std::abs(x[b_tmp]);
+      for (B_tmp = 2; B_tmp <= jy; B_tmp++) {
+        ix++;
+        absxk = std::abs(x[ix]);
+        if (absxk > scale) {
+          offset = B_tmp - 1;
+          scale = absxk;
+        }
+      }
+
+      if (x[b_tmp + offset] != 0.0) {
+        if (offset != 0) {
+          jy = j + offset;
+          ipiv[j] = static_cast<signed char>((jy + 1));
+          scale = x[j];
+          x[j] = x[jy];
+          x[jy] = scale;
+          ix = j + 3;
+          offset = jy + 3;
+          scale = x[ix];
+          x[ix] = x[offset];
+          x[offset] = scale;
+          ix += 3;
+          offset += 3;
+          scale = x[ix];
+          x[ix] = x[offset];
+          x[offset] = scale;
+        }
+
+        i1 = (b_tmp - j) + 3;
+        for (B_tmp = jp1j; B_tmp <= i1; B_tmp++) {
+          x[B_tmp - 1] /= x[b_tmp];
+        }
+      }
+
+      jy = b_tmp + 3;
+      offset = b_tmp;
+      for (B_tmp = 0; B_tmp <= mmj_tmp; B_tmp++) {
+        scale = x[jy];
+        if (x[jy] != 0.0) {
+          ix = b_tmp + 1;
+          i1 = offset + 5;
+          i2 = (offset - j) + 6;
+          for (jp1j = i1; jp1j <= i2; jp1j++) {
+            x[jp1j - 1] += x[ix] * -scale;
+            ix++;
+          }
+        }
+
+        jy += 3;
+        offset += 3;
+      }
+    }
+
     isodd = (ipiv[0] > 1);
-    scale = c_x[0] * c_x[4] * c_x[8];
+    scale = x[0] * x[4] * x[8];
     if (ipiv[1] > 2) {
       isodd = !isodd;
     }
@@ -20749,13 +19667,13 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
     }
 
     if (scale < 0.0) {
-      // 'solve_P4Pf:38' R = -R;
-      for (b_B_tmp = 0; b_B_tmp < 9; b_B_tmp++) {
-        R[b_B_tmp] = -R[b_B_tmp];
+      // 'p4p_solver:37' R = -R;
+      for (i1 = 0; i1 < 9; i1++) {
+        R[i1] = -R[i1];
       }
     }
 
-    // 'solve_P4Pf:40' T_ = find_T(X(1:3, :), u, v, R, w);
+    // 'p4p_solver:39' T_ = find_T(X(1:3, :), u, v, R, w);
     // 'find_T:2' A = zeros(12, 3, 'double');
     std::memset(&c_A[0], 0, 36U * sizeof(double));
 
@@ -20767,41 +19685,43 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
       // 'find_T:6' A(3*i - 2:3*i, :) = [     0,   -1,  w*v(i);
       // 'find_T:7'                                   1,    0, -w*u(i);
       // 'find_T:8'                               -v(i), u(i),      0];
-      X_tmp = 3 * (B_tmp + 1);
-      P3[0] = static_cast<double>(X_tmp) + -2.0;
-      P3[1] = static_cast<double>(X_tmp) + -1.0;
-      P3[2] = X_tmp;
-      offset = X_tmp + -2;
+      jy = 3 * (B_tmp + 1);
+      P3[0] = static_cast<double>(jy) + -2.0;
+      P3[1] = static_cast<double>(jy) + -1.0;
+      P3[2] = jy;
+      offset = jy + -2;
       c_A[offset - 1] = 0.0;
       c_A[offset + 11] = -1.0;
-      c_A[offset + 23] = w * y[B_tmp];
-      offset = X_tmp + -1;
+      i1 = B_tmp << 1;
+      d = xy[i1 + 1];
+      c_A[offset + 23] = w * d;
+      offset = jy + -1;
       c_A[offset - 1] = 1.0;
       c_A[offset + 11] = 0.0;
-      c_A[offset + 23] = -w * x[B_tmp];
-      c_A[X_tmp - 1] = -y[B_tmp];
-      c_A[X_tmp + 11] = x[B_tmp];
-      c_A[X_tmp + 23] = 0.0;
+      c_A[offset + 23] = -w * xy[i1];
+      c_A[jy - 1] = -d;
+      c_A[jy + 11] = xy[i1];
+      c_A[jy + 23] = 0.0;
 
       // 'find_T:9' b(3*i - 2:3*i) = -A(3*i - 2:3*i, :)*R*X(:, i);
-      b_B_tmp = X_tmp - 3;
-      for (offset = 0; offset < 3; offset++) {
-        X_tmp = b_B_tmp + 12 * offset;
-        c_x[3 * offset] = -c_A[X_tmp];
-        c_x[3 * offset + 1] = -c_A[X_tmp + 1];
-        c_x[3 * offset + 2] = -c_A[X_tmp + 2];
+      i1 = jy - 3;
+      for (i2 = 0; i2 < 3; i2++) {
+        jy = i1 + 12 * i2;
+        x[3 * i2] = -c_A[jy];
+        x[3 * i2 + 1] = -c_A[jy + 1];
+        x[3 * i2 + 2] = -c_A[jy + 2];
       }
 
-      for (b_B_tmp = 0; b_B_tmp < 3; b_B_tmp++) {
-        b_x = 0.0;
-        d = c_x[b_B_tmp + 3];
-        d1 = c_x[b_B_tmp + 6];
-        for (offset = 0; offset < 3; offset++) {
-          b_x += ((c_x[b_B_tmp] * R[3 * offset] + d * R[3 * offset + 1]) + d1 *
-                  R[3 * offset + 2]) * b_X[offset + (B_tmp << 2)];
+      for (i1 = 0; i1 < 3; i1++) {
+        d = 0.0;
+        d1 = x[i1 + 3];
+        d2 = x[i1 + 6];
+        for (i2 = 0; i2 < 3; i2++) {
+          d += ((x[i1] * R[3 * i2] + d1 * R[3 * i2 + 1]) + d2 * R[3 * i2 + 2]) *
+            b_X[i2 + (B_tmp << 2)];
         }
 
-        b[static_cast<int>(P3[b_B_tmp]) - 1] = b_x;
+        b[static_cast<int>(P3[i1]) - 1] = d;
       }
     }
 
@@ -20811,93 +19731,93 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
     P3[1] = c_Q[1];
     P3[2] = c_Q[2];
 
-    // 'solve_P4Pf:41' if isa(X,'single')
-    // 'solve_P4Pf:43' else
-    // 'solve_P4Pf:44' T = T_;
-    // 'solve_P4Pf:47' P = diag([1, 1, w])*[R, T];
+    // 'p4p_solver:40' if isa(X,'single')
+    // 'p4p_solver:42' else
+    // 'p4p_solver:43' T = T_;
+    // 'p4p_solver:46' P = diag([1, 1, w])*[R, T];
     P1[0] = 1.0;
     P1[1] = 1.0;
     P1[2] = w;
-    std::memset(&c_x[0], 0, 9U * sizeof(double));
+    std::memset(&x[0], 0, 9U * sizeof(double));
 
-    // 'solve_P4Pf:48' U_eval = P*X;
+    // 'p4p_solver:47' U_eval = P*X;
     for (j = 0; j < 3; j++) {
-      c_x[j + 3 * j] = P1[j];
+      x[j + 3 * j] = P1[j];
       b[3 * j] = R[3 * j];
-      X_tmp = 3 * j + 1;
-      b[X_tmp] = R[X_tmp];
-      X_tmp = 3 * j + 2;
-      b[X_tmp] = R[X_tmp];
+      jy = 3 * j + 1;
+      b[jy] = R[jy];
+      jy = 3 * j + 2;
+      b[jy] = R[jy];
       b[j + 9] = P3[j];
     }
 
-    for (b_B_tmp = 0; b_B_tmp < 3; b_B_tmp++) {
-      b_x = c_x[b_B_tmp + 3];
-      d = c_x[b_B_tmp + 6];
-      for (offset = 0; offset < 4; offset++) {
-        d_x[b_B_tmp + 3 * offset] = (c_x[b_B_tmp] * b[3 * offset] + b_x * b[3 *
-          offset + 1]) + d * b[3 * offset + 2];
+    for (i1 = 0; i1 < 3; i1++) {
+      d = x[i1 + 3];
+      d1 = x[i1 + 6];
+      for (i2 = 0; i2 < 4; i2++) {
+        b_x[i1 + 3 * i2] = (x[i1] * b[3 * i2] + d * b[3 * i2 + 1]) + d1 * b[3 *
+          i2 + 2];
       }
     }
 
-    for (b_B_tmp = 0; b_B_tmp < 3; b_B_tmp++) {
-      b_x = d_x[b_B_tmp + 3];
-      d = d_x[b_B_tmp + 6];
-      d1 = d_x[b_B_tmp + 9];
-      for (offset = 0; offset < 4; offset++) {
-        X_tmp = offset << 2;
-        b[b_B_tmp + 3 * offset] = ((d_x[b_B_tmp] * b_X[X_tmp] + b_x * b_X[X_tmp
-          + 1]) + d * b_X[X_tmp + 2]) + d1 * b_X[X_tmp + 3];
+    for (i1 = 0; i1 < 3; i1++) {
+      d = b_x[i1 + 3];
+      d1 = b_x[i1 + 6];
+      d2 = b_x[i1 + 9];
+      for (i2 = 0; i2 < 4; i2++) {
+        jy = i2 << 2;
+        b[i1 + 3 * i2] = ((b_x[i1] * b_X[jy] + d * b_X[jy + 1]) + d1 * b_X[jy +
+                          2]) + d2 * b_X[jy + 3];
       }
     }
 
-    // 'solve_P4Pf:49' for j = 1 : 4
+    // 'p4p_solver:48' for j = 1 : 4
     for (j = 0; j < 4; j++) {
-      // 'solve_P4Pf:50' U_eval(:, j) = U_eval(:, j) ./U_eval(3, j);
-      b_B_tmp = 3 * j + 2;
-      X_tmp = 3 * j + 1;
-      c_Q[1] = b[X_tmp] / b[b_B_tmp];
-      c_Q[2] = b[b_B_tmp] / b[b_B_tmp];
-      b[3 * j] /= b[b_B_tmp];
-      b[X_tmp] = c_Q[1];
-      b[b_B_tmp] = c_Q[2];
+      // 'p4p_solver:49' U_eval(:, j) = U_eval(:, j) ./U_eval(3, j);
+      i1 = 3 * j + 2;
+      jy = 3 * j + 1;
+      c_Q[1] = b[jy] / b[i1];
+      c_Q[2] = b[i1] / b[i1];
+      b[3 * j] /= b[i1];
+      b[jy] = c_Q[1];
+      b[i1] = c_Q[2];
     }
 
     // U_eval = U_eval ./ U_eval(3, :);
     // U_eval = bsxfun(@rdivide, U_eval, U_eval(3, :));
     // reprojection error check
-    // 'solve_P4Pf:55' if norm(U_eval(1:2, :) - [u;v])*w < 0.01
-    b_b[0] = b[0] - x[0];
-    b_b[1] = b[1] - y[0];
-    b_b[2] = b[3] - x[1];
-    b_b[3] = b[4] - y[1];
-    b_b[4] = b[6] - x[2];
-    b_b[5] = b[7] - y[2];
-    b_b[6] = b[9] - x[3];
-    b_b[7] = b[10] - y[3];
+    // 'p4p_solver:54' if norm(U_eval(1:2, :) - [u;v])*w < 0.01
+    b_b[0] = b[0] - xy[0];
+    b_b[1] = b[1] - xy[1];
+    b_b[2] = b[3] - xy[2];
+    b_b[3] = b[4] - xy[3];
+    b_b[4] = b[6] - xy[4];
+    b_b[5] = b[7] - xy[5];
+    b_b[6] = b[9] - xy[6];
+    b_b[7] = b[10] - xy[7];
     if (b_norm(b_b) * w < 0.01) {
-      // 'solve_P4Pf:56' solution_num = solution_num + 1;
+      // 'p4p_solver:55' solution_num = solution_num + 1;
       (*n)++;
 
-      // 'solve_P4Pf:57' fs = [fs, 1/w];
-      b_B_tmp = f_size[1];
+      // 'p4p_solver:56' fs = [fs, 1/w];
+      i1 = f_size[1];
       f_size[1]++;
-      f_data[b_B_tmp] = 1.0 / w;
+      f_data[i1] = 1.0 / w;
 
-      // 'solve_P4Pf:58' if solution_num == 1
+      // 'p4p_solver:57' if solution_num == 1
       if (*n == 1) {
-        // 'solve_P4Pf:59' Rs = R;
+        // 'p4p_solver:58' Rs = R;
         r_size[0] = 3;
         r_size[1] = 3;
         r_size[2] = 1;
         std::memcpy(&r_data[0], &R[0], 9U * sizeof(double));
       } else {
-        // 'solve_P4Pf:60' else
-        // 'solve_P4Pf:61' Rs = cat(3, Rs, R);
-        X_tmp = static_cast<signed char>((r_size[2] + 1));
+        // 'p4p_solver:59' else
+        // 'p4p_solver:60' Rs = cat(3, Rs, R);
+        jy = static_cast<signed char>((r_size[2] + 1));
         offset = -1;
-        b_B_tmp = 9 * r_size[2];
-        for (j = 0; j < b_B_tmp; j++) {
+        i1 = 9 * r_size[2];
+        for (j = 0; j < i1; j++) {
           offset++;
           y_data[offset] = r_data[j];
         }
@@ -20909,32 +19829,31 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
 
         r_size[0] = 3;
         r_size[1] = 3;
-        r_size[2] = X_tmp;
-        X_tmp *= 9;
-        if (0 <= X_tmp - 1) {
-          std::memcpy(&r_data[0], &y_data[0], X_tmp * sizeof(double));
+        r_size[2] = jy;
+        jy *= 9;
+        if (0 <= jy - 1) {
+          std::memcpy(&r_data[0], &y_data[0], jy * sizeof(double));
         }
       }
 
-      // 'solve_P4Pf:63' Ts = [Ts, -R'*T];
-      for (b_B_tmp = 0; b_B_tmp < 3; b_B_tmp++) {
-        c_x[3 * b_B_tmp] = -R[b_B_tmp];
-        c_x[3 * b_B_tmp + 1] = -R[b_B_tmp + 3];
-        c_x[3 * b_B_tmp + 2] = -R[b_B_tmp + 6];
+      // 'p4p_solver:62' Ts = [Ts, -R'*T];
+      for (i1 = 0; i1 < 3; i1++) {
+        x[3 * i1] = -R[i1];
+        x[3 * i1 + 1] = -R[i1 + 3];
+        x[3 * i1 + 2] = -R[i1 + 6];
       }
 
-      for (b_B_tmp = 0; b_B_tmp < 3; b_B_tmp++) {
-        c_Q[b_B_tmp] = (c_x[b_B_tmp] * P3[0] + c_x[b_B_tmp + 3] * P3[1]) +
-          c_x[b_B_tmp + 6] * P3[2];
+      for (i1 = 0; i1 < 3; i1++) {
+        c_Q[i1] = (x[i1] * P3[0] + x[i1 + 3] * P3[1]) + x[i1 + 6] * P3[2];
       }
 
-      X_tmp = t_size[1];
+      jy = t_size[1];
       offset = t_size[1] + 1;
-      for (b_B_tmp = 0; b_B_tmp < X_tmp; b_B_tmp++) {
-        b_eqs[3 * b_B_tmp] = t_data[3 * b_B_tmp];
-        B_tmp = 3 * b_B_tmp + 1;
+      for (i1 = 0; i1 < jy; i1++) {
+        b_eqs[3 * i1] = t_data[3 * i1];
+        B_tmp = 3 * i1 + 1;
         b_eqs[B_tmp] = t_data[B_tmp];
-        B_tmp = 3 * b_B_tmp + 2;
+        B_tmp = 3 * i1 + 2;
         b_eqs[B_tmp] = t_data[B_tmp];
       }
 
@@ -20943,24 +19862,23 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
       b_eqs[3 * t_size[1] + 2] = c_Q[2];
       t_size[0] = 3;
       t_size[1] = offset;
-      X_tmp = 3 * offset;
-      if (0 <= X_tmp - 1) {
-        std::memcpy(&t_data[0], &b_eqs[0], X_tmp * sizeof(double));
+      jy = 3 * offset;
+      if (0 <= jy - 1) {
+        std::memcpy(&t_data[0], &b_eqs[0], jy * sizeof(double));
       }
     }
   }
 
-  // 'p4pf_double:8' assert(isa(n, 'int32'));
-  // 'p4pf_double:9' assert(isa(f, 'double'));
-  // 'p4pf_double:10' assert(isa(r, 'double'));
-  // 'p4pf_double:11' assert(isa(t, 'double'));
+  // 'p4pf_double:7' assert(isa(n, 'int32'));
+  // 'p4pf_double:8' assert(isa(f, 'double'));
+  // 'p4pf_double:9' assert(isa(r, 'double'));
+  // 'p4pf_double:10' assert(isa(t, 'double'));
 }
 
 //
-// function [n,f,r,t] = p4pf_single(X, x, y, e)
+// function [n,f,r,t] = p4pf_single(X, xy, e)
 // Arguments    : const float X[12]
-//                const float x[4]
-//                const float y[4]
+//                const float xy[8]
 //                float e
 //                int *n
 //                float f_data[]
@@ -20971,30 +19889,31 @@ void p4pf_double(const double X[12], const double x[4], const double y[4],
 //                int t_size[2]
 // Return Type  : void
 //
-void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
-                 int *n, float f_data[], int f_size[2], float r_data[], int
-                 r_size[3], float t_data[], int t_size[2])
+void p4pf_single(const float X[12], const float xy[8], float e, int *n, float
+                 f_data[], int f_size[2], float r_data[], int r_size[3], float
+                 t_data[], int t_size[2])
 {
   int i;
   float A[32];
   float Q[64];
   float b_A[32];
-  int X_tmp;
-  float b_x;
-  float b_X[16];
+  int jy;
   float f;
+  float b_X[16];
   float f1;
-  double B[16];
-  double C[16];
+  float f2;
   float scale;
   int b_i;
-  int offset;
+  double B[16];
+  double C[16];
   float D[16];
+  int offset;
+  int i1;
   int B_tmp;
-  int b_B_tmp;
   int j;
   float eqs[40];
   float ND[48];
+  int jp1j;
   float b_ND[10];
   float c_ND[10];
   float d_ND[10];
@@ -21017,51 +19936,55 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
   float t;
   float alpha;
   float R[9];
-  float c_x[9];
-  int ipiv[3];
+  signed char ipiv[3];
+  float x[9];
   boolean_T isodd;
+  int mmj_tmp;
+  int b_tmp;
+  int ix;
   double c_A[36];
   double b[12];
   double A_tmp[3];
+  int i2;
   float U_eval[12];
-  float d_x[12];
+  float b_x[12];
   float b_U_eval[8];
   float y_data[99];
 
   // 'p4pf_single:2' assert(isa(X, 'single'));
-  // 'p4pf_single:3' assert(isa(x, 'single'));
-  // 'p4pf_single:4' assert(isa(y, 'single'));
-  // 'p4pf_single:5' assert(isa(e, 'single'));
-  // 'p4pf_single:8' [n, f, r, t] = solve_P4Pf(X, x, y, e);
-  // SOLVE_P4Pf Summary of this function goes here
+  // 'p4pf_single:3' assert(isa(xy, 'single'));
+  // 'p4pf_single:4' assert(isa(e, 'single'));
+  // 'p4pf_single:6' [n, f, r, t] = p4p_solver(X, xy(1, :), xy(2, :), e);
   //        X = [p1, p2, p3, p4], pi = [4, 1]; X(:, i) <-> (u(i), v(i))
   //        if f is a correct foal length, then [R, T] = [R, T] / sign(d)*abs(d)^(1/3); 
   //        where d = det(R)
-  // 'solve_P4Pf:6' X = [X; ones(1, 4, 'like', X)];
-  // 'solve_P4Pf:7' A = find_A(X, u, v);
+  // 'p4p_solver:5' X = [X; ones(1, 4, 'like', X)];
+  // 'p4p_solver:6' A = find_A(X, u, v);
   // [p11, p12, p13, p14, p21, p22, p23, p24]'
-  // 'solve_P4Pf:70' A = zeros(4, 8, 'like', X);
-  // 'solve_P4Pf:71' for i = 1 : 4
-  // 'solve_P4Pf:8' [Q, ~] = qr(A');
+  // 'p4p_solver:69' A = zeros(4, 8, 'like', X);
+  // 'p4p_solver:70' for i = 1 : 4
+  // 'p4p_solver:7' [Q, ~] = qr(A');
   for (i = 0; i < 4; i++) {
-    X_tmp = i << 2;
-    b_x = X[3 * i];
-    b_X[X_tmp] = b_x;
-    f = X[3 * i + 1];
-    b_X[X_tmp + 1] = f;
-    f1 = X[3 * i + 2];
-    b_X[X_tmp + 2] = f1;
-    b_X[X_tmp + 3] = 1.0F;
+    jy = i << 2;
+    f = X[3 * i];
+    b_X[jy] = f;
+    f1 = X[3 * i + 1];
+    b_X[jy + 1] = f1;
+    f2 = X[3 * i + 2];
+    b_X[jy + 2] = f2;
+    b_X[jy + 3] = 1.0F;
 
-    // 'solve_P4Pf:72' A(i,  :) = [-v(i)*X(:, i)', u(i)*X(:, i)'];
-    b_A[i] = -y[i] * b_x;
-    b_A[i + 16] = x[i] * b_x;
-    b_A[i + 4] = -y[i] * f;
-    b_A[i + 20] = x[i] * f;
-    b_A[i + 8] = -y[i] * f1;
-    b_A[i + 24] = x[i] * f1;
-    b_A[i + 12] = -y[i];
-    b_A[i + 28] = x[i];
+    // 'p4p_solver:71' A(i,  :) = [-v(i)*X(:, i)', u(i)*X(:, i)'];
+    jy = i << 1;
+    scale = -xy[jy + 1];
+    b_A[i] = scale * f;
+    b_A[i + 16] = xy[jy] * f;
+    b_A[i + 4] = scale * f1;
+    b_A[i + 20] = xy[jy] * f1;
+    b_A[i + 8] = scale * f2;
+    b_A[i + 24] = xy[jy] * f2;
+    b_A[i + 12] = scale;
+    b_A[i + 28] = xy[jy];
     for (b_i = 0; b_i < 8; b_i++) {
       A[b_i + (i << 3)] = b_A[i + (b_i << 2)];
     }
@@ -21069,64 +19992,65 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
 
   e_qr(A, Q, b_A);
 
-  // 'solve_P4Pf:8' ~
-  // 'solve_P4Pf:9' N = Q(:, 5:end);
+  // 'p4p_solver:7' ~
+  // 'p4p_solver:8' N = Q(:, 5:end);
   // nullspace
-  // 'solve_P4Pf:10' D = find_D(X, u, v, N, e);
-  // 'solve_P4Pf:77' B = zeros(4, 'double');
-  // 'solve_P4Pf:78' C = zeros(4, 'double');
-  // 'solve_P4Pf:79' for i = 1 : 4
+  // 'p4p_solver:9' D = find_D(X, u, v, N, e);
+  // 'p4p_solver:76' B = zeros(4, 'double');
+  // 'p4p_solver:77' C = zeros(4, 'double');
+  // 'p4p_solver:78' for i = 1 : 4
   for (i = 0; i < 4; i++) {
-    // 'solve_P4Pf:80' if abs(u(i)) < e
-    if (std::abs(x[i]) < e) {
-      // 'solve_P4Pf:81' fctr = v(i);
-      scale = y[i];
+    // 'p4p_solver:79' if abs(u(i)) < e
+    b_i = i << 1;
+    if (std::abs(xy[b_i]) < e) {
+      // 'p4p_solver:80' fctr = v(i);
+      scale = xy[b_i + 1];
 
-      // 'solve_P4Pf:82' offset = 4;
+      // 'p4p_solver:81' offset = 4;
       offset = 4;
     } else {
-      // 'solve_P4Pf:83' else
-      // 'solve_P4Pf:84' fctr = u(i);
-      scale = x[i];
+      // 'p4p_solver:82' else
+      // 'p4p_solver:83' fctr = u(i);
+      scale = xy[b_i];
 
-      // 'solve_P4Pf:85' offset = 0;
+      // 'p4p_solver:84' offset = 0;
       offset = 0;
     }
 
-    // 'solve_P4Pf:87' B(i, :) = fctr*X(:, i)';
-    // 'solve_P4Pf:88' for j = 1 : 4
-    b_B_tmp = i << 2;
+    // 'p4p_solver:86' B(i, :) = fctr*X(:, i)';
+    // 'p4p_solver:87' for j = 1 : 4
+    B_tmp = i << 2;
     for (j = 0; j < 4; j++) {
-      B_tmp = i + (j << 2);
-      B[B_tmp] = scale * b_X[j + b_B_tmp];
+      jp1j = i + (j << 2);
+      B[jp1j] = scale * b_X[j + B_tmp];
 
-      // 'solve_P4Pf:89' C(i, j) = X(:, i)'*ns((1:4)+offset, j);
-      X_tmp = offset + ((j + 4) << 3);
-      C[B_tmp] = ((b_X[b_B_tmp] * Q[X_tmp] + b_X[b_B_tmp + 1] * Q[X_tmp + 1]) +
-                  b_X[b_B_tmp + 2] * Q[X_tmp + 2]) + b_X[b_B_tmp + 3] * Q[X_tmp
-        + 3];
+      // 'p4p_solver:88' C(i, j) = X(:, i)'*ns((1:4)+offset, j);
+      jy = offset + ((j + 4) << 3);
+      C[jp1j] = ((b_X[B_tmp] * Q[jy] + b_X[B_tmp + 1] * Q[jy + 1]) + b_X[B_tmp +
+                 2] * Q[jy + 2]) + b_X[B_tmp + 3] * Q[jy + 3];
     }
   }
 
-  // 'solve_P4Pf:92' D_ = B\C;
-  // 'solve_P4Pf:93' if isa(X, 'single')
-  // 'solve_P4Pf:94' D = single(D_);
+  // 'p4p_solver:91' D_ = B\C;
+  // 'p4p_solver:92' if isa(X, 'single')
+  // 'p4p_solver:93' D = single(D_);
   d_mldivide(B, C);
   for (b_i = 0; b_i < 16; b_i++) {
     D[b_i] = static_cast<float>(C[b_i]);
   }
 
-  // 'solve_P4Pf:11' eqs = find_eqs([N; D]);
+  // 'p4p_solver:10' eqs = find_eqs([N; D]);
+  // 'p4p_solver:11' [n, xs, ys, zs] = solve_3Q3(eqs(1:3, :), e);
   for (b_i = 0; b_i < 4; b_i++) {
-    for (B_tmp = 0; B_tmp < 8; B_tmp++) {
-      ND[B_tmp + 12 * b_i] = Q[B_tmp + ((b_i + 4) << 3)];
+    for (i1 = 0; i1 < 8; i1++) {
+      ND[i1 + 12 * b_i] = Q[i1 + ((b_i + 4) << 3)];
     }
 
-    X_tmp = b_i << 2;
-    ND[12 * b_i + 8] = D[X_tmp];
-    ND[12 * b_i + 9] = D[X_tmp + 1];
-    ND[12 * b_i + 10] = D[X_tmp + 2];
-    ND[12 * b_i + 11] = D[X_tmp + 3];
+    jy = b_i << 2;
+    ND[12 * b_i + 8] = D[jy];
+    ND[12 * b_i + 9] = D[jy + 1];
+    ND[12 * b_i + 10] = D[jy + 2];
+    ND[12 * b_i + 11] = D[jy + 3];
   }
 
   // ND = [N; D]
@@ -21402,65 +20326,62 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
   scale = ND[30] * ND[42];
   g_ND[8] = scale + scale;
   g_ND[9] = ND[42] * ND[42];
-
-  // 'solve_P4Pf:12' [n, xs, ys, zs] = solve_3Q3(eqs(1:3, :), e);
   for (b_i = 0; b_i < 10; b_i++) {
-    X_tmp = b_i << 2;
-    eqs[X_tmp + 3] = ((((b_ND[b_i] + c_ND[b_i]) + d_ND[b_i]) - e_ND[b_i]) -
-                      f_ND[b_i]) - g_ND[b_i];
-    b_eqs[3 * b_i] = eqs[X_tmp];
-    b_eqs[3 * b_i + 1] = eqs[X_tmp + 1];
-    b_eqs[3 * b_i + 2] = eqs[X_tmp + 2];
+    jy = b_i << 2;
+    eqs[jy + 3] = ((((b_ND[b_i] + c_ND[b_i]) + d_ND[b_i]) - e_ND[b_i]) -
+                   f_ND[b_i]) - g_ND[b_i];
+    b_eqs[3 * b_i] = eqs[jy];
+    b_eqs[3 * b_i + 1] = eqs[jy + 1];
+    b_eqs[3 * b_i + 2] = eqs[jy + 2];
   }
 
   b_solve_3Q3(b_eqs, &b_n, xs_data, xs_size, ys_data, ys_size, zs_data, zs_size);
 
   // we may choes another 3 out of 4 eq-s
-  // 'solve_P4Pf:13' fs = zeros(1, 0, 'like', X);
+  // 'p4p_solver:12' fs = zeros(1, 0, 'like', X);
   f_size[0] = 1;
   f_size[1] = 0;
 
-  // 'solve_P4Pf:14' coder.varsize('fs', [1 10], [0 1]);
-  // 'solve_P4Pf:15' Rs = zeros(3, 3, 0, 'like', X);
+  // 'p4p_solver:13' coder.varsize('fs', [1 10], [0 1]);
+  // 'p4p_solver:14' Rs = zeros(3, 3, 0, 'like', X);
   r_size[0] = 3;
   r_size[1] = 3;
   r_size[2] = 0;
 
-  // 'solve_P4Pf:16' coder.varsize('Rs', [3 3 10], [0 0 1]);
-  // 'solve_P4Pf:17' Ts = zeros(3, 0, 'like', X);
+  // 'p4p_solver:15' coder.varsize('Rs', [3 3 10], [0 0 1]);
+  // 'p4p_solver:16' Ts = zeros(3, 0, 'like', X);
   t_size[0] = 3;
   t_size[1] = 0;
 
-  // 'solve_P4Pf:18' coder.varsize('Ts', [3 10], [0 1]);
-  // 'solve_P4Pf:19' solution_num = int32(0);
+  // 'p4p_solver:17' coder.varsize('Ts', [3 10], [0 1]);
+  // 'p4p_solver:18' solution_num = int32(0);
   *n = 0;
 
-  // 'solve_P4Pf:20' for i = 1 : n
+  // 'p4p_solver:19' for i = 1 : n
   b_i = static_cast<int>(b_n);
   for (i = 0; i < b_i; i++) {
-    // 'solve_P4Pf:21' P1 = (N(1:3, :)*[xs(i); ys(i); zs(i); 1])';
-    // 'solve_P4Pf:22' P3 = (D(1:3, :)*[xs(i); ys(i); zs(i); 1])';
-    b_x = xs_data[i];
-    f = ys_data[i];
-    f1 = zs_data[i];
-    for (B_tmp = 0; B_tmp < 3; B_tmp++) {
-      P1[B_tmp] = ((Q[B_tmp + 32] * b_x + Q[B_tmp + 40] * f) + Q[B_tmp + 48] *
-                   f1) + Q[B_tmp + 56];
-      P3[B_tmp] = ((D[B_tmp] * b_x + D[B_tmp + 4] * f) + D[B_tmp + 8] * f1) +
-        D[B_tmp + 12];
+    // 'p4p_solver:20' P1 = (N(1:3, :)*[xs(i); ys(i); zs(i); 1])';
+    // 'p4p_solver:21' P3 = (D(1:3, :)*[xs(i); ys(i); zs(i); 1])';
+    f = xs_data[i];
+    f1 = ys_data[i];
+    f2 = zs_data[i];
+    for (i1 = 0; i1 < 3; i1++) {
+      P1[i1] = ((Q[i1 + 32] * f + Q[i1 + 40] * f1) + Q[i1 + 48] * f2) + Q[i1 +
+        56];
+      P3[i1] = ((D[i1] * f + D[i1 + 4] * f1) + D[i1 + 8] * f2) + D[i1 + 12];
     }
 
-    // 'solve_P4Pf:23' P21 = N(5, :)*[xs(i); ys(i); zs(i); 1];
-    f = ys_data[i];
-    f1 = zs_data[i];
+    // 'p4p_solver:22' P21 = N(5, :)*[xs(i); ys(i); zs(i); 1];
+    f1 = ys_data[i];
+    f2 = zs_data[i];
     b_Q = ((Q[36] * xs_data[i] + Q[44] * ys_data[i]) + Q[52] * zs_data[i]) + Q
       [60];
 
-    // 'solve_P4Pf:25' w = sqrt(sum(P3(1:3).^2)/sum(P1(1:3).^2));
+    // 'p4p_solver:24' w = sqrt(sum(P3(1:3).^2)/sum(P1(1:3).^2));
     w = std::sqrt(((P3[0] * P3[0] + P3[1] * P3[1]) + P3[2] * P3[2]) / ((P1[0] *
       P1[0] + P1[1] * P1[1]) + P1[2] * P1[2]));
 
-    // 'solve_P4Pf:27' alpha = norm(P1);
+    // 'p4p_solver:26' alpha = norm(P1);
     scale = 1.29246971E-26F;
     absxk = std::abs(P1[0]);
     if (absxk > 1.29246971E-26F) {
@@ -21493,29 +20414,29 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
 
     alpha = scale * std::sqrt(alpha);
 
-    // 'solve_P4Pf:28' R1 = P1/alpha;
-    // 'solve_P4Pf:29' R3 = P3/(w*alpha);
+    // 'p4p_solver:27' R1 = P1/alpha;
+    // 'p4p_solver:28' R3 = P3/(w*alpha);
     scale = w * alpha;
-    for (B_tmp = 0; B_tmp < 3; B_tmp++) {
-      P1[B_tmp] = (((Q[B_tmp + 32] * b_x + Q[B_tmp + 40] * f) + Q[B_tmp + 48] *
-                    f1) + Q[B_tmp + 56]) / alpha;
-      P3[B_tmp] = (((D[B_tmp] * b_x + D[B_tmp + 4] * f) + D[B_tmp + 8] * f1) +
-                   D[B_tmp + 12]) / scale;
+    for (i1 = 0; i1 < 3; i1++) {
+      P1[i1] = (((Q[i1 + 32] * f + Q[i1 + 40] * f1) + Q[i1 + 48] * f2) + Q[i1 +
+                56]) / alpha;
+      P3[i1] = (((D[i1] * f + D[i1 + 4] * f1) + D[i1 + 8] * f2) + D[i1 + 12]) /
+        scale;
     }
 
-    // 'solve_P4Pf:30' R2 = cross(R1, R3);
+    // 'p4p_solver:29' R2 = cross(R1, R3);
     scale = P1[1] * P3[2] - P1[2] * P3[1];
     absxk = P1[2] * P3[0] - P1[0] * P3[2];
     t = P1[0] * P3[1] - P1[1] * P3[0];
 
     // R2 = -R2/norm(R2);
-    // 'solve_P4Pf:32' if sign(R2(1)) == sign(P21)
-    b_x = scale;
+    // 'p4p_solver:31' if sign(R2(1)) == sign(P21)
+    alpha = scale;
     if (scale < 0.0F) {
-      b_x = -1.0F;
+      alpha = -1.0F;
     } else {
       if (scale > 0.0F) {
-        b_x = 1.0F;
+        alpha = 1.0F;
       }
     }
 
@@ -21527,8 +20448,8 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
       }
     }
 
-    if (b_x == b_Q) {
-      // 'solve_P4Pf:33' R = [R1; R2; R3];
+    if (alpha == b_Q) {
+      // 'p4p_solver:32' R = [R1; R2; R3];
       R[0] = P1[0];
       R[1] = scale;
       R[2] = P3[0];
@@ -21539,8 +20460,8 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
       R[7] = t;
       R[8] = P3[2];
     } else {
-      // 'solve_P4Pf:34' else
-      // 'solve_P4Pf:35' R = [R1; -R2; R3];
+      // 'p4p_solver:33' else
+      // 'p4p_solver:34' R = [R1; -R2; R3];
       R[0] = P1[0];
       R[1] = -scale;
       R[2] = P3[0];
@@ -21552,14 +20473,76 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
       R[8] = P3[2];
     }
 
-    // 'solve_P4Pf:37' if det(R) < 0
-    for (B_tmp = 0; B_tmp < 9; B_tmp++) {
-      c_x[B_tmp] = R[B_tmp];
+    // 'p4p_solver:36' if det(R) < 0
+    for (i1 = 0; i1 < 9; i1++) {
+      x[i1] = R[i1];
     }
 
-    d_xzgetrf(c_x, ipiv, &X_tmp);
+    ipiv[0] = 1;
+    ipiv[1] = 2;
+    for (j = 0; j < 2; j++) {
+      mmj_tmp = 1 - j;
+      b_tmp = j << 2;
+      jp1j = b_tmp + 2;
+      jy = 3 - j;
+      offset = 0;
+      ix = b_tmp;
+      scale = std::abs(x[b_tmp]);
+      for (B_tmp = 2; B_tmp <= jy; B_tmp++) {
+        ix++;
+        absxk = std::abs(x[ix]);
+        if (absxk > scale) {
+          offset = B_tmp - 1;
+          scale = absxk;
+        }
+      }
+
+      if (x[b_tmp + offset] != 0.0F) {
+        if (offset != 0) {
+          jy = j + offset;
+          ipiv[j] = static_cast<signed char>((jy + 1));
+          scale = x[j];
+          x[j] = x[jy];
+          x[jy] = scale;
+          ix = j + 3;
+          offset = jy + 3;
+          scale = x[ix];
+          x[ix] = x[offset];
+          x[offset] = scale;
+          ix += 3;
+          offset += 3;
+          scale = x[ix];
+          x[ix] = x[offset];
+          x[offset] = scale;
+        }
+
+        i1 = (b_tmp - j) + 3;
+        for (B_tmp = jp1j; B_tmp <= i1; B_tmp++) {
+          x[B_tmp - 1] /= x[b_tmp];
+        }
+      }
+
+      jy = b_tmp + 3;
+      offset = b_tmp;
+      for (B_tmp = 0; B_tmp <= mmj_tmp; B_tmp++) {
+        scale = x[jy];
+        if (x[jy] != 0.0F) {
+          ix = b_tmp + 1;
+          i1 = offset + 5;
+          i2 = (offset - j) + 6;
+          for (jp1j = i1; jp1j <= i2; jp1j++) {
+            x[jp1j - 1] += x[ix] * -scale;
+            ix++;
+          }
+        }
+
+        jy += 3;
+        offset += 3;
+      }
+    }
+
     isodd = (ipiv[0] > 1);
-    scale = c_x[0] * c_x[4] * c_x[8];
+    scale = x[0] * x[4] * x[8];
     if (ipiv[1] > 2) {
       isodd = !isodd;
     }
@@ -21569,13 +20552,13 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
     }
 
     if (scale < 0.0F) {
-      // 'solve_P4Pf:38' R = -R;
-      for (B_tmp = 0; B_tmp < 9; B_tmp++) {
-        R[B_tmp] = -R[B_tmp];
+      // 'p4p_solver:37' R = -R;
+      for (i1 = 0; i1 < 9; i1++) {
+        R[i1] = -R[i1];
       }
     }
 
-    // 'solve_P4Pf:40' T_ = find_T(X(1:3, :), u, v, R, w);
+    // 'p4p_solver:39' T_ = find_T(X(1:3, :), u, v, R, w);
     // 'find_T:2' A = zeros(12, 3, 'double');
     std::memset(&c_A[0], 0, 36U * sizeof(double));
 
@@ -21583,141 +20566,144 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
     std::memset(&b[0], 0, 12U * sizeof(double));
 
     // 'find_T:5' for i = 1 : 4
-    for (b_B_tmp = 0; b_B_tmp < 4; b_B_tmp++) {
+    for (B_tmp = 0; B_tmp < 4; B_tmp++) {
       // 'find_T:6' A(3*i - 2:3*i, :) = [     0,   -1,  w*v(i);
       // 'find_T:7'                                   1,    0, -w*u(i);
       // 'find_T:8'                               -v(i), u(i),      0];
-      X_tmp = 3 * (b_B_tmp + 1);
-      A_tmp[0] = static_cast<double>(X_tmp) + -2.0;
-      A_tmp[1] = static_cast<double>(X_tmp) + -1.0;
-      A_tmp[2] = X_tmp;
-      offset = X_tmp + -2;
+      jy = 3 * (B_tmp + 1);
+      A_tmp[0] = static_cast<double>(jy) + -2.0;
+      A_tmp[1] = static_cast<double>(jy) + -1.0;
+      A_tmp[2] = jy;
+      offset = jy + -2;
       c_A[offset - 1] = 0.0;
       c_A[offset + 11] = -1.0;
-      c_A[offset + 23] = w * y[b_B_tmp];
-      offset = X_tmp + -1;
+      i1 = B_tmp << 1;
+      f = xy[i1 + 1];
+      c_A[offset + 23] = w * f;
+      offset = jy + -1;
       c_A[offset - 1] = 1.0;
       c_A[offset + 11] = 0.0;
-      c_A[offset + 23] = -w * x[b_B_tmp];
-      c_A[X_tmp - 1] = -y[b_B_tmp];
-      c_A[X_tmp + 11] = x[b_B_tmp];
-      c_A[X_tmp + 23] = 0.0;
+      c_A[offset + 23] = -w * xy[i1];
+      c_A[jy - 1] = -f;
+      c_A[jy + 11] = xy[i1];
+      c_A[jy + 23] = 0.0;
 
       // 'find_T:9' b(3*i - 2:3*i) = -A(3*i - 2:3*i, :)*R*X(:, i);
-      B_tmp = X_tmp - 3;
-      for (offset = 0; offset < 3; offset++) {
-        X_tmp = B_tmp + 12 * offset;
-        c_x[3 * offset] = static_cast<float>(-c_A[X_tmp]);
-        c_x[3 * offset + 1] = static_cast<float>(-c_A[X_tmp + 1]);
-        c_x[3 * offset + 2] = static_cast<float>(-c_A[X_tmp + 2]);
+      i1 = jy - 3;
+      for (i2 = 0; i2 < 3; i2++) {
+        jy = i1 + 12 * i2;
+        x[3 * i2] = static_cast<float>(-c_A[jy]);
+        x[3 * i2 + 1] = static_cast<float>(-c_A[jy + 1]);
+        x[3 * i2 + 2] = static_cast<float>(-c_A[jy + 2]);
       }
 
-      for (B_tmp = 0; B_tmp < 3; B_tmp++) {
-        b_x = 0.0F;
-        f = c_x[B_tmp + 3];
-        f1 = c_x[B_tmp + 6];
-        for (offset = 0; offset < 3; offset++) {
-          b_x += ((c_x[B_tmp] * R[3 * offset] + f * R[3 * offset + 1]) + f1 * R
-                  [3 * offset + 2]) * b_X[offset + (b_B_tmp << 2)];
+      for (i1 = 0; i1 < 3; i1++) {
+        f = 0.0F;
+        f1 = x[i1 + 3];
+        f2 = x[i1 + 6];
+        for (i2 = 0; i2 < 3; i2++) {
+          f += ((x[i1] * R[3 * i2] + f1 * R[3 * i2 + 1]) + f2 * R[3 * i2 + 2]) *
+            b_X[i2 + (B_tmp << 2)];
         }
 
-        b[static_cast<int>(A_tmp[B_tmp]) - 1] = b_x;
+        b[static_cast<int>(A_tmp[i1]) - 1] = f;
       }
     }
 
     // 'find_T:11' T = A\b;
-    // 'solve_P4Pf:41' if isa(X,'single')
-    // 'solve_P4Pf:42' T = single(T_);
+    // 'p4p_solver:40' if isa(X,'single')
+    // 'p4p_solver:41' T = single(T_);
     mldivide(c_A, b, A_tmp);
     P1[0] = static_cast<float>(A_tmp[0]);
     P1[1] = static_cast<float>(A_tmp[1]);
     P1[2] = static_cast<float>(A_tmp[2]);
 
-    // 'solve_P4Pf:47' P = diag([1, 1, w])*[R, T];
+    // 'p4p_solver:46' P = diag([1, 1, w])*[R, T];
     P3[0] = 1.0F;
     P3[1] = 1.0F;
     P3[2] = w;
-    for (B_tmp = 0; B_tmp < 9; B_tmp++) {
-      c_x[B_tmp] = 0.0F;
+    for (i1 = 0; i1 < 9; i1++) {
+      x[i1] = 0.0F;
     }
 
-    // 'solve_P4Pf:48' U_eval = P*X;
+    // 'p4p_solver:47' U_eval = P*X;
     for (j = 0; j < 3; j++) {
-      c_x[j + 3 * j] = P3[j];
+      x[j + 3 * j] = P3[j];
       U_eval[3 * j] = R[3 * j];
-      X_tmp = 3 * j + 1;
-      U_eval[X_tmp] = R[X_tmp];
-      X_tmp = 3 * j + 2;
-      U_eval[X_tmp] = R[X_tmp];
+      jy = 3 * j + 1;
+      U_eval[jy] = R[jy];
+      jy = 3 * j + 2;
+      U_eval[jy] = R[jy];
       U_eval[j + 9] = P1[j];
     }
 
-    for (B_tmp = 0; B_tmp < 3; B_tmp++) {
-      b_x = c_x[B_tmp + 3];
-      f = c_x[B_tmp + 6];
-      for (offset = 0; offset < 4; offset++) {
-        d_x[B_tmp + 3 * offset] = (c_x[B_tmp] * U_eval[3 * offset] + b_x *
-          U_eval[3 * offset + 1]) + f * U_eval[3 * offset + 2];
+    for (i1 = 0; i1 < 3; i1++) {
+      f = x[i1 + 3];
+      f1 = x[i1 + 6];
+      for (i2 = 0; i2 < 4; i2++) {
+        b_x[i1 + 3 * i2] = (x[i1] * U_eval[3 * i2] + f * U_eval[3 * i2 + 1]) +
+          f1 * U_eval[3 * i2 + 2];
       }
     }
 
-    for (B_tmp = 0; B_tmp < 3; B_tmp++) {
-      b_x = d_x[B_tmp + 3];
-      f = d_x[B_tmp + 6];
-      f1 = d_x[B_tmp + 9];
-      for (offset = 0; offset < 4; offset++) {
-        X_tmp = offset << 2;
-        U_eval[B_tmp + 3 * offset] = ((d_x[B_tmp] * b_X[X_tmp] + b_x * b_X[X_tmp
-          + 1]) + f * b_X[X_tmp + 2]) + f1 * b_X[X_tmp + 3];
+    for (i1 = 0; i1 < 3; i1++) {
+      f = b_x[i1 + 3];
+      f1 = b_x[i1 + 6];
+      f2 = b_x[i1 + 9];
+      for (i2 = 0; i2 < 4; i2++) {
+        jy = i2 << 2;
+        U_eval[i1 + 3 * i2] = ((b_x[i1] * b_X[jy] + f * b_X[jy + 1]) + f1 *
+          b_X[jy + 2]) + f2 * b_X[jy + 3];
       }
     }
 
-    // 'solve_P4Pf:49' for j = 1 : 4
+    // 'p4p_solver:48' for j = 1 : 4
     // U_eval = U_eval ./ U_eval(3, :);
     // U_eval = bsxfun(@rdivide, U_eval, U_eval(3, :));
     // reprojection error check
-    // 'solve_P4Pf:55' if norm(U_eval(1:2, :) - [u;v])*w < 0.01
+    // 'p4p_solver:54' if norm(U_eval(1:2, :) - [u;v])*w < 0.01
     for (j = 0; j < 4; j++) {
-      // 'solve_P4Pf:50' U_eval(:, j) = U_eval(:, j) ./U_eval(3, j);
-      B_tmp = 3 * j + 2;
-      b_x = U_eval[B_tmp];
-      f = U_eval[3 * j] / U_eval[B_tmp];
-      U_eval[3 * j] = f;
-      X_tmp = 3 * j + 1;
-      f1 = U_eval[X_tmp] / b_x;
-      U_eval[X_tmp] = f1;
-      b_x /= b_x;
-      U_eval[B_tmp] = b_x;
-      X_tmp = j << 1;
-      b_U_eval[X_tmp] = f - x[j];
-      b_U_eval[X_tmp + 1] = f1 - y[j];
+      // 'p4p_solver:49' U_eval(:, j) = U_eval(:, j) ./U_eval(3, j);
+      i1 = 3 * j + 2;
+      f = U_eval[i1];
+      f1 = U_eval[3 * j] / U_eval[i1];
+      U_eval[3 * j] = f1;
+      jy = 3 * j + 1;
+      f2 = U_eval[jy] / f;
+      U_eval[jy] = f2;
+      f /= f;
+      U_eval[i1] = f;
+      jy = j << 1;
+      b_U_eval[jy] = f1 - xy[jy];
+      jy++;
+      b_U_eval[jy] = f2 - xy[jy];
     }
 
     if (c_norm(b_U_eval) * w < 0.01) {
-      // 'solve_P4Pf:56' solution_num = solution_num + 1;
+      // 'p4p_solver:55' solution_num = solution_num + 1;
       (*n)++;
 
-      // 'solve_P4Pf:57' fs = [fs, 1/w];
-      B_tmp = f_size[1];
+      // 'p4p_solver:56' fs = [fs, 1/w];
+      i1 = f_size[1];
       f_size[1]++;
-      f_data[B_tmp] = 1.0F / w;
+      f_data[i1] = 1.0F / w;
 
-      // 'solve_P4Pf:58' if solution_num == 1
+      // 'p4p_solver:57' if solution_num == 1
       if (*n == 1) {
-        // 'solve_P4Pf:59' Rs = R;
+        // 'p4p_solver:58' Rs = R;
         r_size[0] = 3;
         r_size[1] = 3;
         r_size[2] = 1;
-        for (B_tmp = 0; B_tmp < 9; B_tmp++) {
-          r_data[B_tmp] = R[B_tmp];
+        for (i1 = 0; i1 < 9; i1++) {
+          r_data[i1] = R[i1];
         }
       } else {
-        // 'solve_P4Pf:60' else
-        // 'solve_P4Pf:61' Rs = cat(3, Rs, R);
-        X_tmp = static_cast<signed char>((r_size[2] + 1));
+        // 'p4p_solver:59' else
+        // 'p4p_solver:60' Rs = cat(3, Rs, R);
+        jy = static_cast<signed char>((r_size[2] + 1));
         offset = -1;
-        B_tmp = 9 * r_size[2];
-        for (j = 0; j < B_tmp; j++) {
+        i1 = 9 * r_size[2];
+        for (j = 0; j < i1; j++) {
           offset++;
           y_data[offset] = r_data[j];
         }
@@ -21729,33 +20715,32 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
 
         r_size[0] = 3;
         r_size[1] = 3;
-        r_size[2] = X_tmp;
-        X_tmp *= 9;
-        if (0 <= X_tmp - 1) {
-          std::memcpy(&r_data[0], &y_data[0], X_tmp * sizeof(float));
+        r_size[2] = jy;
+        jy *= 9;
+        if (0 <= jy - 1) {
+          std::memcpy(&r_data[0], &y_data[0], jy * sizeof(float));
         }
       }
 
-      // 'solve_P4Pf:63' Ts = [Ts, -R'*T];
-      for (B_tmp = 0; B_tmp < 3; B_tmp++) {
-        c_x[3 * B_tmp] = -R[B_tmp];
-        c_x[3 * B_tmp + 1] = -R[B_tmp + 3];
-        c_x[3 * B_tmp + 2] = -R[B_tmp + 6];
+      // 'p4p_solver:62' Ts = [Ts, -R'*T];
+      for (i1 = 0; i1 < 3; i1++) {
+        x[3 * i1] = -R[i1];
+        x[3 * i1 + 1] = -R[i1 + 3];
+        x[3 * i1 + 2] = -R[i1 + 6];
       }
 
-      for (B_tmp = 0; B_tmp < 3; B_tmp++) {
-        P3[B_tmp] = (c_x[B_tmp] * P1[0] + c_x[B_tmp + 3] * P1[1]) + c_x[B_tmp +
-          6] * P1[2];
+      for (i1 = 0; i1 < 3; i1++) {
+        P3[i1] = (x[i1] * P1[0] + x[i1 + 3] * P1[1]) + x[i1 + 6] * P1[2];
       }
 
-      X_tmp = t_size[1];
+      jy = t_size[1];
       offset = t_size[1] + 1;
-      for (B_tmp = 0; B_tmp < X_tmp; B_tmp++) {
-        b_eqs[3 * B_tmp] = t_data[3 * B_tmp];
-        b_B_tmp = 3 * B_tmp + 1;
-        b_eqs[b_B_tmp] = t_data[b_B_tmp];
-        b_B_tmp = 3 * B_tmp + 2;
-        b_eqs[b_B_tmp] = t_data[b_B_tmp];
+      for (i1 = 0; i1 < jy; i1++) {
+        b_eqs[3 * i1] = t_data[3 * i1];
+        B_tmp = 3 * i1 + 1;
+        b_eqs[B_tmp] = t_data[B_tmp];
+        B_tmp = 3 * i1 + 2;
+        b_eqs[B_tmp] = t_data[B_tmp];
       }
 
       b_eqs[3 * t_size[1]] = P3[0];
@@ -21763,17 +20748,17 @@ void p4pf_single(const float X[12], const float x[4], const float y[4], float e,
       b_eqs[3 * t_size[1] + 2] = P3[2];
       t_size[0] = 3;
       t_size[1] = offset;
-      X_tmp = 3 * offset;
-      if (0 <= X_tmp - 1) {
-        std::memcpy(&t_data[0], &b_eqs[0], X_tmp * sizeof(float));
+      jy = 3 * offset;
+      if (0 <= jy - 1) {
+        std::memcpy(&t_data[0], &b_eqs[0], jy * sizeof(float));
       }
     }
   }
 
-  // 'p4pf_single:9' assert(isa(n, 'int32'));
-  // 'p4pf_single:10' assert(isa(t, 'single'));
-  // 'p4pf_single:11' assert(isa(r, 'single'));
-  // 'p4pf_single:12' assert(isa(f, 'single'));
+  // 'p4pf_single:7' assert(isa(n, 'int32'));
+  // 'p4pf_single:8' assert(isa(t, 'single'));
+  // 'p4pf_single:9' assert(isa(r, 'single'));
+  // 'p4pf_single:10' assert(isa(f, 'single'));
 }
 
 //
