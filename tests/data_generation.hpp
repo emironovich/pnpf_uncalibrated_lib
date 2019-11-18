@@ -1,4 +1,6 @@
-#pragma once
+#ifndef DATA_GENERATION_H
+#define DATA_GENERATION_H
+
 #include <Eigen/Dense>
 #include <Eigen/LU>
 #include <random>
@@ -82,3 +84,5 @@ void generateData(Eigen::Matrix<Type, 3, 4> &points_3d,
     points_2d.col(i) = pHom.col(i).hnormalized() + dist;
   }
 }
+
+#endif
